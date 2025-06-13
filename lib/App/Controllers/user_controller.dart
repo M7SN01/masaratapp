@@ -344,7 +344,9 @@ SELECT * FROM (
       var response = await dbServices.createRep(
         sqlStatment: """
       SELECT ITEM_ID,BARCODE,ITEM_NAME,ROUND(PRICE1, 4) PRICE1 ,  ROUND(PRICE_AFTR_VAT,4) PRICE_AFTR_VAT, MAIN_UNIT FROM ITEMS aa  
+     
       """,
+        // WHERE ROWNUM <1000
       );
       //Curnt_bal
       //,(SELECT CURNT_BAL FROM ITEMS_WHOUSE bb WHERE bb.WH_ID ='${stWhPrivList[0].whID}' AND bb.ITEM_ID=aa.ITEM_ID) CURNT_BAL

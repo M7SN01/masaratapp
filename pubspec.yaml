@@ -90,21 +90,21 @@ flutter:
   - family: Arial
     fonts:
       - asset: assets/fonts/Arial.ttf
-  - family: CairoPlay
-    fonts:
-      - asset: assets/fonts/CairoPlay-SemiBold.ttf
-      - asset: assets/fonts/CairoPlay-Regular.ttf
-      - asset: assets/fonts/CairoPlay-Bold.ttf
-  - family: Cairo
-    fonts:
-      - asset: assets/fonts/Cairo-SemiBold.ttf
-      - asset: assets/fonts/Cairo-Regular.ttf
-      - asset: assets/fonts/Cairo-Bold.ttf
-  - family: Amiri
-    fonts:
-      - asset: assets/fonts/Amiri-Italic.ttf
-      - asset: assets/fonts/Amiri-Regular.ttf
-      - asset: assets/fonts/Amiri-Bold.ttf
+  # - family: CairoPlay
+  #   fonts:
+  #     - asset: assets/fonts/CairoPlay-SemiBold.ttf
+  #     - asset: assets/fonts/CairoPlay-Regular.ttf
+  #     - asset: assets/fonts/CairoPlay-Bold.ttf
+  # - family: Cairo
+  #   fonts:
+  #     - asset: assets/fonts/Cairo-SemiBold.ttf
+  #     - asset: assets/fonts/Cairo-Regular.ttf
+  #     - asset: assets/fonts/Cairo-Bold.ttf
+  # - family: Amiri
+  #   fonts:
+  #     - asset: assets/fonts/Amiri-Italic.ttf
+  #     - asset: assets/fonts/Amiri-Regular.ttf
+  #     - asset: assets/fonts/Amiri-Bold.ttf
 
   
 #Run CMD to generate Splash screen

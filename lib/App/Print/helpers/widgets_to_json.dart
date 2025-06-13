@@ -9,11 +9,13 @@ Map<String, dynamic> textW(
   String fontWeight = "normal",
   String color = "#000000",
   String? fontFamily, // <-- add this
+  bool doubleToArabicWords = false,
 }) {
   return {
     "type": "text",
     "args": {
       "text": text,
+      "to_arabic_words": doubleToArabicWords,
       "textAlign": textAlign,
       "style": {
         "fontSize": fontSize,
@@ -28,8 +30,12 @@ Map<String, dynamic> textW(
 Map containerDecorationBorderW({
   double width = 1,
   String color = "#000000",
+  String borderType = "all",
+  // String borderTypesymmetricH = "symmetric_h",
+  // String borderTypesymmetricV = "symmetric_v",
 }) {
   return {
+    // "type": borderType,
     "color": color,
     "width": width,
   };
@@ -106,6 +112,12 @@ Map<String, dynamic> columnW({
   };
 }
 
+Map<String, dynamic> spacerW() {
+  return {
+    "type": "spacer",
+  };
+}
+
 Map<String, dynamic> imageW({
   double? width,
   double? height,
@@ -178,16 +190,149 @@ Map<String, dynamic> qrW({
   required String data,
   double? width = 100,
   double? height = 100,
+  double? imgWidth = 30,
+  double? imgHeight = 30,
+  double? imgborderRadius = 0,
+  String? assetsImage, //"assets/images/logo.png"
+  double? padding = 5,
+  String? borderColor = "#000000",
+  double? borderWidth = 0.5,
+  double? borderRadius = 0,
 }) {
   return {
     "type": "qr_code",
     "args": {
       "data": data,
       "width": width,
-      "height": width,
+      "height": height,
+      "imgwidth": imgWidth,
+      "imgheight": imgHeight,
+      "imgborderRadius": imgborderRadius,
+      if (assetsImage != null) "image": assetsImage,
+      "padding": padding,
+      "border": {"color": borderColor, "width": borderWidth},
+      "borderRadius": borderRadius,
     }
   };
 }
+
+//--------------------------------------- Table START -------------------------------------------
+
+Map<String, dynamic> tableWHeaderStyle({
+  double? fontSize = 12,
+  String? fontWeight,
+  String? color = "#000000",
+}) {
+  return {
+    "fontSize": fontSize,
+    if (fontWeight != null) "fontWeight": fontWeight,
+    "color": color,
+  };
+}
+
+Map<String, dynamic> tableWCellStyle({
+  double? fontSize = 10,
+  String? fontWeight,
+  String? color = "#000000",
+}) {
+  return {
+    "fontSize": fontSize,
+    if (fontWeight != null) "fontWeight": fontWeight,
+    "color": color,
+  };
+}
+
+Map<String, dynamic> tableWHeaderCellDecoration({
+  double? borderRadius = 0,
+  String? color = "#ffffff",
+  String? borderColor = "#000000",
+  double? borderWidth = 1,
+}) {
+  return {
+    "color": color,
+    "borderRadius": borderRadius,
+    "border_color": borderColor,
+    "border_width": borderWidth,
+  };
+}
+
+Map<String, dynamic> tableWCellDecoration({
+  double? borderRadius = 0,
+  String? color = "#ffffff",
+  String? borderColor = "#000000",
+  double? borderWidth = 1,
+}) {
+  return {
+    "color": color,
+    "borderRadius": borderRadius,
+    "border_color": borderColor,
+    "border_width": borderWidth,
+  };
+}
+
+Map<String, dynamic> tableWHeaderDecoration({
+  double? borderRadius = 0,
+  String? color = "#ffffff",
+  String? borderColor = "#000000",
+  double? borderWidth = 1,
+}) {
+  return {
+    "color": color,
+    "borderRadius": borderRadius,
+    "border_color": borderColor,
+    "border_width": borderWidth,
+  };
+}
+
+Map<String, dynamic> tableWOddRowDecoration({
+  double? borderRadius = 0,
+  String? color = "#ffffff", //#F6F6F6
+  String? borderColor = "#000000",
+  double? borderWidth = 1,
+}) {
+  return {
+    "color": color,
+    "borderRadius": borderRadius,
+    "border_color": borderColor,
+    "border_width": borderWidth,
+  };
+}
+
+Map<String, dynamic> tableWHeadersListOfMap({
+  required String name,
+  double? width,
+}) {
+  return {
+    "name": name,
+    if (width != null) "width": width,
+  };
+}
+
+Map<String, dynamic> tableW({
+  required List<Map<String, dynamic>> tableWHeadersListOfMap,
+  Map<String, dynamic>? tableWHeaderStyle,
+  Map<String, dynamic>? tableWHeaderCellDecoration,
+  Map<String, dynamic>? tableWCellStyle,
+  Map<String, dynamic>? tableWCellDecoration,
+  Map<String, dynamic>? tableWRowDecoration,
+  Map<String, dynamic>? tableWOddRowDecoration,
+  Map<String, dynamic>? tableWHeaderDecoration,
+}) {
+  return {
+    "type": "table",
+    "args": {
+      "headers": tableWHeadersListOfMap,
+      "headerStyle": tableWHeaderStyle,
+      "headerCellDecoration": tableWHeaderCellDecoration,
+      "headerDecoration": tableWHeaderDecoration,
+      "cellStyle": tableWCellStyle,
+      "cellDecoration": tableWCellDecoration,
+      "rowDecoration": tableWRowDecoration,
+      "oddRowDecoration": tableWOddRowDecoration,
+    }
+  };
+}
+//----------------------- TABLE END --------------------------
 
 /*
 Map<String,dynamic> qrImageW({

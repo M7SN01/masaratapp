@@ -24,7 +24,7 @@ class Services {
     // print(url);
     // print(sql);
     // print(dotenv.env['URL']!);
-    final response = await http.post(Uri.parse(url), body: sql).timeout(Duration(seconds: 20));
+    final response = await http.post(Uri.parse(url), body: sql); //.timeout(Duration(seconds: 20));
     if (response.statusCode == 200) {
       try {
         final jsonResponse = json.decode(response.body);

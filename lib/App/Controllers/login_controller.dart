@@ -120,7 +120,7 @@ class LoginController extends GetxController {
     //start loading
     isLogining = true;
     update();
-    UserController userController = Get.put(UserController());
+
     try {
       //Check if empty fildes
       if (userID.text == "" || password.text == "") {
@@ -165,7 +165,7 @@ class LoginController extends GetxController {
           print("Loged in user is : ${jsonData[0]['U_ID'].toString()}  -- ${jsonData[0]['U_NAME'].toString()}");
           logedInuserId = jsonData[0]['U_ID'].toString();
           logedInuserName = jsonData[0]['U_NAME'].toString();
-
+          UserController userController = Get.put(UserController());
           await userController.getAllPrivileges();
 
           Get.to(() => Home()); //to find data from any where
@@ -182,7 +182,7 @@ class LoginController extends GetxController {
         }
       }
     } catch (e) {
-      userController.appLog += "${e.toString()} \n------------------------------------------\n";
+      // userController.appLog += "${e.toString()} \n------------------------------------------\n";
       showMessage(color: secondaryColor, titleMsg: "posting error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 1000);
 
       isLogining = false;

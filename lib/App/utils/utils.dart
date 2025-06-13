@@ -35,38 +35,40 @@ String convertToArabicWords(double amount) {
       return rest == 0 ? hundreds[hundred] : '${hundreds[hundred]} و ${numberToWords(rest)}';
     }
 
-    if (number < 10000) {
-      int thousand = number ~/ 1000;
+    if (number < 1000000) {
+      int thousands = number ~/ 1000;
       int rest = number % 1000;
 
-      String thousandWord = '';
-      if (thousand == 1) {
+      String thousandWord;
+      if (thousands == 1) {
         thousandWord = 'ألف';
-      } else if (thousand == 2)
+      } else if (thousands == 2) {
         thousandWord = 'ألفان';
-      else if (thousand <= 10)
-        thousandWord = '${numberToWords(thousand)} آلاف';
-      else
-        thousandWord = '${numberToWords(thousand)} ألف';
+      } else if (thousands <= 10) {
+        thousandWord = '${numberToWords(thousands)} آلاف';
+      } else {
+        thousandWord = '${numberToWords(thousands)} ألف';
+      }
 
       return rest == 0 ? thousandWord : '$thousandWord و ${numberToWords(rest)}';
     }
 
-    if (number < 100000) {
-      int tensThousands = number ~/ 1000;
-      int rest = number % 1000;
+    if (number < 1000000000) {
+      int millions = number ~/ 1000000;
+      int rest = number % 1000000;
 
-      String thousandWord = '';
-      if (tensThousands == 1) {
-        thousandWord = 'ألف';
-      } else if (tensThousands == 2)
-        thousandWord = 'ألفان';
-      else if (tensThousands <= 10)
-        thousandWord = '${numberToWords(tensThousands)} آلاف';
-      else
-        thousandWord = '${numberToWords(tensThousands)} ألف';
+      String millionWord;
+      if (millions == 1) {
+        millionWord = 'مليون';
+      } else if (millions == 2) {
+        millionWord = 'مليونان';
+      } else if (millions <= 10) {
+        millionWord = '${numberToWords(millions)} ملايين';
+      } else {
+        millionWord = '${numberToWords(millions)} مليون';
+      }
 
-      return rest == 0 ? thousandWord : '$thousandWord و ${numberToWords(rest)}';
+      return rest == 0 ? millionWord : '$millionWord و ${numberToWords(rest)}';
     }
 
     return number.toString(); // fallback

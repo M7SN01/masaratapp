@@ -1,5 +1,8 @@
 // import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
+import 'package:masaratapp/App/utils/utils.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 // import 'package:printing/printing.dart';
@@ -26,6 +29,27 @@ String fixFinalYaa(String text) {
   return fixedWords.join(' ');
 }
 
+Future<List<pw.Widget>> renderToPdfWidgets(
+  Map<String, dynamic> map,
+  Map<String, dynamic> variables,
+) async {
+  final widget = await renderToPdfWidget(map, variables);
+
+  if (widget is pw.Column) return widget.children;
+  if (widget is pw.Row) return [widget];
+  if (widget is pw.Table) return [widget];
+  if (widget is pw.Center) return [widget];
+  if (widget is pw.Spacer) return [widget];
+
+  if (widget is pw.Container) {
+    final child = widget.child;
+    if (child is pw.Column) return child.children;
+    return [widget];
+  }
+
+  return [widget];
+}
+
 Future<pw.Widget> renderToPdfWidget(
   Map<String, dynamic> map,
   Map<String, dynamic> variables,
@@ -45,8 +69,14 @@ Future<pw.Widget> renderToPdfWidget(
     case 'text':
       var args = map['args'];
       var style = args['style'] ?? {};
+      String txt = "";
+      if (!args['to_arabic_words']) {
+        txt = interpolate(args['text']);
+      } else {
+        txt = convertToArabicWords(double.parse(interpolate(args['text'])));
+      }
       return pw.Text(
-        fixFinalYaa(interpolate(args['text'])), //  args['text'] ?? '',
+        fixFinalYaa(txt), //  args['text'] ?? '',
         textAlign: parseTextAlign(args['textAlign']),
         style: pw.TextStyle(
           fontSize: (style['fontSize'] as int?)?.toDouble(),
@@ -110,7 +140,9 @@ Future<pw.Widget> renderToPdfWidget(
       return pw.Center(
         child: args['child'] != null ? await renderToPdfWidget(Map<String, dynamic>.from(map['args']['child']), variables) : null,
       );
-
+    case 'spacer':
+      // var args = map['args'];
+      return pw.Spacer();
     case 'svg_image':
       var args = map['args'];
       final raw = await rootBundle.loadString(args['name']);
@@ -158,6 +190,7 @@ Future<pw.Widget> renderToPdfWidget(
         padding: const pw.EdgeInsets.all(10),
       );
       */
+
     case 'qr_code':
       final args = map['args'];
       final imgBytes = args['image'] != null ? pw.MemoryImage(await loadAssetImage(args['image'])) : null;
@@ -270,6 +303,110 @@ Future<pw.Widget> renderToPdfWidget(
       }
 
       return pw.Column(children: repeatedWidgets);
+
+    case 'table':
+      final dataList = (variables['repeat_element'] as List).cast<Map<String, dynamic>>();
+
+      // final columns = map['args']['columns'] as List<dynamic>;
+      final columns = <String>{for (var row in dataList) ...row.keys}.toList().reversed.toList();
+      final headers = map['args']['headers'].reversed.toList();
+
+      return pw.TableHelper.fromTextArray(
+        headers: headers.map((element) => interpolate(element['name'].toString())).toList(), // Make sure headers are ordered RTL manually
+        data: dataList.map((row) => columns.map((h) => row[h].toString()).toList()).toList(),
+        //-----------Constant--Dont Change-------------
+        border: const pw.TableBorder(),
+        headerAlignment: pw.Alignment.center,
+        cellAlignment: pw.Alignment.center,
+        headerDirection: pw.TextDirection.rtl, // To support Arabic Direction
+        // defaultColumnWidth: const pw.FlexColumnWidth(),
+        //---------------------------------------------
+
+        columnWidths: {
+          for (int i = 0; i < headers.length; i++)
+            i: headers[i]['width'] != null
+                ? pw.FixedColumnWidth(
+                    (headers[i]['width']).toDouble(),
+                  )
+                : pw.FlexColumnWidth()
+        },
+
+//------------------------------------HEADER STYLE------------------------------------
+
+        headerStyle: map['args']['headerStyle'] != null
+            ? pw.TextStyle(
+                fontSize: (map['args']['headerStyle']['fontSize'] ?? 12).toDouble(),
+                fontWeight: map['args']['headerStyle']['fontWeight'] == "bold" ? pw.FontWeight.bold : pw.FontWeight.normal,
+                color: PdfColor.fromHex(map['args']['headerStyle']['color'] ?? "#00000"),
+              )
+            : null,
+
+        headerCellDecoration: map['args']['headerCellDecoration'] != null
+            ? pw.BoxDecoration(
+                color: PdfColor.fromHex(map['args']['headerCellDecoration']['color']),
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(map['args']['headerCellDecoration']['borderRadius'])),
+                border: pw.Border.all(
+                  color: PdfColor.fromHex(map['args']['headerCellDecoration']['border_color']),
+                  width: map['args']['headerCellDecoration']['border_width'],
+                ),
+              )
+            : null,
+
+        headerDecoration: map['args']['headerDecoration'] != null
+            ? pw.BoxDecoration(
+                color: PdfColor.fromHex(map['args']['headerDecoration']['color']),
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(map['args']['headerDecoration']['borderRadius'])),
+                border: pw.Border.all(
+                  color: PdfColor.fromHex(map['args']['headerDecoration']['border_color']),
+                  width: map['args']['headerDecoration']['border_width'],
+                ),
+              )
+            : null,
+
+//------------------------------------Rows STYLE-----------------------
+
+        cellStyle: map['args']['cellStyle'] != null
+            ? pw.TextStyle(
+                fontSize: (map['args']['cellStyle']['fontSize'] ?? 12).toDouble(),
+                fontWeight: map['args']['cellStyle']['fontWeight'] == "bold" ? pw.FontWeight.bold : pw.FontWeight.normal,
+                color: PdfColor.fromHex(map['args']['cellStyle']['color'] ?? "#00000"),
+              )
+            : null,
+
+        cellDecoration: map['args']['cellDecoration'] != null
+            ? (index, data, rowNum) => pw.BoxDecoration(
+                  color: PdfColor.fromHex(map['args']['cellDecoration']['color']),
+                  borderRadius: pw.BorderRadius.all(pw.Radius.circular(map['args']['cellDecoration']['borderRadius'])),
+                  border: pw.Border.all(
+                    color: PdfColor.fromHex(map['args']['cellDecoration']['border_color']),
+                    width: map['args']['cellDecoration']['border_width'],
+                  ),
+                )
+            : null,
+
+        rowDecoration: map['args']['rowDecoration'] != null
+            ? pw.BoxDecoration(
+                color: PdfColor.fromHex(map['args']['rowDecoration']['color']),
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(map['args']['rowDecoration']['borderRadius'])),
+                border: pw.Border.all(
+                  color: PdfColor.fromHex(map['args']['rowDecoration']['border_color']),
+                  width: map['args']['rowDecoration']['border_width'],
+                ),
+              )
+            : null,
+
+        oddRowDecoration: map['args']['oddRowDecoration'] != null
+            ? pw.BoxDecoration(
+                color: PdfColor.fromHex(map['args']['oddRowDecoration']['color']),
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(map['args']['oddRowDecoration']['borderRadius'])),
+                border: pw.Border.all(
+                  color: PdfColor.fromHex(map['args']['oddRowDecoration']['border_color']),
+                  width: map['args']['oddRowDecoration']['border_width'],
+                ),
+              )
+            : null,
+      );
+
     default:
       return pw.SizedBox();
   }
@@ -390,5 +527,32 @@ pw.BoxDecoration? parseBoxDecoration(Map? data) {
             // style: data['border']['style'] == "dotted" ? BorderStyle.solid : BorderStyle.solid,
           )
         : null,
+
+    //trying symmetric border
+    /*
+ // borderRadius: data['borderRadius'] != null ? pw.BorderRadius.circular((data['borderRadius']['radius'] as num?)?.toDouble() ?? 0) : null,
+    border: data['border'] != null
+        ? data['border']["type"] == "all"
+            ? pw.Border.all(
+                color: parseHexColor(data['border']['color']) ?? PdfColors.black,
+                width: (data['border']['width'] as num?)?.toDouble() ?? 1,
+                // style: data['border']['style'] == "dotted" ? BorderStyle.solid : BorderStyle.solid,
+              )
+            : pw.Border.symmetric(
+                vertical: data['border']["type"] == "symmetric_v"
+                    ? pw.BorderSide(
+                        color: parseHexColor(data['border']['color']) ?? PdfColors.black,
+                        width: (data['border']['width'] as num?)?.toDouble() ?? 1,
+                      )
+                    : pw.BorderSide.none,
+                horizontal: data['border']["type"] == "symmetric_h"
+                    ? pw.BorderSide(
+                        color: parseHexColor(data['border']['color']) ?? PdfColors.black,
+                        width: (data['border']['width'] as num?)?.toDouble() ?? 1,
+                      )
+                    : pw.BorderSide.none,
+              )
+        : null,
+        */
   );
 }

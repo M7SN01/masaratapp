@@ -168,7 +168,7 @@ class Invoice extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   controller.isPostedBefor
-                      ? Text(controller.savedInvoiceId, style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.center)
+                      ? Text(" ${controller.selectedInvType} ( ${controller.savedInvoiceId} )", style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.center)
                       : Expanded(
                           child: TextButton(
                             onPressed: () {
@@ -185,6 +185,38 @@ class Invoice extends StatelessWidget {
                             child: Text("اضافة صنف", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                           ),
                         ),
+                ],
+              ),
+              Divider(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 60,
+                      child: TextFormField(
+                        controller: controller.invDescription,
+                        enabled: !controller.isPostedBefor,
+                        keyboardType: TextInputType.text,
+                        textAlign: TextAlign.center,
+                        decoration: const InputDecoration(
+                          labelText: "الوصف",
+                          floatingLabelAlignment: FloatingLabelAlignment.center,
+                          labelStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: primaryColor,
+                          ),
+                          border: OutlineInputBorder(gapPadding: 10, borderSide: BorderSide(color: primaryColor, width: 1), borderRadius: BorderRadius.all(Radius.circular(8))),
+                        ),
+                        cursorColor: primaryColor,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'يرجى ادخال الوصف';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ),
                 ],
               ),
 

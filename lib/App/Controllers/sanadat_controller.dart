@@ -77,7 +77,7 @@ class SanadatController extends GetxController {
           // tableHeader: hesders,
           // tableData: data,
           jsonLayout: getTestMap(),
-          isfromJson: true,
+
           variables: {},
         ),
       );

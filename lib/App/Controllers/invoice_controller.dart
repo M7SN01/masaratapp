@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:masaratapp/App/samples/slmaples.dart';
 import '../Controllers/user_controller.dart';
 import '../Widget/widget.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -35,6 +36,8 @@ class InvoiceController extends GetxController {
   List<PlutoRow> rows = [];
 
   String savedInvoiceId = "";
+  String savedInvoiceDate = "";
+  TextEditingController invDescription = TextEditingController();
 
   @override
   void onInit() {
@@ -558,6 +561,81 @@ class InvoiceController extends GetxController {
   TextEditingController cusArds = TextEditingController();
   TextEditingController cusTaxNo = TextEditingController();
 
+  Map<String, dynamic> getVariablesData() {
+    List<Map<String, dynamic>> tmp = [];
+    num ttlQty = 0;
+    double ttlPrice = 0;
+    double ttlVat = 0;
+    double ttlPriceAftrVat = 0;
+
+    for (var row in rows) {
+      tmp.add({
+        "srl": row.sortIdx + 1,
+        "item_id": row.cells['ITEM_ID']!.value,
+        "item_name": row.cells['ITEM_NAME']!.value,
+        "unit": row.cells['UNIT']!.value,
+        "item_qty": row.cells['QTY']!.value,
+        "item_price": row.cells['PRICE']!.value,
+        "item_vat": row.cells['PRICE_AFTR_VAT']!.value,
+        "item_total": row.cells['TOTAL']!.value,
+      });
+      ttlQty += row.cells['QTY']!.value;
+      ttlPrice += row.cells['PRICE']!.value * row.cells['QTY']!.value;
+      ttlVat += row.cells['PRICE']!.value * row.cells['QTY']!.value * 0.15;
+      ttlPriceAftrVat += row.cells['TOTAL']!.value;
+    }
+    //repeat_element
+    // variables = {...controller.variables, "repeat_element": tmp};
+    return {
+      "a_comp_name": userController.compData.aCompName,
+      "a_activity": userController.compData.aActivity,
+      "commercial_reg": userController.compData.commercialReg,
+      "tax_no": userController.compData.taxNo,
+      "mobile_no": userController.compData.tel,
+      "e_comp_name": userController.compData.eCompName,
+      "e_activity": userController.compData.eActivity,
+      //
+      "t_inv_type": "نوع الفاتورة",
+      "inv_type": selectedInvType,
+      "t_inv_no": "رقم الفاتورة",
+      "inv_no": savedInvoiceId,
+      "t_inv_date": "التاريخ",
+      "inv_date": savedInvoiceDate,
+      "t_cus_no": "عميل رقم",
+      "cus_no": selecetdCustomer!.cusId.toString(),
+      "t_cus_name": "اسم العميل",
+      "cus_name": selecetdCustomer!.cusName,
+      "t_cus_adrs": "العنوان",
+      "cus_adrs": selecetdCustomer!.adrs,
+      "t_cus_mobile": "رقم الهاتف",
+      "cus_mobile": selecetdCustomer!.mobl,
+      "t_cus_tax_no": "الرقم الضريبي",
+      "cus_tax_no": selecetdCustomer!.taxNo,
+      "t_inv_desc": "الوصف",
+      "inv_desc": invDescription.text,
+      //
+      "h_srl": "N.",
+      "h_item_id": "رقم الصنف",
+      "h_item_name": "اسم الصنف",
+      "h_unit": "العبوة",
+      "h_item_qty": "الكمية",
+      "h_item_price": "السعر",
+      "h_item_vat": "س.ش.ض",
+      "h_item_total": "الاجمالي",
+      //
+      "repeat_element": tmp,
+      //
+      "t_ttl_qty": "اجمالي الكمية",
+      "ttl_qty": ttlQty.toString(),
+      "t_ttl_price": "الاجمالي",
+      "ttl_price": ttlPrice.toStringAsFixed(2),
+      "t_ttl_vat": "الضريبة 15%",
+      "ttl_vat": ttlVat.toStringAsFixed(2),
+      "t_ttl_aftr_vat": "الاجمالي شامل الضريبة",
+      "ttl_aftr_vat": ttlPriceAftrVat.toStringAsFixed(2),
+    };
+  }
+
   Future<void> printInvoiceDirectly() async {
     // isPostingToApi = false;
     // update();  //only for stop loading   ... for test only
@@ -576,11 +654,15 @@ class InvoiceController extends GetxController {
 
   showInvoiceInPdfPreviewer() {
     if (isPostedBefor) {
-      Map x = tableDataToListData(tableRows: rows, tableColumns: columns);
-
-      List<String> hesders = x['tableColumns'];
-      List<List<dynamic>> data = x["tableRows"];
-      Get.to(() => PdfPreviewScreen(tableHeader: hesders, tableData: data, variables: const {}));
+      // Map x = tableDataToListData(tableRows: rows, tableColumns: columns);
+      // List<String> hesders = x['tableColumns'];
+      // List<List<dynamic>> data = x["tableRows"];
+      //Get.to(() => PdfPreviewScreen(tableHeader: hesders, tableData: data, variables: const {}));
+      PrintSamples ps = PrintSamples(compData: userController.compData);
+      Get.to(() => PdfPreviewScreen(
+            jsonLayout: ps.getSlsShowSample,
+            variables: getVariablesData(),
+          ));
     } else {
       showMessage(color: secondaryColor, titleMsg: "يرجى حفظ الفاتورة", titleFontSize: 18, durationMilliseconds: 1000);
     }
@@ -699,8 +781,8 @@ class InvoiceController extends GetxController {
     );
   }
 
-  String userName = ""; //temp  get it after login
-  int userId = 1;
+  // String userName = ""; //temp  get it after login
+  // int userId = 1;
   Future<void> postInvoiceToServer() async {
     isPostingToApi = true;
     update();
@@ -758,8 +840,8 @@ class InvoiceController extends GetxController {
           '$selectedInvTypeId',last_serial,TO_DATE('${DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now())}', 'MM/DD/YYYY HH24:MI:SS') 
           ${selecetdCustomer!.isNewCus ? " " : " ,${selecetdCustomer!.cusId} "} 
           ,$total
-          ,'$selectedInvType - $userName','${selecetdCustomer!.cusName}','${selecetdCustomer!.adrs}','${selecetdCustomer!.mobl}'
-          ,$userId,TO_DATE('${DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now())}', 'MM/DD/YYYY HH24:MI:SS') 
+          ,'$selectedInvType - ${userController.uName}','${selecetdCustomer!.cusName}','${selecetdCustomer!.adrs}','${selecetdCustomer!.mobl}'
+          ,${userController.uId},TO_DATE('${DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now())}', 'MM/DD/YYYY HH24:MI:SS') 
           ,${selecetdCustomer!.vatStatus},${selecetdCustomer!.vatPr}
           ,$vat
           ,1
@@ -775,7 +857,7 @@ class InvoiceController extends GetxController {
         """;
 
       // print(vatDetails);
-      debugPrint(vatDetails.toString(), wrapWidth: 1024);
+      // debugPrint(vatDetails.toString(), wrapWidth: 1024);
       // print(stmt);
       var response = await dbServices.createRep(sqlStatment: stmt);
       // print("****************** $response   *************");
@@ -784,10 +866,12 @@ class InvoiceController extends GetxController {
       if (response.isEmpty) {
         isPostedBefor = true;
 
-        response = await dbServices.createRep(sqlStatment: "SELECT MAX(R_ID) R_ID  FROM SLS_SHOW_HD WHERE USR_INS=$userId");
+        response = await dbServices.createRep(sqlStatment: "SELECT MAX(R_ID) R_ID  FROM SLS_SHOW_HD WHERE USR_INS=${userController.uId}");
 
         // print("****************** ${response[0]['R_ID']}   *************");
-        savedInvoiceId = "عرض سعر رقم ( ${response[0]['R_ID'].toStringAsFixed(0)} )";
+        savedInvoiceId = response[0]['R_ID'].toStringAsFixed(0);
+        savedInvoiceDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        showMessage(color: saveColor, titleMsg: "تم الحفظ", titleFontSize: 18, durationMilliseconds: 1000);
       }
     } catch (e) {
       isPostingToApi = false;
@@ -807,6 +891,7 @@ class InvoiceController extends GetxController {
     selectedInvTypeId = null;
     selectedInvType = null;
     savedInvoiceId = "";
+    invDescription.clear();
 
     update();
   }

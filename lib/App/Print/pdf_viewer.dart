@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:masaratapp/App/Controllers/user_controller.dart';
+import 'package:masaratapp/App/samples/slmaples.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -9,59 +11,25 @@ import 'Controller/pdf_preview_controller.dart';
 import 'helpers/json_to_pdf_widgets.dart';
 
 class PdfPreviewScreen extends StatelessWidget {
-  final bool isfromJson;
   Map<String, dynamic>? jsonLayout;
-  final List<dynamic>? tableHeader;
-  final List<List<dynamic>>? tableData;
   final Map<String, dynamic> variables;
 
   PdfPreviewScreen({
     super.key,
     this.jsonLayout,
-    this.tableHeader,
-    this.tableData,
-    this.isfromJson = false,
     required this.variables,
   });
 
   @override
   Widget build(BuildContext context) {
+    var ss = Get.find<UserController>();
+    jsonLayout = PrintSamples(compData: ss.compData).getSlsShowSample;
     return GetBuilder<PreviewController>(
       init: PreviewController(),
       builder: (controller) => Scaffold(
         appBar: AppBar(
           title: const Text('Preview PDF'),
           centerTitle: true,
-          /*
-          actions: [
-            IconButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) {
-                      return AlertDialog(
-                        title: const Text("Choose Font"),
-                        content: DropdownButton<String>(
-                          value: controller.selectedFont,
-                          items: controller.fontNames.map((font) {
-                            return DropdownMenuItem(
-                              value: font,
-                              child: Text(font),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            controller.selectedFont = value!;
-                            controller.update();
-                            Navigator.of(ctx).pop();
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
-                icon: Icon(Icons.font_download))
-          ],
-        */
         ),
         body: PdfPreview(
           padding: EdgeInsets.zero,
@@ -117,79 +85,33 @@ class PdfPreviewScreen extends StatelessWidget {
                 boldItalic: font,
               ),
             );
-            if (isfromJson) {
-              final xWidget = await renderToPdfWidget(jsonLayout ?? {}, variables);
-              pdf.addPage(
-                pw.Page(
-                  // pageFormat: PdfPageFormat(PdfPageFormat.a4.width, PdfPageFormat.a4.availableHeight
-                  //     // (jsonLayout!['args']['w'] ?? 80) * PdfPageFormat.mm,
-                  //     // jsonLayout!['args']['h'] != null ? jsonLayout!['args']['h'] * PdfPageFormat.mm : PdfPageFormat.roll80.availableHeight,
 
-                  //     // 80 * PdfPageFormat.mm, PdfPageFormat.roll80.availableHeight
-                  //     ), // or any height,
+            // final xWidget = await renderToPdfWidget(jsonLayout ?? {}, variables);
+            // pdf.addPage(
+            //   pw.Page(
+            //     pageFormat: PdfPageFormat(PdfPageFormat.a4.width, (variables['repeat_element'] as List).length * 120 + 200),
+            //     //     // (jsonLayout!['args']['w'] ?? 80) * PdfPageFormat.mm,
+            //     //     // jsonLayout!['args']['h'] != null ? jsonLayout!['args']['h'] * PdfPageFormat.mm : PdfPageFormat.roll80.availableHeight,
 
-                  textDirection: pw.TextDirection.rtl,
-                  orientation: pw.PageOrientation.portrait,
-                  margin: const pw.EdgeInsets.only(left: 5, right: 5, top: 5, bottom: 5),
-                  build: (context) => xWidget,
-                ),
-              );
-            } else if (tableData != null) {
-              pdf.addPage(
-                pw.MultiPage(
-                  maxPages: 1000,
-                  textDirection: pw.TextDirection.rtl,
-                  // orientation: landscapeOrientation ? PageOrientation.landscape : PageOrientation.portrait,
-                  margin: const pw.EdgeInsets.all(10),
+            //     //     // 80 * PdfPageFormat.mm, PdfPageFormat.roll80.availableHeight
+            //     //     ), // or any height,
 
-                  build: (context) {
-                    return [
-                      pw.TableHelper.fromTextArray(
-                        border: pw.TableBorder.all(width: 0.5),
+            //     textDirection: pw.TextDirection.rtl,
+            //     orientation: pw.PageOrientation.portrait,
+            //     margin: const pw.EdgeInsets.only(left: 5, right: 5, top: 5, bottom: 5),
+            //     build: (context) => xWidget,
+            //   ),
+            // );
+            final widgets = await renderToPdfWidgets(jsonLayout ?? {}, variables);
 
-                        //Header style
-                        headerStyle: pw.TextStyle(
-                          // font: font,
-                          fontSize: 14,
-                          fontWeight: pw.FontWeight.bold,
-                          color: PdfColors.white,
-                        ),
-                        // headerAlignment: pw.Alignment.centerRight,
-                        headerDecoration: pw.BoxDecoration(color: PdfColor.fromHex('#7C4DFF')),
-                        headerAlignments: {for (int i = 0; i < (tableHeader?.length ?? 0); i++) i: pw.Alignment.center},
-
-                        //cell Style
-                        cellAlignment: pw.Alignment.center,
-                        // headerDirection: pw.TextDirection.rtl, //for arabic letter
-                        cellStyle: pw.TextStyle(
-                          // font: font,
-                          fontSize: 10,
-                        ),
-
-                        defaultColumnWidth: const pw.FlexColumnWidth(),
-
-                        cellFormat: (index, data) {
-                          if (data is num) {
-                            final formatter = NumberFormat.currency(locale: 'en_US', symbol: '');
-                            return formatter.format(data);
-                          }
-                          return data.toString();
-                        },
-
-                        rowDecoration: const pw.BoxDecoration(color: PdfColors.white),
-                        oddRowDecoration: pw.BoxDecoration(color: PdfColor.fromHex('#F6F6F6')),
-
-                        headers: tableHeader,
-                        data: tableData ?? [],
-                      )
-                      // _contentTable(context, headers, data)
-                    ];
-                  },
-                ),
-              );
-            } else {
-              throw "you must chose json or  pass table data";
-            }
+            pdf.addPage(
+              pw.MultiPage(
+                textDirection: pw.TextDirection.rtl,
+                orientation: pw.PageOrientation.portrait,
+                margin: const pw.EdgeInsets.only(left: 5, right: 5, top: 5, bottom: 5),
+                build: (context) => widgets,
+              ),
+            );
 
             return pdf.save();
           },
