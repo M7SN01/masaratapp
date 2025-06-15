@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
 import 'package:masaratapp/App/Controllers/user_controller.dart';
 import 'package:masaratapp/App/samples/slmaples.dart';
 import 'package:pdf/pdf.dart';
@@ -23,7 +23,7 @@ class PdfPreviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var ss = Get.find<UserController>();
-    jsonLayout = PrintSamples(compData: ss.compData).getSlsShowSample;
+    jsonLayout = PrintSamples(compData: ss.compData).getCusKshfSample;
     return GetBuilder<PreviewController>(
       init: PreviewController(),
       builder: (controller) => Scaffold(

@@ -1,7 +1,7 @@
 // import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:intl/intl.dart';
+// import 'package:flutter/widgets.dart';
+// import 'package:intl/intl.dart';
 import 'package:masaratapp/App/utils/utils.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -328,7 +328,9 @@ Future<pw.Widget> renderToPdfWidget(
                 ? pw.FixedColumnWidth(
                     (headers[i]['width']).toDouble(),
                   )
-                : pw.FlexColumnWidth()
+                : headers[i]['FlexColumnWidth'] != null
+                    ? pw.FlexColumnWidth(headers[i]['FlexColumnWidth'] ?? 1.0)
+                    : pw.IntrinsicColumnWidth()
         },
 
 //------------------------------------HEADER STYLE------------------------------------

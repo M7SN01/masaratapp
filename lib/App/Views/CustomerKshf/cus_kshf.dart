@@ -139,8 +139,7 @@ class CustomerKshf extends StatelessWidget {
                               child: const Icon(Icons.clear, color: Colors.white),
                             ),
                             onTap: () {
-                              controller.selecetdCustomer = null;
-                              controller.update();
+                              controller.clearData();
                             },
                           ),
                         )
@@ -180,6 +179,7 @@ class CustomerKshf extends StatelessWidget {
                                     originalData: controller.cusData.map((e) => SearchList(id: e.cusId, name: e.cusName)).toList(),
                                     onSelected: (selectedItem) {
                                       controller.selecetdCustomer = controller.cusData.firstWhere((e) => e.cusId == selectedItem.id);
+                                      controller.selecetdCustomer!.previousBalance = null;
                                       // controller.selectedCustomer = selectedItem.name;
                                       // controller.selectedInvCustomerId = selectedItem.name;
                                       controller.update();
@@ -231,11 +231,22 @@ class CustomerKshf extends StatelessWidget {
                   ? Column(
                       children: [
                         Divider(height: 8),
-                        Text(
-                          controller.selecetdCustomer!.cusName,
-                          style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold, fontSize: 16),
-                          textAlign: TextAlign.center,
-                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text(
+                              controller.selecetdCustomer!.cusName,
+                              style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold, fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                            if (controller.selecetdCustomer!.previousBalance != null)
+                              Text(
+                                "الرصيد السابق  :  ${controller.selecetdCustomer!.previousBalance!.toStringAsFixed(2)}",
+                                style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold, fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                          ],
+                        )
                       ],
                     )
                   : SizedBox(),
@@ -293,17 +304,33 @@ class CustomerKshf extends StatelessWidget {
             ],
           ),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+        floatingActionButton: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+          child: IconButton(
+            onPressed: () {
+              controller.printKshf();
+            },
+            icon: Icon(
+              controller.rows.isEmpty ? Icons.print_disabled : Icons.print,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ),
     );
   }
 }
 
 class LoadingDotsText extends StatefulWidget {
+  const LoadingDotsText({super.key});
+
   @override
-  _LoadingDotsTextState createState() => _LoadingDotsTextState();
+  LoadingDotsTextState createState() => LoadingDotsTextState();
 }
 
-class _LoadingDotsTextState extends State<LoadingDotsText> {
+class LoadingDotsTextState extends State<LoadingDotsText> {
   int dotCount = 0;
   Timer? _timer;
 

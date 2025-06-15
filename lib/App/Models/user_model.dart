@@ -96,6 +96,7 @@ class CusDataModel {
   final int? vatStatus;
   final int vatPr;
   final bool isNewCus;
+  double? previousBalance;
 
   CusDataModel({
     required this.cusId,
@@ -111,7 +112,43 @@ class CusDataModel {
     this.vatStatus,
     this.vatPr = 15,
     this.isNewCus = false,
+    this.previousBalance,
   });
+/*
+  CusDataModel copyWith({
+    int? cusId,
+    String? cusName,
+    String? mobl,
+    String? adrs,
+    String? taxNo,
+    int? slsManId,
+    int? stoped,
+    double? latitude,
+    double? longitude,
+    int? visitCnt,
+    int? vatStatus,
+    int? vatPr,
+    bool? isNewCus,
+    double? previousBalance,
+  }) {
+    return CusDataModel(
+      cusId: cusId ?? this.cusId,
+      cusName: cusName ?? this.cusName,
+      mobl: mobl ?? this.mobl,
+      adrs: adrs ?? this.adrs,
+      taxNo: taxNo ?? this.taxNo,
+      slsManId: slsManId ?? this.slsManId,
+      stoped: stoped ?? this.stoped,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      visitCnt: visitCnt ?? this.visitCnt,
+      vatStatus: vatStatus ?? this.vatStatus,
+      vatPr: vatPr ?? this.vatPr,
+      isNewCus: isNewCus ?? this.isNewCus,
+      previousBalance: previousBalance ?? this.previousBalance,
+    );
+  }
+*/
 }
 
 //

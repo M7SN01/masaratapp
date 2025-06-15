@@ -301,10 +301,13 @@ Map<String, dynamic> tableWOddRowDecoration({
 Map<String, dynamic> tableWHeadersListOfMap({
   required String name,
   double? width,
+  bool isFlex = false,
+  double flexColumnWidth = 1,
 }) {
   return {
     "name": name,
     if (width != null) "width": width,
+    if (isFlex) "FlexColumnWidth": flexColumnWidth,
   };
 }
 

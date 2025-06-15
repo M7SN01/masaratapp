@@ -62,8 +62,9 @@ class InvoiceController extends GetxController {
           child: SizedBox(
             width: 120,
             child: TextButton(
-              onPressed: () async {
-                await printInvoiceDirectly();
+              onPressed: () {
+                showInvoiceInPdfPreviewer();
+                // await printInvoiceDirectly();
               },
               style: TextButton.styleFrom(maximumSize: Size(Get.width, Get.height), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), backgroundColor: primaryColor),
               child: Icon(isPostedBefor ? Icons.print_rounded : Icons.print_disabled_rounded, color: isPostedBefor ? Colors.white : disabledColor),
@@ -636,6 +637,7 @@ class InvoiceController extends GetxController {
     };
   }
 
+/*
   Future<void> printInvoiceDirectly() async {
     // isPostingToApi = false;
     // update();  //only for stop loading   ... for test only
@@ -651,7 +653,7 @@ class InvoiceController extends GetxController {
       showMessage(color: secondaryColor, titleMsg: "يرجى حفظ الفاتورة", titleFontSize: 18, durationMilliseconds: 1000);
     }
   }
-
+*/
   showInvoiceInPdfPreviewer() {
     if (isPostedBefor) {
       // Map x = tableDataToListData(tableRows: rows, tableColumns: columns);
