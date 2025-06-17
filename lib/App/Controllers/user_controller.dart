@@ -4,13 +4,13 @@ import '../Controllers/login_controller.dart';
 import '../Models/user_model.dart';
 import '../Services/api_db_services.dart';
 
-import '../Variable/global_variable.dart';
+// import '../Variable/global_variable.dart';
 // import '../Variable/global_variable.dart';
 
 class UserController extends GetxController {
   late LoginController loginController;
 
-  GlobalVariable globalVariable = GlobalVariable();
+  // GlobalVariable globalVariable = GlobalVariable();
   final Services dbServices = Services();
 
   //--------------------------------------
@@ -40,11 +40,11 @@ class UserController extends GetxController {
     if (lst.length > 1 && needOnlyOneRow) {
       hasMoreThanRequiredPrivileges += "User $uId has privilege for ${lst.length} $tabel Only one required \n";
       appLog += "User $uId has privilege for ${lst.length} $tabel Only one required \n";
-      globalVariable.setUserId = globalVariable.getErrorLog + hasMoreThanRequiredPrivileges;
+      // globalVariable.setUserId = globalVariable.getErrorLog + hasMoreThanRequiredPrivileges;
     } else if (lst.isEmpty) {
       hasMoreThanRequiredPrivileges += "User $uId has No privilege On Any $tabel \n";
       appLog += "User $uId has No privilege On Any $tabel \n";
-      globalVariable.setUserId = globalVariable.getErrorLog + hasMoreThanRequiredPrivileges;
+      // globalVariable.setUserId = globalVariable.getErrorLog + hasMoreThanRequiredPrivileges;
     }
   }
 
@@ -73,14 +73,14 @@ class UserController extends GetxController {
       if (!presentActIds.contains(actId)) {
         hasNoPrivileges += "User $uId has no privilege on ACT_ID $actId\n";
         appLog += "User $uId has no privilege on ACT_ID $actId\n";
-        globalVariable.setErrorLog = globalVariable.getErrorLog + hasNoPrivileges;
+        // globalVariable.setErrorLog = globalVariable.getErrorLog + hasNoPrivileges;
       }
     }
 
     if (actPrivList.isEmpty) {
       hasMoreThanRequiredPrivileges += "User $uId has No privilege On Any ACT  \n";
       appLog += "User $uId has No privilege On Any ACT  \n";
-      globalVariable.setUserId = globalVariable.getErrorLog + hasMoreThanRequiredPrivileges;
+      // globalVariable.setUserId = globalVariable.getErrorLog + hasMoreThanRequiredPrivileges;
     }
 
     // Clipboard.setData(ClipboardData(text: notAllowedIds.join(',')));
@@ -483,7 +483,7 @@ SELECT  USER_CUS_GRP
 
   @override
   void onInit() {
-    loginController = Get.find<LoginController>();
+    LoginController loginController = Get.find<LoginController>();
     uId = loginController.logedInuserId ?? "";
     uName = loginController.logedInuserName ?? "";
     // print("XXXXXXXXXXXX   $uId   XXXXXXXXXXXX");
@@ -492,7 +492,11 @@ SELECT  USER_CUS_GRP
 
   @override
   void onClose() {
-    // TODO: implement onClose
+    // Remove UserController from memory
+    // if (Get.isRegistered<UserController>()) {
+    //   Get.delete<UserController>();
+    // }
+    // print("XXXXXXXXXXXX   On Colse UserController  XXXXXXXXXXXX");
     super.onClose();
   }
 }

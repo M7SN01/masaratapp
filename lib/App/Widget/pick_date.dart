@@ -8,15 +8,19 @@ class PickDateW extends StatefulWidget {
   final TextEditingController dateDontroller;
   final String labelText;
   final double filedHeight;
-  final Function onSelectionChanged;
+  final Function? onSelectionChanged;
   final int expandedFlix;
+  final bool? enabled;
+  final String? Function(String?)? validator;
   const PickDateW({
     super.key,
     required this.dateDontroller,
     this.filedHeight = 45,
-    required this.onSelectionChanged,
+    this.onSelectionChanged,
     this.labelText = "",
     this.expandedFlix = 1,
+    this.enabled = true,
+    this.validator,
   });
 
   @override
@@ -31,9 +35,40 @@ class _PickDateWState extends State<PickDateW> {
       child: SizedBox(
         height: widget.filedHeight,
         child: TextFormField(
-          // textAlignVertical: const TextAlignVertical(y: 0.5),
           controller: widget.dateDontroller,
+          enabled: widget.enabled,
           readOnly: true,
+
+          // style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+          cursorColor: primaryColor,
+          decoration: InputDecoration(
+            labelText: widget.labelText,
+            floatingLabelAlignment: FloatingLabelAlignment.center,
+            labelStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: primaryColor,
+            ),
+            border: OutlineInputBorder(
+              gapPadding: 5,
+              borderSide: BorderSide(color: primaryColor, width: 1),
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+            // isDense: true,
+
+            prefixIcon: widget.dateDontroller.text.isNotEmpty
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        widget.dateDontroller.text = "";
+                      });
+                    },
+                    icon: const Icon(Icons.clear, color: Colors.red, size: 30),
+                  )
+                : null,
+            // border: const OutlineInputBorder(),
+          ),
+
           onTap: () {
             showDialog(
               useRootNavigator: true,
@@ -76,7 +111,9 @@ class _PickDateWState extends State<PickDateW> {
 
                         setState(() {
                           widget.dateDontroller.text = date;
-                          widget.onSelectionChanged();
+                          if (widget.onSelectionChanged != null) {
+                            widget.onSelectionChanged!();
+                          }
                         });
                         //  }
                         Navigator.pop(context);
@@ -88,22 +125,7 @@ class _PickDateWState extends State<PickDateW> {
               },
             );
           },
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-          decoration: InputDecoration(
-            isDense: true,
-            labelText: widget.labelText,
-            prefixIcon: widget.dateDontroller.text.isNotEmpty
-                ? IconButton(
-                    onPressed: () {
-                      setState(() {
-                        widget.dateDontroller.text = "";
-                      });
-                    },
-                    icon: const Icon(Icons.clear, color: Colors.red, size: 30),
-                  )
-                : null,
-            border: const OutlineInputBorder(),
-          ),
+          validator: widget.validator,
         ),
       ),
     );

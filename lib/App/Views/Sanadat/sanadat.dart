@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import '../../Controllers/sanadat_controller.dart';
+import '../../Widget/pick_date.dart';
 import '../../utils/utils.dart';
 import '../../Widget/widget.dart';
 
@@ -249,61 +249,23 @@ class Sanadat extends StatelessWidget {
                       //date
                       Row(
                         children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 60,
-                              child: TextFormField(
-                                readOnly: true,
-                                enabled: !controller.isPostedBefor,
-                                controller: controller.date,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  labelText: "التاريخ",
-                                  floatingLabelAlignment: FloatingLabelAlignment.center,
-                                  labelStyle: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: primaryColor,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    gapPadding: 5,
-                                    borderSide: BorderSide(color: primaryColor, width: 1),
-                                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                                  ),
-                                ),
-                                cursorColor: primaryColor,
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'يرجى ادخال التاريخ';
-                                  }
-                                  return null;
-                                },
-                                onTap: () async {
-                                  final DateTime? picked = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime.parse("${DateTime.now().year}-01-01"),
-                                    lastDate: DateTime.now(),
-                                    builder: (context, child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          dialogTheme: DialogTheme(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
+                          PickDateW(
+                            filedHeight: 60,
+                            enabled: !controller.isPostedBefor,
+                            // expandedFlix: 2,
+                            labelText: "اختر تاريخ",
+                            dateDontroller: controller.date,
+                            // onSelectionChanged: () {
+                            //   controller.date.text = "";
+                            //   controller.update();
+                            // },
 
-                                  if (picked != null) {
-                                    controller.date.text = DateFormat('yyyy-MM-dd').format(picked);
-                                    controller.update();
-                                  }
-                                },
-                              ),
-                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'يرجى ادخال التاريخ';
+                              }
+                              return null;
+                            },
                           ),
                         ],
                       ),
@@ -322,6 +284,7 @@ class Sanadat extends StatelessWidget {
                                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                                 ],
                                 textAlign: TextAlign.center,
+                                cursorColor: primaryColor,
                                 decoration: const InputDecoration(
                                   labelText: "ادخل المبلغ",
                                   floatingLabelAlignment: FloatingLabelAlignment.center,
@@ -335,7 +298,6 @@ class Sanadat extends StatelessWidget {
                                     borderRadius: BorderRadius.all(Radius.circular(8)),
                                   ),
                                 ),
-                                cursorColor: primaryColor,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     return 'يرجى ادخال المبلغ';
@@ -426,7 +388,7 @@ class Sanadat extends StatelessWidget {
                   ],
                 ),
 
-                //printing & priview
+                //printing & priview & get Old Sanad
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -447,6 +409,26 @@ class Sanadat extends StatelessWidget {
                       icon: const Icon(
                         Icons.preview_rounded,
                         size: 50,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        controller.sanadSearchDialoag();
+                        // Get.to(() => Diatest());
+                      },
+                      style: TextButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        backgroundColor: Colors.deepPurpleAccent,
+                      ),
+                      child: const Text(
+                        "بحث عن سند",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],

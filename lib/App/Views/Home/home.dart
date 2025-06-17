@@ -18,55 +18,65 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LoginController>(
-      builder:
-          (controller) => Scaffold(
-            appBar: AppBar(
-              title: Text("Home"),
-              centerTitle: true,
-              leading: SizedBox(),
-              actions: [
-                IconButton(
-                  onPressed: () async {
-                    await controller.onLogout();
-                  },
-                  icon: Icon(Icons.logout_rounded),
-                ),
-              ],
+      builder: (controller) => Scaffold(
+        appBar: AppBar(
+          title: Text("Home"),
+          centerTitle: true,
+          leading: SizedBox(),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                //                 ucontroller.uId = "";
+                // ucontroller.uName = "";
+                // ucontroller.actPrivList.clear();
+                // ucontroller.cusDataList.clear();
+                // ucontroller.slsCntrPrivList.clear();
+                // ucontroller.cstCntrPrivList.clear();
+                // ucontroller.branchPrivList.clear();
+                // ucontroller.stWhPrivList.clear();
+                // ucontroller.csClsPrivList.clear();
+                // ucontroller.bankPrivList.clear();
+                // ucontroller.itemsDataList.clear();
+                await controller.onLogout();
+              },
+              icon: Icon(Icons.logout_rounded),
             ),
-            body: SizedBox(
-              width: Get.width,
-              height: Get.height,
-              // color: Colors.blueAccent,
-              child: GridView(
-                padding: EdgeInsets.all(20),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 8, mainAxisSpacing: 8, childAspectRatio: 3 / 4),
-                children: [
-                  mainGraid(
-                    icon: Icons.inventory_outlined,
-                    title: "فاتورة مبيعات",
-                    onTap: () {
-                      // print("hhhhhhhhhhhhhhhhh");
-                      Get.to(() => const Invoice(), binding: InvoiceBinding());
-                    },
-                  ),
-                  mainGraid(
-                    icon: Icons.inventory_outlined,
-                    title: "سـنـد قـبـض",
-                    onTap: () {
-                      Get.to(() => const Sanadat(), binding: SanadatBinding());
-                    },
-                  ),
-                  mainGraid(
-                    icon: Icons.inventory_outlined,
-                    title: "كشف حساب",
-                    onTap: () {
-                      Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
-                    },
-                  ),
-                ],
+          ],
+        ),
+        body: SizedBox(
+          width: Get.width,
+          height: Get.height,
+          // color: Colors.blueAccent,
+          child: GridView(
+            padding: EdgeInsets.all(20),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 8, mainAxisSpacing: 8, childAspectRatio: 3 / 4),
+            children: [
+              mainGraid(
+                icon: Icons.inventory_outlined,
+                title: "فاتورة مبيعات",
+                onTap: () {
+                  // print("hhhhhhhhhhhhhhhhh");
+                  Get.to(() => const Invoice(), binding: InvoiceBinding());
+                },
               ),
-            ),
+              mainGraid(
+                icon: Icons.inventory_outlined,
+                title: "سـنـد قـبـض",
+                onTap: () {
+                  Get.to(() => const Sanadat(), binding: SanadatBinding());
+                },
+              ),
+              mainGraid(
+                icon: Icons.inventory_outlined,
+                title: "كشف حساب",
+                onTap: () {
+                  Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
+                },
+              ),
+            ],
           ),
+        ),
+      ),
     );
   }
 

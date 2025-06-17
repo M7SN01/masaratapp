@@ -198,8 +198,13 @@ class LoginController extends GetxController {
     password.clear();
     // GlobalVariable().setUserId = "";
     await removeSqfliteLoginData();
-    update();
-    Get.to(() => Login());
+
+    // Remove UserController from memory
+    if (Get.isRegistered<UserController>()) {
+      Get.delete<UserController>();
+    }
+
+    Get.offAll(() => Login());
   }
 
   //

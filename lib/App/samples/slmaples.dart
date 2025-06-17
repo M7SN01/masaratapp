@@ -13,6 +13,8 @@ class PrintSamples {
 
   get getCusKshfSample => _cusKshfSample(compData: _compData);
 
+  get getSanadSample => _sanadSample(compData: _compData);
+
   static Map<String, dynamic> _slsShowSample({required CompData compData}) {
     return containerW(
       padding: [10, 10, 10, 10],
@@ -1003,6 +1005,472 @@ class PrintSamples {
           ),
     
     */
+        ],
+      ),
+    );
+  }
+
+  static Map<String, dynamic> _sanadSample({required CompData compData}) {
+    return containerW(
+      height: 328,
+      padding: [10, 10, 10, 10],
+      containerDecorationW: containerDecorationW(
+        containerDecorationBorderW: containerDecorationBorderW(width: 0.5),
+        radius: 2,
+      ),
+      child: columnW(
+        children: [
+          //Comp Header
+          sizedBoxW(
+            height: 110,
+            child: rowW(
+              children: [
+                //Comp Arabic
+                expandedW(
+                  flex: 1,
+                  child: columnW(
+                    crossAxisAlignment: "center",
+                    children: [
+                      textW(
+                        "{{a_comp_name}}",
+                        // "شركة مسارات الجمال",
+                        fontSize: 18,
+                        // textAlign: "center",
+                        fontWeight: "bold",
+                      ),
+                      textW(
+                        "{{a_activity}}",
+                        // "لبيع العطور ومستحضرات التجميل",
+                        fontSize: 14,
+                        // textAlign: "center",
+                        fontWeight: "bold",
+                      ),
+                      // sizedBoxW(height: 2),
+                      if (compData.commercialReg.isNotEmpty)
+                        rowW(
+                          mainAxisAlignment: "center",
+                          children: [
+                            textW(
+                              "رقم السجل التجاري",
+                            ),
+                            textW(
+                              "  :  ",
+                            ),
+                            textW(
+                              "{{commercial_reg}}",
+                            ),
+                          ],
+                        ),
+                      // sizedBoxW(height: 2),
+                      if (compData.taxNo.isNotEmpty)
+                        rowW(
+                          mainAxisAlignment: "center",
+                          children: [
+                            textW(
+                              "الرقم الضريبي",
+                              fontSize: 14,
+                              // fontFamily: "arial",
+                            ),
+                            textW(
+                              "  :  ",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                            textW(
+                              "{{tax_no}}",
+                              // "310310589800003",
+                              fontSize: 14,
+                              // fontFamily: "arial",
+                            ),
+                          ],
+                        ),
+                      if (compData.tel.isNotEmpty)
+                        rowW(
+                          mainAxisAlignment: "center",
+                          children: [
+                            textW(
+                              "رقم الهاتف",
+                              fontSize: 14,
+                              // fontFamily: "arial",
+                            ),
+                            textW(
+                              "  :  ",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                            textW(
+                              "{{mobile_no}}",
+                              // "310310589800003",
+                              fontSize: 14,
+                              // fontFamily: "arial",
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+                //logo
+                expandedW(
+                  flex: 1,
+                  child: containerW(
+                    padding: [0, 0, 0, 10],
+                    child: centerW(
+                      child: imageW(assetName: "assets/images/mlogo.png"),
+                    ),
+                  ),
+                ),
+                //Comp english
+                expandedW(
+                  flex: 1,
+                  child: columnW(
+                    crossAxisAlignment: "center",
+                    children: [
+                      textW(
+                        "{{e_comp_name}}",
+                        // "MASARAT AL-JAMAL",
+                        fontSize: 18,
+                        textAlign: "center",
+                        fontWeight: "bold",
+                      ),
+                      textW(
+                        "{{e_activity}}",
+                        // "For selling perfumes and cosmetics",
+                        fontSize: 12,
+                        textAlign: "center",
+                        fontWeight: "bold",
+                      ),
+                      // sizedBoxW(height: 2),
+                      if (compData.commercialReg.isNotEmpty)
+                        rowW(
+                          mainAxisAlignment: "center",
+                          children: [
+                            textW(
+                              "{{commercial_reg}}",
+                              // "4030323869",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                            textW(
+                              "  :  ",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                            textW(
+                              "REG. NO.",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                          ],
+                        ),
+                      // sizedBoxW(height: 2),
+                      if (compData.taxNo.isNotEmpty)
+                        rowW(
+                          mainAxisAlignment: "center",
+                          children: [
+                            textW(
+                              "{{tax_no}}",
+                              // "310310589800003",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                            textW(
+                              "  :  ",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                            textW(
+                              "TAX. NO. ",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                          ],
+                        ),
+                      if (compData.tel.isNotEmpty)
+                        rowW(
+                          mainAxisAlignment: "center",
+                          children: [
+                            textW(
+                              "{{mobile_no}}",
+                              // "310310589800003",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                            textW(
+                              "  :  ",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                            textW(
+                              "Mobile No.",
+                              // fontSize: 12,
+                              // fontFamily: "arial",
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          //header line
+          rowW(
+            children: [
+              expandedW(
+                child: containerW(
+                  containerDecorationW: containerDecorationW(
+                    containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          sizedBoxW(height: 10),
+          //type & date  & amount
+          rowW(
+            children: [
+              //amount
+              expandedW(
+                // flex: 1,
+                child: containerW(
+                  padding: [5, 5, 5, 5],
+                  // margin: [10, 0, 0, 0],
+                  containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)),
+                  child: rowW(
+                    mainAxisAlignment: "center",
+                    children: [
+                      textW("{{t_amount}}", fontSize: 14),
+                      textW("   :   ", fontSize: 14),
+                      textW("{{amount}}", fontSize: 14),
+                      sizedBoxW(width: 10),
+                      imageSvgW(
+                        assetName: "assets/images/rs.svg",
+                        height: 18,
+                        width: 18,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              //sanad No
+              expandedW(
+                flex: 2,
+                child: containerW(
+                  padding: [5, 5, 5, 5],
+                  margin: [10, 0, 10, 0],
+                  containerDecorationW: containerDecorationW(
+                    radius: 4,
+                    containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                  ),
+                  child: rowW(
+                    mainAxisAlignment: "center",
+                    children: [
+                      textW(
+                        "{{t_sanad_type}}",
+                        fontSize: 14,
+                        textAlign: "center",
+                        // fontWeight: "bold",
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              //Date
+              expandedW(
+                // flex: 1,
+                child: containerW(
+                  padding: [5, 5, 5, 5],
+                  // margin: [0, 0, 10, 0],
+                  containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)),
+                  child: rowW(
+                    mainAxisAlignment: "center",
+                    children: [
+                      textW("{{t_date}}", fontSize: 14),
+                      textW("   :   ", fontSize: 14),
+                      textW("{{date}}", fontSize: 14),
+                      // sizedBoxW(width: 10),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          //content
+          containerW(
+            // height: 300,
+            margin: [0, 5, 0, 0],
+            padding: [5, 5, 5, 5],
+            containerDecorationW: containerDecorationW(
+              radius: 8,
+              containerDecorationBorderW: containerDecorationBorderW(width: 0.5),
+            ),
+            child: columnW(
+              children: [
+                // 1st  row
+                rowW(
+                  children: [
+                    expandedW(
+                      flex: 1,
+                      child: containerW(
+                        height: 32,
+                        margin: [1, 1, 1, 1],
+                        padding: [5, 5, 5, 5],
+                        containerDecorationW: containerDecorationW(
+                          radius: 4,
+                          containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                        ),
+                        child: textW("{{a_t_recive_from}}"),
+                      ),
+                    ),
+                    expandedW(
+                      flex: 3,
+                      child: containerW(
+                        height: 32,
+                        margin: [1, 1, 1, 1],
+                        padding: [5, 5, 5, 5],
+                        containerDecorationW: containerDecorationW(
+                          radius: 4,
+                          containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                        ),
+                        child: textW("{{cus_name}}"),
+                      ),
+                    ),
+                    expandedW(
+                      flex: 1,
+                      child: containerW(
+                        height: 32,
+                        margin: [1, 1, 1, 1],
+                        padding: [5, 5, 5, 5],
+                        containerDecorationW: containerDecorationW(
+                          radius: 4,
+                          containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                        ),
+                        child: textW("{{e_t_recive_from}}"),
+                      ),
+                    ),
+                  ],
+                ),
+
+                //2nd row
+                rowW(
+                  children: [
+                    expandedW(
+                      flex: 1,
+                      child: containerW(
+                        height: 32,
+                        margin: [1, 1, 1, 1],
+                        padding: [5, 5, 5, 5],
+                        containerDecorationW: containerDecorationW(
+                          radius: 4,
+                          containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                        ),
+                        child: textW("{{a_t_amount_words}}"),
+                      ),
+                    ),
+                    expandedW(
+                      flex: 3,
+                      child: containerW(
+                        height: 32,
+                        margin: [1, 1, 1, 1],
+                        padding: [5, 5, 5, 5],
+                        containerDecorationW: containerDecorationW(
+                          radius: 4,
+                          containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                        ),
+                        child: textW("{{amount_words}}", doubleToArabicWords: true),
+                      ),
+                    ),
+                    expandedW(
+                      flex: 1,
+                      child: containerW(
+                        height: 32,
+                        margin: [1, 1, 1, 1],
+                        padding: [5, 5, 5, 5],
+                        containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)),
+                        child: textW("{{e_t_amount_words}}"),
+                      ),
+                    ),
+                  ],
+                ),
+
+                //3rd row
+                rowW(
+                  children: [
+                    expandedW(
+                      flex: 1,
+                      child: containerW(
+                        height: 32,
+                        margin: [1, 1, 1, 1],
+                        padding: [5, 5, 5, 5],
+                        containerDecorationW: containerDecorationW(
+                          radius: 4,
+                          containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                        ),
+                        child: textW("{{a_t_payment_for}}"),
+                      ),
+                    ),
+                    expandedW(
+                      flex: 3,
+                      child: containerW(
+                        height: 32,
+                        margin: [1, 1, 1, 1],
+                        padding: [5, 5, 5, 5],
+                        containerDecorationW: containerDecorationW(
+                          radius: 4,
+                          containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                        ),
+                        child: textW("{{payment_for}}"),
+                      ),
+                    ),
+                    expandedW(
+                      flex: 1,
+                      child: containerW(
+                        height: 32,
+                        margin: [1, 1, 1, 1],
+                        padding: [5, 5, 5, 5],
+                        containerDecorationW: containerDecorationW(
+                          radius: 4,
+                          containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                        ),
+                        child: textW("{{e_t_payment_for}}"),
+                      ),
+                    ),
+                  ],
+                ),
+
+                //3rd row
+                rowW(
+                  children: [
+                    expandedW(
+                      child: containerW(
+                        height: 32,
+                        margin: [1, 1, 1, 1],
+                        padding: [5, 5, 5, 5],
+                        containerDecorationW: containerDecorationW(
+                          color: "#F5F5F5",
+                          radius: 4,
+                          containerDecorationBorderW: containerDecorationBorderW(width: 1),
+                        ),
+                        child: rowW(
+                          mainAxisAlignment: "center",
+                          children: [
+                            textW("{{t_user_ins}}"),
+                            textW("  <=>  "),
+                            textW("{{user_ins}}"),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

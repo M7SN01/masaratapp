@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../Print/helpers/widgets_to_json.dart';
-
+import 'package:masaratapp/App/samples/slmaples.dart';
 import '../Models/user_model.dart';
 import '../Print/direct_print.dart';
 import '../Print/pdf_viewer.dart';
@@ -59,12 +59,45 @@ class SanadatController extends GetxController {
     update();
   }
 
+  Map<String, dynamic> getVariablesData() {
+    return {
+      "a_comp_name": userController.compData.aCompName,
+      "a_activity": userController.compData.aActivity,
+      "commercial_reg": userController.compData.commercialReg,
+      "tax_no": userController.compData.taxNo,
+      "mobile_no": userController.compData.tel,
+      "e_comp_name": userController.compData.eCompName,
+      "e_activity": userController.compData.eActivity,
+      "t_amount": "المبلغ",
+      "amount": amount.text,
+      "t_sanad_type": savedSanadId,
+      "t_date": "التاريخ",
+      "date": date.text,
+      "a_t_recive_from": "استلنا من المكرم",
+      "e_t_recive_from": "Recevied from Mr",
+      "cus_name": selecetdCustomer!.cusName,
+      "a_t_amount_words": "مبلغ وقدره",
+      "e_t_amount_words": "The Amount",
+      "amount_words": amount.text,
+      "a_t_payment_for": "وذلك مقابل",
+      "e_t_payment_for": "As Payment for",
+      "payment_for": description.text,
+      "t_user_ins": "مدخل السند",
+      "user_ins": userName,
+    };
+  }
+
+//*******************PRINTING ------------------
   Future<void> printSanad() async {
     isPostingToApi = false;
     update();
     // print("Waite while printing ..............");
     if (isPostedBefor) {
-      await printJsondirectly(jsonLayout: getTestMap(), isfromJson: true);
+      PrintSamples ps = PrintSamples(compData: compData);
+      await printJsondirectly(
+        jsonLayout: ps.getSanadSample,
+        variables: getVariablesData(),
+      );
     } else {
       showMessage(color: secondaryColor, titleMsg: "يرجى حفظ الفاتورة", titleFontSize: 18, durationMilliseconds: 1000);
     }
@@ -72,19 +105,21 @@ class SanadatController extends GetxController {
 
   void previewSanad() {
     if (isPostedBefor) {
+      PrintSamples ps = PrintSamples(compData: compData);
       Get.to(
         () => PdfPreviewScreen(
           // tableHeader: hesders,
           // tableData: data,
-          jsonLayout: getTestMap(),
-
-          variables: {},
+          jsonLayout: ps.getSanadSample,
+          variables: getVariablesData(),
         ),
       );
     } else {
-      showMessage(color: secondaryColor, titleMsg: "يرجى حفظ الفاتورة", titleFontSize: 18, durationMilliseconds: 1000);
+      showMessage(color: secondaryColor, titleMsg: "يرجى حفظ السند", titleFontSize: 18, durationMilliseconds: 1000);
     }
   }
+
+//-------------------------------------------
 
   saveSanad() async {
     // isPostedBefor = false;
@@ -184,8 +219,208 @@ class SanadatController extends GetxController {
 
     update();
   }
+
+//******************Get Sanad***************************
+  final searchOfSanad = TextEditingController();
+  var searchResults = [].obs;
+  var isSearchingOfSanad = false.obs;
+
+  Future<void> fetchSearchResults(String query) async {
+    if (query.isEmpty) {
+      isSearchingOfSanad.value = false;
+      searchResults.clear();
+      return;
+    }
+    isSearchingOfSanad.value = true;
+
+    try {
+      var response = await dbServices.createRep(
+        sqlStatment: """
+      SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,a.AMNT , DSCR ,
+      (SELECT TO_CHAR(DATE1,'yyyy-mm-dd') FROM ACC_HD b WHERE b.ACC_TYPE=a.ACC_TYPE AND b.ACC_HD_ID=a.ACC_HD_ID) DATE1
+
+      FROM ACC_DT a WHERE a.CUS_ID IS NOT NULL and a.ACC_TYPE IN(${sanadatAct.map((act) => "'${act.actId}'").join(',')})
+      AND (
+      LOWER(get_cus_name_DB(a.CUS_ID)) LIKE LOWER('%$query%') OR 
+      TO_CHAR(a.ACC_HD_ID) LIKE '%$query%' OR
+       LOWER(get_act_name(a.ACC_TYPE)) LIKE LOWER('%$query%')
+      )
+      order by SRL
+      
+      """,
+      );
+      searchResults.value = response;
+      isSearchingOfSanad.value = false;
+    } catch (e) {
+      searchResults.value = [];
+      isSearchingOfSanad.value = false;
+    }
+  }
+
+  void setSelectedSanad({
+    required String sanadTypeId,
+    required String sanadTypeName,
+    required String sanadId,
+    required CusDataModel customer,
+    required String selectedDate,
+    required String amnt,
+    required String dscr,
+  }) {
+    selectedSanadTypeId = sanadTypeId;
+    selectedSanadType = sanadTypeName;
+    savedSanadId = " $sanadTypeName ( $sanadId )";
+    selecetdCustomer = customer;
+    date.text = selectedDate;
+    amount.text = amnt;
+    description.text = dscr;
+
+    isPostedBefor = true;
+
+    update(); // optional: to trigger GetBuilder if needed
+  }
+
+  void sanadSearchDialoag() {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        insetPadding: EdgeInsets.zero,
+        titlePadding: EdgeInsets.zero,
+        contentPadding: EdgeInsets.zero,
+        actionsPadding: EdgeInsets.zero,
+        backgroundColor: Colors.grey.shade100,
+        // surfaceTintColor: Colors.grey.shade100,
+        title: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Obx(
+            () {
+              final controller = Get.find<SanadatController>();
+              return Column(
+                children: [
+                  const Text("بحث عن سند"),
+                  controller.isSearchingOfSanad.value
+                      ? LinearProgressIndicator(
+                          color: secondaryColor,
+                          minHeight: 2,
+                        )
+                      : const Divider(),
+                  SizedBox(
+                    height: 45,
+                    child: GetBuilder<SanadatController>(
+                      builder: (controller) => TextFormField(
+                        // focusNode: controller.fn,
+                        controller: controller.searchOfSanad,
+                        keyboardType: TextInputType.text,
+                        textAlignVertical: const TextAlignVertical(y: -0.4),
+                        decoration: InputDecoration(
+                          labelText: "search".tr,
+                          hintText: "اسم عميل/(رقم-نوع) سند",
+                          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                          suffixIcon: const Icon(Icons.search, color: primaryColor),
+                          border: const OutlineInputBorder(
+                            gapPadding: 4,
+                            // borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onChanged: (value) {
+                          controller.fetchSearchResults(value);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        content: Container(
+          height: Get.height / 2,
+          width: Get.width / 2,
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Obx(
+            () {
+              final results = Get.find<SanadatController>().searchResults;
+              if (results.isEmpty) return const SizedBox.shrink();
+              return ListView.builder(
+                itemCount: results.length,
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> item = results[index];
+                  final controller = Get.find<SanadatController>();
+                  return ListTile(
+                    title: Text(item['CUS_NAME']),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("${item['ACT_NAME']} ( ${item['ACC_HD_ID']} ) "),
+                        Text("${item['DATE1']}"),
+                        Row(
+                          children: [
+                            Text("المبلغ :  ${item['AMNT']}"),
+                            SizedBox(width: 10),
+                            SvgPicture.asset(
+                              'assets/images/rs.svg',
+                              width: 15,
+                              height: 15,
+                              // fit: BoxFit.contain,
+                            ),
+                          ],
+                        ),
+                        Divider(),
+                      ],
+                    ),
+                    onTap: () {
+                      final String actId = item['ACC_TYPE'].toString();
+                      final String actTypeName = item['ACT_NAME'].toString();
+                      final String accHdId = item['ACC_HD_ID'].toString();
+                      final int cusId = item['CUS_ID'];
+                      final String parsedDate = item['DATE1'].toString();
+                      final String amount = item['AMNT'].toStringAsFixed(2);
+                      final String dscr = item['DSCR'].toString();
+
+                      final customer = controller.cusData.firstWhereOrNull((c) => c.cusId == cusId);
+                      if (customer == null) return;
+
+                      controller.setSelectedSanad(
+                        sanadTypeId: actId,
+                        sanadTypeName: actTypeName,
+                        sanadId: accHdId,
+                        customer: customer,
+                        selectedDate: parsedDate,
+                        amnt: amount,
+                        dscr: dscr,
+                      );
+                      Get.back();
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: TextButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), backgroundColor: secondaryColor),
+                  child: const Text("خروج", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
+/*
 Map<String, dynamic> getTestMap() {
   final controller = Get.find<SanadatController>();
   return containerW(
@@ -198,180 +433,8 @@ Map<String, dynamic> getTestMap() {
     containerDecorationW: containerDecorationW(containerDecorationBorderW: containerDecorationBorderW(width: 0.5), radius: 4),
     child: columnW(
       children: [
-        //Comp Header
-        sizedBoxW(
-          height: 110,
-          child: rowW(
-            children: [
-              //Comp Arabic
-              expandedW(
-                flex: 1,
-                child: columnW(
-                  crossAxisAlignment: "center",
-                  children: [
-                    textW(
-                      controller.compData.aCompName,
-                      // "شركة مسارات الجمال",
-                      fontSize: 18,
-                      // textAlign: "center",
-                      fontWeight: "bold",
-                    ),
-                    textW(
-                      controller.compData.aActivity,
-                      // "لبيع العطور ومستحضرات التجميل",
-                      fontSize: 14,
-                      // textAlign: "center",
-                      fontWeight: "bold",
-                    ),
-                    // sizedBoxW(height: 2),
-                    if (controller.compData.commercialReg.isNotEmpty) rowW(mainAxisAlignment: "center", children: [textW("رقم السجل التجاري"), textW("  :  "), textW(controller.compData.commercialReg)]),
-                    // sizedBoxW(height: 2),
-                    if (controller.compData.taxNo.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            "الرقم الضريبي",
-                            fontSize: 14,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "  :  ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            controller.compData.taxNo,
-                            // "310310589800003",
-                            fontSize: 14,
-                            // fontFamily: "arial",
-                          ),
-                        ],
-                      ),
-                    if (controller.compData.tel.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            "رقم الهاتف",
-                            fontSize: 14,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "  :  ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            controller.compData.tel,
-                            // "310310589800003",
-                            fontSize: 14,
-                            // fontFamily: "arial",
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-              //logo
-              expandedW(flex: 1, child: containerW(padding: [0, 0, 0, 10], child: centerW(child: imageW(assetName: "assets/images/mlogo.png")))),
-              //Comp english
-              expandedW(
-                flex: 1,
-                child: columnW(
-                  crossAxisAlignment: "center",
-                  children: [
-                    textW(
-                      controller.compData.eCompName,
-                      // "MASARAT AL-JAMAL",
-                      fontSize: 18,
-                      textAlign: "center",
-                      fontWeight: "bold",
-                    ),
-                    textW(
-                      controller.compData.eActivity,
-                      // "For selling perfumes and cosmetics",
-                      fontSize: 12,
-                      textAlign: "center",
-                      fontWeight: "bold",
-                    ),
-                    // sizedBoxW(height: 2),
-                    if (controller.compData.commercialReg.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            controller.compData.commercialReg,
-                            // "4030323869",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "  :  ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "REG. NO.",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                        ],
-                      ),
-                    // sizedBoxW(height: 2),
-                    if (controller.compData.taxNo.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            controller.compData.taxNo,
-                            // "310310589800003",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "  :  ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "TAX. NO. ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                        ],
-                      ),
-                    if (controller.compData.tel.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            controller.compData.tel,
-                            // "310310589800003",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "  :  ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "Mobile No.",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        //header line
-        rowW(children: [expandedW(child: containerW(containerDecorationW: containerDecorationW(containerDecorationBorderW: containerDecorationBorderW(width: 1))))]),
+        
+       
         // rowW(children: [expandedW(child: dashedLineW(dashSpace: 1, dashWidth: 2, height: 1))]),
         // expandedW(child: dashedLineW(dashSpace: 1, dashWidth: 2, height: 1)),
         sizedBoxW(height: 10),
@@ -443,21 +506,6 @@ Map<String, dynamic> getTestMap() {
           ],
         ),
 
-        //line Top
-        /* rowW(
-          children: [
-            expandedW(
-              child: containerW(
-                margin: [0, 8, 0, 0],
-                containerDecorationW: containerDecorationW(
-                  radius: 8,
-                  containerDecorationBorderW: containerDecorationBorderW(width: 0.5),
-                ),
-              ),
-            ),
-          ],
-        ),
-        */
         //content
         containerW(
           // height: 300,
@@ -489,7 +537,7 @@ Map<String, dynamic> getTestMap() {
                 children: [
                   expandedW(flex: 1, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW("وذلك مقابل"))),
                   expandedW(flex: 3, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW(controller.description.text))),
-                  expandedW(flex: 1, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW("The Amount"))),
+                  expandedW(flex: 1, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW("As payment for"))),
                 ],
               ),
 
@@ -497,523 +545,6 @@ Map<String, dynamic> getTestMap() {
               rowW(
                 children: [
                   expandedW(child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(color: "#F5F5F5", radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: rowW(mainAxisAlignment: "center", children: [textW("مدخل السند"), textW("  <=>  "), textW(controller.userName)]))),
-                ],
-              ),
-            ],
-          ),
-        ),
-        //line bootom
-        /*   rowW(
-          children: [
-            expandedW(
-              child: containerW(
-                containerDecorationW: containerDecorationW(
-                  radius: 8,
-                  containerDecorationBorderW: containerDecorationBorderW(width: 0.5),
-                ),
-              ),
-            ),
-          ],
-        ),
-   */
-      ],
-    ),
-  );
-}
-
-
-// {{x}}
-/*
-
-Map<String, dynamic> getTestMap() {
-  final controller = Get.find<SanadatController>();
-  return containerW(
-    // w: 600,
-    // h: 400,
-    // width: mmToPixel(210),
-    height: 328, //mmToPixel(297 / 3),
-
-    padding: [10, 10, 10, 10],
-    containerDecorationW: containerDecorationW(
-      containerDecorationBorderW: containerDecorationBorderW(width: 0.5),
-      radius: 4,
-    ),
-    child: columnW(
-      children: [
-        //Comp Header
-        sizedBoxW(
-          height: 110,
-          child: rowW(
-            children: [
-              //Comp Arabic
-              expandedW(
-                flex: 1,
-                child: columnW(
-                  crossAxisAlignment: "center",
-                  children: [
-                    textW(
-                     "{{comp_name_a}}" ,
-                      // "شركة مسارات الجمال",
-                      fontSize: 18,
-                      // textAlign: "center",
-                      fontWeight: "bold",
-                    ),
-                    textW(
-                      "{{a_activity}}",
-                      // "لبيع العطور ومستحضرات التجميل",
-                      fontSize: 14,
-                      // textAlign: "center",
-                      fontWeight: "bold",
-                    ),
-                    // sizedBoxW(height: 2),
-                    if (controller.compData.commercialReg.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            "رقم السجل التجاري",
-                          ),
-                          textW(
-                            "  :  ",
-                          ),
-                          textW(
-                            "{{commercial_reg}}",
-                          ),
-                        ],
-                      ),
-                    // sizedBoxW(height: 2),
-                    if (controller.compData.taxNo.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            "الرقم الضريبي",
-                            fontSize: 14,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "  :  ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            controller.compData.taxNo,
-                            // "310310589800003",
-                            fontSize: 14,
-                            // fontFamily: "arial",
-                          ),
-                        ],
-                      ),
-                    if (controller.compData.tel.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            "رقم الهاتف",
-                            fontSize: 14,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "  :  ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            controller.compData.tel,
-                            // "310310589800003",
-                            fontSize: 14,
-                            // fontFamily: "arial",
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-              //logo
-              expandedW(
-                flex: 1,
-                child: containerW(padding: [0, 0, 0, 10], child: centerW(child: imageW(assetName: "assets/images/mlogo.png"))),
-              ),
-              //Comp english
-              expandedW(
-                flex: 1,
-                child: columnW(
-                  crossAxisAlignment: "center",
-                  children: [
-                    textW(
-                      controller.compData.eCompName,
-                      // "MASARAT AL-JAMAL",
-                      fontSize: 18,
-                      textAlign: "center",
-                      fontWeight: "bold",
-                    ),
-                    textW(
-                      controller.compData.eActivity,
-                      // "For selling perfumes and cosmetics",
-                      fontSize: 12,
-                      textAlign: "center",
-                      fontWeight: "bold",
-                    ),
-                    // sizedBoxW(height: 2),
-                    if (controller.compData.commercialReg.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            controller.compData.commercialReg,
-                            // "4030323869",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "  :  ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "REG. NO.",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                        ],
-                      ),
-                    // sizedBoxW(height: 2),
-                    if (controller.compData.taxNo.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            controller.compData.taxNo,
-                            // "310310589800003",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "  :  ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "TAX. NO. ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                        ],
-                      ),
-                    if (controller.compData.tel.isNotEmpty)
-                      rowW(
-                        mainAxisAlignment: "center",
-                        children: [
-                          textW(
-                            controller.compData.tel,
-                            // "310310589800003",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "  :  ",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                          textW(
-                            "Mobile No.",
-                            // fontSize: 12,
-                            // fontFamily: "arial",
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        //header line
-        rowW(
-          children: [
-            expandedW(
-              child: containerW(
-                containerDecorationW: containerDecorationW(
-                  containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                ),
-              ),
-            ),
-          ],
-        ),
-        // rowW(children: [expandedW(child: dashedLineW(dashSpace: 1, dashWidth: 2, height: 1))]),
-        // expandedW(child: dashedLineW(dashSpace: 1, dashWidth: 2, height: 1)),
-        sizedBoxW(height: 10),
-        //type & date  & amount
-        rowW(
-          children: [
-            //amount
-            expandedW(
-              // flex: 1,
-              child: containerW(
-                padding: [5, 5, 5, 5],
-                // margin: [10, 0, 0, 0],
-                containerDecorationW: containerDecorationW(
-                  radius: 4,
-                  containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                ),
-                child: rowW(
-                  mainAxisAlignment: "center",
-                  children: [
-                    textW("المبلغ", fontSize: 14),
-                    textW("   :   ", fontSize: 14),
-                    textW(controller.amount.text, fontSize: 14),
-                    sizedBoxW(width: 10),
-                    imageSvgW(
-                      assetName: "assets/images/rs.svg",
-                      height: 18,
-                      width: 18,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            //sanad No
-            expandedW(
-              flex: 2,
-              child: containerW(
-                padding: [5, 5, 5, 5],
-                margin: [10, 0, 10, 0],
-                containerDecorationW: containerDecorationW(
-                  radius: 4,
-                  containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                ),
-                child: rowW(
-                  mainAxisAlignment: "center",
-                  children: [
-                    // textW(
-                    //   controller.selectedSanadType ?? "",
-                    //   fontSize: 14,
-                    //   textAlign: "center",
-                    //   // fontWeight: "bold",
-                    // ),
-                    // textW(
-                    //   "  رقم  ",
-                    //   fontSize: 14,
-                    //   textAlign: "center",
-                    //   // fontWeight: "bold",
-                    // ),
-                    textW(
-                      controller.savedSanadId.toString(),
-                      fontSize: 14,
-                      textAlign: "center",
-                      // fontWeight: "bold",
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            //Date
-            expandedW(
-              // flex: 1,
-              child: containerW(
-                padding: [5, 5, 5, 5],
-                // margin: [0, 0, 10, 0],
-                containerDecorationW: containerDecorationW(
-                  radius: 4,
-                  containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                ),
-                child: rowW(
-                  mainAxisAlignment: "center",
-                  children: [
-                    textW("التاريخ", fontSize: 14),
-                    textW("   :   ", fontSize: 14),
-                    textW(controller.date.text, fontSize: 14),
-                    // sizedBoxW(width: 10),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-
-        //line Top
-        /* rowW(
-          children: [
-            expandedW(
-              child: containerW(
-                margin: [0, 8, 0, 0],
-                containerDecorationW: containerDecorationW(
-                  radius: 8,
-                  containerDecorationBorderW: containerDecorationBorderW(width: 0.5),
-                ),
-              ),
-            ),
-          ],
-        ),
-        */
-        //content
-        containerW(
-          // height: 300,
-          margin: [0, 5, 0, 0],
-          padding: [5, 5, 5, 5],
-          containerDecorationW: containerDecorationW(
-            radius: 8,
-            containerDecorationBorderW: containerDecorationBorderW(width: 0.5),
-          ),
-          child: columnW(
-            children: [
-              // 1st  row
-              rowW(
-                children: [
-                  expandedW(
-                    flex: 1,
-                    child: containerW(
-                      height: 32,
-                      margin: [1, 1, 1, 1],
-                      padding: [5, 5, 5, 5],
-                      containerDecorationW: containerDecorationW(
-                        radius: 4,
-                        containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                      ),
-                      child: textW("إستلمنا من المكرم"),
-                    ),
-                  ),
-                  expandedW(
-                    flex: 3,
-                    child: containerW(
-                      height: 32,
-                      margin: [1, 1, 1, 1],
-                      padding: [5, 5, 5, 5],
-                      containerDecorationW: containerDecorationW(
-                        radius: 4,
-                        containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                      ),
-                      child: textW(controller.selecetdCustomer!.cusName),
-                    ),
-                  ),
-                  expandedW(
-                    flex: 1,
-                    child: containerW(
-                      height: 32,
-                      margin: [1, 1, 1, 1],
-                      padding: [5, 5, 5, 5],
-                      containerDecorationW: containerDecorationW(
-                        radius: 4,
-                        containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                      ),
-                      child: textW("Recevied from Mr"),
-                    ),
-                  ),
-                ],
-              ),
-
-              //2nd row
-              rowW(
-                children: [
-                  expandedW(
-                    flex: 1,
-                    child: containerW(
-                      height: 32,
-                      margin: [1, 1, 1, 1],
-                      padding: [5, 5, 5, 5],
-                      containerDecorationW: containerDecorationW(
-                        radius: 4,
-                        containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                      ),
-                      child: textW("مبلغ وقدره"),
-                    ),
-                  ),
-                  expandedW(
-                    flex: 3,
-                    child: containerW(
-                      height: 32,
-                      margin: [1, 1, 1, 1],
-                      padding: [5, 5, 5, 5],
-                      containerDecorationW: containerDecorationW(
-                        radius: 4,
-                        containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                      ),
-                      child: textW(convertToArabicWords(double.parse(controller.amount.text))),
-                    ),
-                  ),
-                  expandedW(
-                    flex: 1,
-                    child: containerW(
-                      height: 32,
-                      margin: [1, 1, 1, 1],
-                      padding: [5, 5, 5, 5],
-                      containerDecorationW: containerDecorationW(
-                        radius: 4,
-                        containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                      ),
-                      child: textW("The Amount"),
-                    ),
-                  ),
-                ],
-              ),
-
-              //3rd row
-              rowW(
-                children: [
-                  expandedW(
-                    flex: 1,
-                    child: containerW(
-                      height: 32,
-                      margin: [1, 1, 1, 1],
-                      padding: [5, 5, 5, 5],
-                      containerDecorationW: containerDecorationW(
-                        radius: 4,
-                        containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                      ),
-                      child: textW("وذلك مقابل"),
-                    ),
-                  ),
-                  expandedW(
-                    flex: 3,
-                    child: containerW(
-                      height: 32,
-                      margin: [1, 1, 1, 1],
-                      padding: [5, 5, 5, 5],
-                      containerDecorationW: containerDecorationW(
-                        radius: 4,
-                        containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                      ),
-                      child: textW(controller.description.text),
-                    ),
-                  ),
-                  expandedW(
-                    flex: 1,
-                    child: containerW(
-                      height: 32,
-                      margin: [1, 1, 1, 1],
-                      padding: [5, 5, 5, 5],
-                      containerDecorationW: containerDecorationW(
-                        radius: 4,
-                        containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                      ),
-                      child: textW("The Amount"),
-                    ),
-                  ),
-                ],
-              ),
-
-              //3rd row
-              rowW(
-                children: [
-                  expandedW(
-                    child: containerW(
-                        height: 32,
-                        margin: [1, 1, 1, 1],
-                        padding: [5, 5, 5, 5],
-                        containerDecorationW: containerDecorationW(
-                          color: "#F5F5F5",
-                          radius: 4,
-                          containerDecorationBorderW: containerDecorationBorderW(width: 1),
-                        ),
-                        child: rowW(mainAxisAlignment: "center", children: [
-                          textW("مدخل السند"),
-                          textW("  <=>  "),
-                          textW(controller.userName),
-                        ])),
-                  ),
                 ],
               ),
             ],

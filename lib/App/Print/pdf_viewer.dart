@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-// import 'package:intl/intl.dart';
-import 'package:masaratapp/App/Controllers/user_controller.dart';
-import 'package:masaratapp/App/samples/slmaples.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -11,19 +8,19 @@ import 'Controller/pdf_preview_controller.dart';
 import 'helpers/json_to_pdf_widgets.dart';
 
 class PdfPreviewScreen extends StatelessWidget {
-  Map<String, dynamic>? jsonLayout;
+  final Map<String, dynamic> jsonLayout;
   final Map<String, dynamic> variables;
 
-  PdfPreviewScreen({
+  const PdfPreviewScreen({
     super.key,
-    this.jsonLayout,
+    required this.jsonLayout,
     required this.variables,
   });
 
   @override
   Widget build(BuildContext context) {
-    var ss = Get.find<UserController>();
-    jsonLayout = PrintSamples(compData: ss.compData).getCusKshfSample;
+    // var ss = Get.find<UserController>();
+    // jsonLayout = PrintSamples(compData: ss.compData).getCusKshfSample;
     return GetBuilder<PreviewController>(
       init: PreviewController(),
       builder: (controller) => Scaffold(
@@ -102,7 +99,7 @@ class PdfPreviewScreen extends StatelessWidget {
             //     build: (context) => xWidget,
             //   ),
             // );
-            final widgets = await renderToPdfWidgets(jsonLayout ?? {}, variables);
+            final widgets = await renderToPdfWidgets(jsonLayout, variables);
 
             pdf.addPage(
               pw.MultiPage(
