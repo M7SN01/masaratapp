@@ -145,7 +145,7 @@ class SanadatController extends GetxController {
     update();
     // await Future.delayed(Duration(seconds: 4));
     try {
-      print("start posting-------------------------");
+      // print("start posting-------------------------");
       String stmt = """
         DECLARE
           last_serial NUMBER;
@@ -214,7 +214,7 @@ class SanadatController extends GetxController {
       isPostingToApi = false;
       isPostedBefor = false;
       userController.appLog += "${e.toString()} \n------------------------------------------\n";
-      showMessage(color: secondaryColor, titleMsg: "posting error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 1000);
+      showMessage(color: secondaryColor, titleMsg: "posting error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
     }
 
     update();
@@ -236,7 +236,7 @@ class SanadatController extends GetxController {
     try {
       var response = await dbServices.createRep(
         sqlStatment: """
-      SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,a.AMNT , DSCR ,
+      SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,round(a.AMNT,2) AMNT , DSCR ,
       (SELECT TO_CHAR(DATE1,'yyyy-mm-dd') FROM ACC_HD b WHERE b.ACC_TYPE=a.ACC_TYPE AND b.ACC_HD_ID=a.ACC_HD_ID) DATE1
 
       FROM ACC_DT a WHERE a.CUS_ID IS NOT NULL and a.ACC_TYPE IN(${sanadatAct.map((act) => "'${act.actId}'").join(',')})
@@ -249,37 +249,22 @@ class SanadatController extends GetxController {
       
       """,
       );
-      searchResults.value = response;
+      if (response.isNotEmpty && response[0]['CUS_ID'] != null) {
+        searchResults.value = response;
+      } else {
+        searchResults.value = [];
+      }
       isSearchingOfSanad.value = false;
     } catch (e) {
+      showMessage(color: secondaryColor, titleMsg: "Catch Post error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
+
       searchResults.value = [];
       isSearchingOfSanad.value = false;
     }
   }
 
-  void setSelectedSanad({
-    required String sanadTypeId,
-    required String sanadTypeName,
-    required String sanadId,
-    required CusDataModel customer,
-    required String selectedDate,
-    required String amnt,
-    required String dscr,
-  }) {
-    selectedSanadTypeId = sanadTypeId;
-    selectedSanadType = sanadTypeName;
-    savedSanadId = " $sanadTypeName ( $sanadId )";
-    selecetdCustomer = customer;
-    date.text = selectedDate;
-    amount.text = amnt;
-    description.text = dscr;
-
-    isPostedBefor = true;
-
-    update(); // optional: to trigger GetBuilder if needed
-  }
-
   void sanadSearchDialoag() {
+    searchOfSanad.clear();
     Get.dialog(
       AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -343,7 +328,7 @@ class SanadatController extends GetxController {
           child: Obx(
             () {
               final results = Get.find<SanadatController>().searchResults;
-              if (results.isEmpty) return const SizedBox.shrink();
+              if (results.isEmpty) return Center(child: Text("لا يوجد بيانات"));
               return ListView.builder(
                 itemCount: results.length,
                 itemBuilder: (context, index) {
@@ -372,27 +357,29 @@ class SanadatController extends GetxController {
                       ],
                     ),
                     onTap: () {
-                      final String actId = item['ACC_TYPE'].toString();
-                      final String actTypeName = item['ACT_NAME'].toString();
-                      final String accHdId = item['ACC_HD_ID'].toString();
-                      final int cusId = item['CUS_ID'];
-                      final String parsedDate = item['DATE1'].toString();
-                      final String amount = item['AMNT'].toStringAsFixed(2);
-                      final String dscr = item['DSCR'].toString();
+                      // final String actId = item['ACC_TYPE'].toString();
+                      // final String actTypeName = item['ACT_NAME'].toString();
+                      // final String accHdId = item['ACC_HD_ID'].toString();
+                      // final int cusId = item['CUS_ID'];
+                      // final String parsedDate = item['DATE1'].toString();
+                      // final String amount = item['AMNT'].toStringAsFixed(2);
+                      // final String dscr = item['DSCR'].toString();
 
-                      final customer = controller.cusData.firstWhereOrNull((c) => c.cusId == cusId);
-                      if (customer == null) return;
+                      // final customer = controller.cusData.firstWhereOrNull((c) => c.cusId == cusId);
+                      // if (customer == null) return;
 
-                      controller.setSelectedSanad(
-                        sanadTypeId: actId,
-                        sanadTypeName: actTypeName,
-                        sanadId: accHdId,
-                        customer: customer,
-                        selectedDate: parsedDate,
-                        amnt: amount,
-                        dscr: dscr,
-                      );
-                      Get.back();
+                      selectedSanadTypeId = item['ACC_TYPE'].toString();
+                      selectedSanadType = item['ACC_TYPE'].toString();
+                      savedSanadId = item['ACC_HD_ID'].toString();
+                      selecetdCustomer = controller.cusData.firstWhereOrNull((c) => c.cusId == item['CUS_ID']);
+                      ;
+                      date.text = item['DATE1'].toString();
+                      amount.text = item['AMNT'].toStringAsFixed(2);
+                      description.text = item['DSCR'].toString();
+
+                      isPostedBefor = true;
+
+                      update();
                     },
                   );
                 },

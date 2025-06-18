@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:masaratapp/App/samples/slmaples.dart';
-import '../Controllers/user_controller.dart';
-import '../Widget/widget.dart';
 import 'package:pluto_grid/pluto_grid.dart';
+
+import '../Controllers/user_controller.dart';
 import '../Models/user_model.dart';
+// import '../Print/direct_print.dart';
+// import '../Print/helpers/table_to_data_list.dart';
 import '../Print/direct_print.dart';
-import '../Print/helpers/table_to_data_list.dart';
 import '../Print/pdf_viewer.dart';
 import '../Services/api_db_services.dart';
+import '../Widget/widget.dart';
 import '../utils/utils.dart';
 
 class InvoiceController extends GetxController {
@@ -29,6 +32,7 @@ class InvoiceController extends GetxController {
 
   bool isPostingToApi = false;
   bool isPostedBefor = false;
+  bool isGettingFromApi = false;
 
   TextEditingController searchTextController = TextEditingController();
 
@@ -63,11 +67,10 @@ class InvoiceController extends GetxController {
             width: 120,
             child: TextButton(
               onPressed: () {
-                showInvoiceInPdfPreviewer();
-                // await printInvoiceDirectly();
+                printInvoiceDirectly();
               },
               style: TextButton.styleFrom(maximumSize: Size(Get.width, Get.height), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), backgroundColor: primaryColor),
-              child: Icon(isPostedBefor ? Icons.print_rounded : Icons.print_disabled_rounded, color: isPostedBefor ? Colors.white : disabledColor),
+              child: GetBuilder<InvoiceController>(builder: (controller) => Icon(isPostedBefor ? Icons.print_rounded : Icons.print_disabled_rounded, color: isPostedBefor ? Colors.white : disabledColor)),
             ),
           ),
         ),
@@ -101,7 +104,7 @@ class InvoiceController extends GetxController {
                   onPressed: () {
                     saveInvoice();
                   },
-                  style: TextButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), backgroundColor: rows.isNotEmpty ? saveColor : disabledColor),
+                  style: TextButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), backgroundColor: rows.isNotEmpty && !isPostedBefor ? saveColor : disabledColor),
                   child: const Text("حـفـظ", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 );
         },
@@ -548,15 +551,6 @@ class InvoiceController extends GetxController {
     }
   }
 
-  /*
-  Widget customFooter() {
-    return Container(
-      height: 50,
-      width: 100,
-      color: primaryColor,
-    );
-  }
-*/
   TextEditingController cusName = TextEditingController();
   TextEditingController cusMobil = TextEditingController();
   TextEditingController cusArds = TextEditingController();
@@ -637,29 +631,20 @@ class InvoiceController extends GetxController {
     };
   }
 
-/*
-  Future<void> printInvoiceDirectly() async {
-    // isPostingToApi = false;
-    // update();  //only for stop loading   ... for test only
-    // print("Waite while printing ..............");
+  printInvoiceDirectly() {
     if (isPostedBefor) {
-      //execute
-      Map x = tableDataToListData(tableRows: rows, tableColumns: columns);
-
-      List<String> headers = x['tableColumns'];
-      List<List<dynamic>> data = x["tableRows"];
-      await printJsondirectly(tableHeader: headers, tableData: data, isfromJson: false);
+      PrintSamples ps = PrintSamples(compData: userController.compData);
+      printJsondirectly(
+        jsonLayout: ps.getSlsShowSample,
+        variables: getVariablesData(),
+      );
     } else {
       showMessage(color: secondaryColor, titleMsg: "يرجى حفظ الفاتورة", titleFontSize: 18, durationMilliseconds: 1000);
     }
   }
-*/
+
   showInvoiceInPdfPreviewer() {
     if (isPostedBefor) {
-      // Map x = tableDataToListData(tableRows: rows, tableColumns: columns);
-      // List<String> hesders = x['tableColumns'];
-      // List<List<dynamic>> data = x["tableRows"];
-      //Get.to(() => PdfPreviewScreen(tableHeader: hesders, tableData: data, variables: const {}));
       PrintSamples ps = PrintSamples(compData: userController.compData);
       Get.to(() => PdfPreviewScreen(
             jsonLayout: ps.getSlsShowSample,
@@ -783,8 +768,6 @@ class InvoiceController extends GetxController {
     );
   }
 
-  // String userName = ""; //temp  get it after login
-  // int userId = 1;
   Future<void> postInvoiceToServer() async {
     isPostingToApi = true;
     update();
@@ -873,30 +856,264 @@ class InvoiceController extends GetxController {
         // print("****************** ${response[0]['R_ID']}   *************");
         savedInvoiceId = response[0]['R_ID'].toStringAsFixed(0);
         savedInvoiceDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        showMessage(color: saveColor, titleMsg: "تم الحفظ", titleFontSize: 18, durationMilliseconds: 1000);
+        showMessage(color: saveColor, titleMsg: "تم الحفظ", titleFontSize: 18, durationMilliseconds: 5000);
       }
     } catch (e) {
       isPostingToApi = false;
       isPostedBefor = false;
       userController.appLog += "${e.toString()} \n------------------------------------------\n";
-      showMessage(color: secondaryColor, titleMsg: "posting error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 1000);
+      showMessage(color: secondaryColor, titleMsg: "posting error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
     }
 
     update();
   }
 
+//******************Get INVOICE***************************
+  final searchOfInvoice = TextEditingController();
+  var searchResults = [].obs;
+  var isSearchingOfSanad = false.obs;
+//******************Get INVOICE HEADER
+  Future<void> fetchSearchResults(String query) async {
+    if (query.isEmpty) {
+      isSearchingOfSanad.value = false;
+      searchResults.clear();
+      return;
+    }
+    isSearchingOfSanad.value = true;
+
+    try {
+      var response = await dbServices.createRep(sqlStatment: """
+        SELECT R_TP ,get_act_name(R_TP) ACT_NAME,R_ID,TO_CHAR(DATE1,'yyyy-mm-dd') DATE1 , CUS_ID ,ROUND(PUR_TTL,2) PUR_TTL , DSCR,CUS_NM,CUS_NM1,CUS_MOBILE,USR_INS,TAX_NO
+        FROM SLS_SHOW_HD
+        WHERE R_TP IN(${act.map((act) => "'${act.actId}'").join(',')})
+        AND USR_INS =${userController.uId} 
+        AND 1  = CHK_CUS_USR_PRV (CUS_ID ,${userController.uId} )
+        AND (
+        LOWER(get_cus_name_DB(CUS_ID)) LIKE LOWER('%$query%') OR
+        TO_CHAR(R_ID) LIKE '%$query%' OR
+         LOWER(get_act_name(R_TP)) LIKE LOWER('%$query%')
+        )
+        """);
+      // debugPrint(response.toString());
+      if (response.isNotEmpty && response[0]['R_TP'] != null) {
+        searchResults.value = response;
+      } else {
+        searchResults.value = [];
+      }
+
+      isSearchingOfSanad.value = false;
+    } catch (e) {
+      debugPrint(e.toString());
+      showMessage(color: secondaryColor, titleMsg: "Catch Post error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
+
+      searchResults.value = [];
+      isSearchingOfSanad.value = false;
+    }
+  }
+
+//******************Get INVOICE DETAILES
+  Future<void> fetchInvoiceData() async {
+    isGettingFromApi = true;
+    update();
+    try {
+      var response = await dbServices.createRep(sqlStatment: """
+          SELECT BARCODE, ITEM_ID,GET_ITEM_NAME_DB(ITEM_ID) ITEM_NAME, UNIT, QTY, ROUND(PRICE,2) PRICE,ROUND(VAT_VAL,2) VAT_VAL,ROUND(PRICE_AFTR_VAT,2) PRICE_AFTR_VAT
+          FROM SLS_SHOW_DT
+          WHERE R_TP=$selectedInvTypeId  AND R_ID=$savedInvoiceId
+          ORDER BY SRL
+          """);
+      if (response.isNotEmpty && response[0]['ITEM_ID'] != null) {
+        try {
+          for (var row in response) {
+            rows.add(
+              PlutoRow(
+                cells: {
+                  'ACTION': PlutoCell(value: ""),
+                  'BARCODE': PlutoCell(value: row['BARCODE'].toString()),
+                  'ITEM_ID': PlutoCell(value: row['ITEM_ID'].toString()),
+                  'ITEM_NAME': PlutoCell(value: row['ITEM_NAME'].toString()),
+                  'UNIT': PlutoCell(value: row['UNIT'].toString()),
+                  'QTY': PlutoCell(value: row['QTY']), //?? 0
+                  'PRICE': PlutoCell(value: (row['PRICE'])), //?? 0
+                  'PRICE_AFTR_VAT': PlutoCell(value: (row['PRICE_AFTR_VAT'] ?? (row['PRICE'] + row['VAT_VAL']))), //?? row['PRICE'] * 1.15
+                  'TOTAL': PlutoCell(value: ((row['PRICE_AFTR_VAT'] ?? (row['PRICE'] + row['VAT_VAL'])) * row['QTY'] ?? 0)), //(row['PRICE_AFTR_VAT'] ?? row['PRICE'] * 1.15)
+                },
+              ),
+            );
+          }
+        } catch (e) {
+          showMessage(color: secondaryColor, titleMsg: "خطا تفاصيل الحركة", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
+        }
+      }
+      //  else {
+      //   // clearInvoiceData();
+      //   // showMessage(color: secondaryColor, titleMsg: "لايوجد بيانات", titleFontSize: 18, msg: response.toString(), durationMilliseconds: 5000);
+      // }
+
+      isGettingFromApi = false;
+    } catch (e) {
+      // debugPrint(e.toString());
+      showMessage(color: secondaryColor, titleMsg: "Catch Post error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
+
+      isGettingFromApi = false;
+    }
+    update();
+  }
+
+  void sanadSearchDialoag() {
+    searchOfInvoice.clear();
+    searchResults.clear();
+    if (Get.isSnackbarOpen) Get.back(); // close snackbar
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        insetPadding: EdgeInsets.zero,
+        titlePadding: EdgeInsets.zero,
+        contentPadding: EdgeInsets.zero,
+        actionsPadding: EdgeInsets.zero,
+        backgroundColor: Colors.grey.shade100,
+        // surfaceTintColor: Colors.grey.shade100,
+        title: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Obx(
+            () {
+              final controller = Get.find<InvoiceController>();
+              return Column(
+                children: [
+                  const Text("بحث عن فاتورة"),
+                  controller.isSearchingOfSanad.value
+                      ? LinearProgressIndicator(
+                          color: secondaryColor,
+                          minHeight: 2,
+                        )
+                      : const Divider(),
+                  SizedBox(
+                    height: 45,
+                    child: GetBuilder<InvoiceController>(
+                      builder: (controller) => TextFormField(
+                        // focusNode: controller.fn,
+                        enabled: !isGettingFromApi,
+                        controller: controller.searchOfInvoice,
+                        keyboardType: TextInputType.text,
+                        textAlignVertical: const TextAlignVertical(y: -0.4),
+                        decoration: InputDecoration(
+                          labelText: "search".tr,
+                          hintText: "اسم عميل/(رقم-نوع) فاتورة",
+                          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                          suffixIcon: const Icon(Icons.search, color: primaryColor),
+                          border: const OutlineInputBorder(
+                            gapPadding: 4,
+                            // borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onChanged: (value) {
+                          controller.fetchSearchResults(value);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        content: Container(
+          height: Get.height / 2,
+          width: Get.width / 2,
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Obx(
+            () {
+              final results = Get.find<InvoiceController>().searchResults;
+              if (results.isEmpty && searchTextController.text.isNotEmpty) return Center(child: Text("لا يوجد بيانات"));
+              return ListView.builder(
+                itemCount: results.length,
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> item = results[index];
+                  final controller = Get.find<InvoiceController>();
+                  return ListTile(
+                    enabled: !isGettingFromApi,
+                    title: Text(item['CUS_NM'].toString()),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("${item['ACT_NAME']} ( ${item['R_ID']} ) "),
+                        Text("${item['DATE1']}"),
+                        Row(
+                          children: [
+                            Text("المبلغ :  ${item['PUR_TTL']}"),
+                            SizedBox(width: 10),
+                            SvgPicture.asset(
+                              'assets/images/rs.svg',
+                              width: 15,
+                              height: 15,
+                              // fit: BoxFit.contain,
+                            ),
+                          ],
+                        ),
+                        Divider(),
+                      ],
+                    ),
+                    onTap: () {
+                      controller.selectedInvTypeId = item['R_TP'].toString();
+                      controller.selectedInvType = item['ACT_NAME'].toString();
+                      controller.invDescription.text = item['DSCR'].toString();
+                      controller.selecetdCustomer = controller.cusData.firstWhereOrNull((c) => c.cusId == item['CUS_ID']);
+                      controller.savedInvoiceId = item['R_ID'].toString();
+                      controller.isPostedBefor = true;
+                      controller.rows.clear();
+
+                      controller.update();
+                      Get.back();
+                      //to delay the data fetch until after the dialog is fully closed:
+                      Future.delayed(Duration(microseconds: 200), () {
+                        fetchInvoiceData();
+                      });
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: TextButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), backgroundColor: secondaryColor),
+                  child: const Text("خروج", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  //
+
   clearInvoiceData() {
     isPostingToApi = false;
     isPostedBefor = false;
+    isGettingFromApi = false;
     rows.clear();
     selecetdCustomer = null;
     selectedInvTypeId = null;
     selectedInvType = null;
     savedInvoiceId = "";
     invDescription.clear();
+    searchResults.clear();
+    isSearchingOfSanad.value = false;
+    searchOfInvoice.clear();
 
     update();
   }
-
-  //
 }

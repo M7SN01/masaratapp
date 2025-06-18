@@ -8,6 +8,7 @@ Widget dropDownList({
   String initialText = "",
   Color? iconColor,
   Widget? icon,
+  bool enable = true,
 }) {
   return DropdownButtonHideUnderline(
     child: DropdownButton<String>(
@@ -17,10 +18,12 @@ Widget dropDownList({
       isExpanded: true,
       iconEnabledColor: iconColor,
       icon: icon,
-      onChanged: (newValue) {
-        callback(newValue);
-        // state.didChange(newValue);
-      },
+      onChanged: enable
+          ? (newValue) {
+              callback(newValue);
+              // state.didChange(newValue);
+            }
+          : null,
       items: showedList.map((String value) {
         return DropdownMenuItem<String>(
           value: value,

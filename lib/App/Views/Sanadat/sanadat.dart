@@ -77,6 +77,7 @@ class Sanadat extends StatelessWidget {
                           ),
                           height: 60,
                           child: dropDownList(
+                            enable: !controller.isPostedBefor,
                             initialText: "نوع السند",
                             iconColor: primaryColor,
                             chosedItem: controller.selectedSanadType,
@@ -96,48 +97,53 @@ class Sanadat extends StatelessWidget {
                       //chose customer
                       Expanded(
                         child: GestureDetector(
-                          child: Container(
-                            height: double.infinity,
-                            decoration: BoxDecoration(
-                              color: controller.selecetdCustomer == null ? primaryColor : secondaryColor,
-                              border: Border.all(color: Colors.grey, width: 1),
-                              borderRadius: BorderRadius.circular(5),
-                              shape: BoxShape.rectangle,
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.checklist_rounded,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text(
-                                  "إختر عميل",
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
-                              ],
+                          onTap: controller.isPostedBefor
+                              ? null
+                              : () {
+                                  showDialog(
+                                    useSafeArea: true,
+                                    context: context,
+                                    builder: (context) {
+                                      return SearchListDialog(
+                                        title: "اختر عميل",
+                                        originalData: controller.cusData.map((e) => SearchList(id: e.cusId, name: e.cusName)).toList(),
+                                        onSelected: (selectedItem) {
+                                          controller.selecetdCustomer = controller.cusData.firstWhere((e) => e.cusId == selectedItem.id);
+                                          controller.update();
+                                          Get.back();
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                          child: Opacity(
+                            opacity: !controller.isPostedBefor ? 1.0 : 0.5,
+                            child: Container(
+                              height: double.infinity,
+                              decoration: BoxDecoration(
+                                color: controller.selecetdCustomer == null ? primaryColor : secondaryColor,
+                                border: Border.all(color: Colors.grey, width: 1),
+                                borderRadius: BorderRadius.circular(5),
+                                shape: BoxShape.rectangle,
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.checklist_rounded,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    "إختر عميل",
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          onTap: () {
-                            showDialog(
-                              useSafeArea: true,
-                              context: context,
-                              builder: (context) {
-                                return SearchListDialog(
-                                  title: "اختر عميل",
-                                  originalData: controller.cusData.map((e) => SearchList(id: e.cusId, name: e.cusName)).toList(),
-                                  onSelected: (selectedItem) {
-                                    controller.selecetdCustomer = controller.cusData.firstWhere((e) => e.cusId == selectedItem.id);
-                                    controller.update();
-                                    Get.back();
-                                  },
-                                );
-                              },
-                            );
-                          },
                         ),
                       ),
                     ],
@@ -222,13 +228,15 @@ class Sanadat extends StatelessWidget {
                                 top: 0,
                                 left: 0,
                                 child: IconButton(
-                                  onPressed: () {
-                                    controller.selecetdCustomer = null;
-                                    controller.update();
-                                  },
-                                  icon: const Icon(
+                                  onPressed: controller.isPostedBefor
+                                      ? null
+                                      : () {
+                                          controller.selecetdCustomer = null;
+                                          controller.update();
+                                        },
+                                  icon: Icon(
                                     Icons.cancel_rounded,
-                                    color: secondaryColor,
+                                    color: controller.isPostedBefor ? Colors.grey : secondaryColor,
                                     size: 30,
                                   ),
                                 ),

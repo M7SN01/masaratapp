@@ -207,6 +207,7 @@ class UserController extends GetxController {
       (SELECT CS_CLS_ID FROM USER_CUS_GRP WHERE U_ID='$uId' AND CHK = 1 
       )
       """,
+      // where  1  = CHK_CUS_USR_PRV (CUS_ID ,${userController.uId} )
     );
 
     for (var element in response) {

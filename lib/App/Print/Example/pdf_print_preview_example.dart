@@ -24,7 +24,7 @@ class _PdfPrintPreviewExampleState extends State<PdfPrintPreviewExample> {
         children: [
           ElevatedButton(
             onPressed: () async {
-              printJsondirectly(jsonLayout: mapData, isfromJson: true); // print directly to priniters
+              printJsondirectly(jsonLayout: mapData, variables: {}); // print directly to priniters
             },
             child: const Text("Print directly"),
           ),

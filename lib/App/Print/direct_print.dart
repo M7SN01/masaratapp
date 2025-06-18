@@ -4,10 +4,10 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'helpers/json_to_pdf_widgets.dart';
 
-Future<void> printJsondirectly({
+printJsondirectly({
   required Map<String, dynamic> jsonLayout,
   required Map<String, dynamic> variables,
-}) async {
+}) {
   Printing.layoutPdf(onLayout: (PdfPageFormat format) async {
     final fontData = await rootBundle.load("assets/fonts/Arial.ttf");
     final font = pw.Font.ttf(fontData);
