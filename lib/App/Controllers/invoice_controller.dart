@@ -13,6 +13,7 @@ import '../Models/user_model.dart';
 import '../Print/direct_print.dart';
 import '../Print/pdf_viewer.dart';
 import '../Services/api_db_services.dart';
+import '../Widget/themed_rich_text.dart';
 import '../Widget/widget.dart';
 import '../utils/utils.dart';
 
@@ -336,21 +337,6 @@ class InvoiceController extends GetxController {
     }
   }
 
-  List<ItemsDataModel> filteredItems = [];
-
-  void filterSearch(String query) {
-    if (query.isEmpty) {
-      final results = itemsData.where((item) => item.qty > 0).toList();
-      results.sort((a, b) => (b.qty).compareTo(a.qty));
-      filteredItems = results;
-    } else {
-      final results = itemsData.where((item) => item.itemName.toLowerCase().contains(query.toLowerCase())).toList();
-      results.sort((a, b) => (b.qty).compareTo(a.qty));
-      filteredItems = results;
-    }
-    update(); // Update the UI
-  }
-
   TextEditingController qtytextController = TextEditingController();
   editqty(int index) {
     qtytextController.text = rows[index].cells['QTY']!.value.toStringAsFixed();
@@ -400,6 +386,60 @@ class InvoiceController extends GetxController {
     );
   }
 
+//****************colored Text that matching the search */
+  TextSpan highlightQueryInText(String fullText, String query, TextStyle normalStyle, TextStyle highlightStyle) {
+    if (query.isEmpty) return TextSpan(text: fullText, style: normalStyle);
+
+    final lowerText = fullText.toLowerCase();
+    final lowerQuery = query.toLowerCase();
+
+    List<TextSpan> spans = [];
+    int start = 0;
+
+    while (true) {
+      final index = lowerText.indexOf(lowerQuery, start);
+      if (index < 0) {
+        spans.add(TextSpan(text: fullText.substring(start), style: normalStyle));
+        break;
+      }
+
+      if (index > start) {
+        spans.add(TextSpan(text: fullText.substring(start, index), style: normalStyle));
+      }
+
+      spans.add(TextSpan(text: fullText.substring(index, index + query.length), style: highlightStyle));
+      start = index + query.length;
+    }
+
+    return TextSpan(children: spans);
+  }
+
+  List<ItemsDataModel> filteredItems = [];
+  // var searchItemQuery = "".obs;
+  void filterSearch(String query) {
+    // searchItemQuery.value = query;
+    if (query.isEmpty) {
+      final results = itemsData.where((item) => item.qty > 0).toList();
+      results.sort((a, b) => (b.qty).compareTo(a.qty));
+      filteredItems = results;
+    } else {
+      //Old Only By Item Name
+      // final results = itemsData.where((item) => item.itemName.toLowerCase().contains(query.toLowerCase())).toList();
+      // results.sort((a, b) => (b.qty).compareTo(a.qty));
+      // filteredItems = results;
+
+      final lowerQuery = query.toLowerCase();
+      final results = itemsData
+          .where(
+            (item) => item.itemName.toLowerCase().contains(lowerQuery) || item.itemId.toString().contains(lowerQuery) || item.barcode.toLowerCase().contains(lowerQuery),
+          )
+          .toList();
+      results.sort((a, b) => b.qty.compareTo(a.qty));
+      filteredItems = results;
+    }
+    update(); // Update the UI
+  }
+
   FocusNode fn = FocusNode();
   addNewItems() {
     if (isPostedBefor) {
@@ -427,7 +467,7 @@ class InvoiceController extends GetxController {
                       textAlignVertical: const TextAlignVertical(y: -0.4),
                       decoration: InputDecoration(labelText: "search".tr, labelStyle: const TextStyle(fontWeight: FontWeight.bold), suffixIcon: const Icon(Icons.search, color: primaryColor), border: const OutlineInputBorder(gapPadding: 4, borderSide: BorderSide.none)),
                       // onTapOutside: (event) {
-                      //   print("outside *****************************");
+                      //   debugPrint("outside *****************************");
                       //   fn.unfocus();
                       // },
                       onChanged: controller.filterSearch,
@@ -459,14 +499,67 @@ class InvoiceController extends GetxController {
                     elevation: 1,
                     child: ListTile(
                       key: ValueKey(item.itemId),
+                      subtitle: Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Center(
+                              child: ThemedRichText(
+                                text: highlightQueryInText(
+                                  item.itemId,
+                                  searchTextController.text,
+                                  const TextStyle(color: Colors.black),
+                                  const TextStyle(color: secondaryColor),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: ThemedRichText(
+                              text: highlightQueryInText(
+                                item.barcode,
+                                searchTextController.text,
+                                const TextStyle(color: Colors.black),
+                                const TextStyle(color: secondaryColor),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                       title: exists
                           ? Row(
                               children: [
-                                Expanded(flex: 2, child: Center(child: Text(item.itemName, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)))),
+                                //item Name
+                                Expanded(
+                                  flex: 2,
+                                  child: Center(
+                                    child: ThemedRichText(
+                                      textAlign: TextAlign.center,
+                                      text: highlightQueryInText(
+                                        item.itemName,
+                                        searchTextController.text, //   controller.searchItemQuery.value,
+                                        const TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: Colors.black),
+                                        const TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: secondaryColor), // لون الحروف المطابقة
+                                      ),
+                                    ),
+
+                                    // Text(
+                                    //   item.itemName,
+                                    //   textAlign: TextAlign.center,
+                                    //   style: const TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+                                    // ),
+                                  ),
+                                ),
+                                //cancle quantity
                                 Expanded(
                                   flex: 1,
                                   child: GestureDetector(
-                                    child: Text("${item.qty}  - ${item.unit}", style: const TextStyle(fontWeight: FontWeight.bold, color: secondaryColor), textAlign: TextAlign.center),
+                                    child: Text(
+                                      "${item.qty}  - ${item.unit}",
+                                      style: const TextStyle(fontWeight: FontWeight.bold, color: secondaryColor),
+                                      textAlign: TextAlign.center,
+                                    ),
                                     onTap: () {
                                       item.qty = 0;
                                       rows.removeWhere((row) => row.cells['ITEM_ID']?.value == item.itemId);
@@ -477,9 +570,30 @@ class InvoiceController extends GetxController {
                               ],
                             )
                           : Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(child: Center(child: Text(item.itemName, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)))),
+                                //item Name
+                                Expanded(
+                                  child: Center(
+                                    child: ThemedRichText(
+                                      textAlign: TextAlign.center,
+                                      text: highlightQueryInText(
+                                        item.itemName,
+                                        searchTextController.text, //   controller.searchItemQuery.value,
+                                        const TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: Colors.black),
+                                        const TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: secondaryColor), // لون الحروف المطابقة
+                                      ),
+                                    ),
+                                    // child: Text(
+                                    //   item.itemName,
+                                    //   textAlign: TextAlign.center,
+                                    //   style: const TextStyle(
+                                    //     fontWeight: FontWeight.bold,
+                                    //     fontStyle: FontStyle.italic,
+                                    //   ),
+                                    // ),
+                                  ),
+                                ),
+                                //Add|Edit quantity
                                 SizedBox(
                                   height: 50,
                                   width: 70,
@@ -487,22 +601,27 @@ class InvoiceController extends GetxController {
                                     keyboardType: TextInputType.number,
                                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                     //  textAlignVertical: const TextAlignVertical(y: -0.8),
-                                    decoration: const InputDecoration(border: OutlineInputBorder(gapPadding: 4, borderSide: BorderSide(width: 0.5, color: primaryColor))),
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(
+                                        gapPadding: 4,
+                                        borderSide: BorderSide(width: 0.5, color: primaryColor),
+                                      ),
+                                    ),
                                     maxLength: 4,
                                     buildCounter: (context, {required currentLength, required isFocused, required maxLength}) => null,
 
                                     textAlign: TextAlign.center,
                                     onTap: () {
-                                      print("ontap -------------------------------");
+                                      debugPrint("ontap -------------------------------");
                                       //to change to number keyboard for qty input
                                       fn.unfocus();
                                     },
                                     onChanged: (value) {
-                                      // print("----------------------------- : ${item.qty}");
+                                      // debugPrint("----------------------------- : ${item.qty}");
 
                                       item.qty = int.tryParse(value) ?? 0;
 
-                                      // print("+++++++++++++++++++++++++++++ : ${item.qty}");
+                                      // debugPrint("+++++++++++++++++++++++++++++ : ${item.qty}");
                                       update();
                                     },
                                   ),
@@ -510,7 +629,7 @@ class InvoiceController extends GetxController {
                               ],
                             ),
                       onTap: () {
-                        // print("============================ : ${item.qty}");
+                        // debugPrint("============================ : ${item.qty}");
 
                         controller.addPlutoRow(item);
                       },
@@ -663,10 +782,10 @@ class InvoiceController extends GetxController {
       showMessage(color: secondaryColor, titleMsg: "الفاتورة محفوظة مسبقا", titleFontSize: 18, durationMilliseconds: 1000);
     } else if (rows.isNotEmpty) {
       if (selecetdCustomer == null) {
-        // print("No customer +++++++++++++++++");
+        // debugPrint("No customer +++++++++++++++++");
         await addUnSavedCustomerInfo();
       } else {
-        // print("There is a customer +++++++++++++++++");
+        // debugPrint("There is a customer +++++++++++++++++");
         await postInvoiceToServer();
       }
     } else {
@@ -752,7 +871,7 @@ class InvoiceController extends GetxController {
                       showMessage(color: secondaryColor, titleMsg: "ادخل رقم هاتف العميل", titleFontSize: 18, durationMilliseconds: 1000);
                     } else {
                       selecetdCustomer = CusDataModel(cusId: 0, cusName: cusName.text, mobl: cusMobil.text, adrs: cusArds.text, taxNo: cusTaxNo.text, isNewCus: true);
-                      // print(DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now()));
+                      // debugPrint(DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now()));
                       update();
                       Get.back();
                     }
@@ -801,7 +920,7 @@ class InvoiceController extends GetxController {
         );
       }
 
-      // print("start posting-------------------------");
+      // debugPrint("start posting-------------------------");
       String stmt = """
         DECLARE
           last_serial NUMBER;
@@ -841,11 +960,11 @@ class InvoiceController extends GetxController {
         END;
         """;
 
-      // print(vatDetails);
+      // debugPrint(vatDetails);
       // debugPrint(vatDetails.toString(), wrapWidth: 1024);
-      // print(stmt);
+      // debugPrint(stmt);
       var response = await dbServices.createRep(sqlStatment: stmt);
-      // print("****************** $response   *************");
+      // debugPrint("****************** $response   *************");
       //
       isPostingToApi = false;
       if (response.isEmpty) {
@@ -853,7 +972,7 @@ class InvoiceController extends GetxController {
 
         response = await dbServices.createRep(sqlStatment: "SELECT MAX(R_ID) R_ID  FROM SLS_SHOW_HD WHERE USR_INS=${userController.uId}");
 
-        // print("****************** ${response[0]['R_ID']}   *************");
+        // debugPrint("****************** ${response[0]['R_ID']}   *************");
         savedInvoiceId = response[0]['R_ID'].toStringAsFixed(0);
         savedInvoiceDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
         showMessage(color: saveColor, titleMsg: "تم الحفظ", titleFontSize: 18, durationMilliseconds: 5000);

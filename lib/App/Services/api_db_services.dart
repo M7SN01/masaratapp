@@ -9,7 +9,8 @@ import '../utils/utils.dart';
 // String server = "http://10.147.19.83:80";
 // String server = "http://10.242.132.113:80";
 String protocol = "http";
-String ip = "10.242.132.113"; // Zero "10.242.132.113"; //"localhost";
+String ip = "10.242.132.113"; //192.168.192.200 MASARAT IP
+// Zero "10.242.132.113"; //"localhost";
 String port = '881';
 var url = '$protocol://$ip:$port/pos/api/values/CMD/1';
 
@@ -21,9 +22,9 @@ class Services {
     // Function(String error)? errorCallback,
   }) async {
     var sql = {"CMD": sqlStatment};
-    // print(url);
-    // print(sql);
-    // print(dotenv.env['URL']!);
+    // debugPrint(url);
+    // debugPrint(sql);
+    // debugPrint(dotenv.env['URL']!);
     final response = await http.post(Uri.parse(url), body: sql); //.timeout(Duration(seconds: 20));
     if (response.statusCode == 200) {
       try {
@@ -73,16 +74,16 @@ class Services {
         return jsonResponse;
       } catch (e) {
         error = response.body;
-        print("+++++++++++++++++++++++++++++++++++++++++++++");
-        print(error);
-        print("+++++++++++++++++++++++++++++++++++++++++++++");
+        debugPrint("+++++++++++++++++++++++++++++++++++++++++++++");
+        debugPrint(error);
+        debugPrint("+++++++++++++++++++++++++++++++++++++++++++++");
         return ['$error'];
       }
-      // print(response.body);
+      // debugPrint(response.body);
     } catch (e) {
-      print("==============================================");
-      print(e);
-      print("==============================================");
+      debugPrint("==============================================");
+      debugPrint(e);
+      debugPrint("==============================================");
 
       return ['-1'];
     }
@@ -96,12 +97,12 @@ class Services {
       var sql = {"IMG": name, "base64": base64};
       final response = await http.post(Uri.parse(urlsingleimg), headers: {"Content-Type": "application/json"}, body: jsonEncode(sql));
       final jsonResponse = json.decode(response.body);
-      // print(response.body);
+      // debugPrint(response.body);
       return jsonResponse;
     } catch (e) {
-      print("================================================");
-      print(e);
-      print("================================================");
+      debugPrint("================================================");
+      debugPrint(e);
+      debugPrint("================================================");
       return ['-1'];
     }
   }
@@ -112,12 +113,12 @@ class Services {
       var sql = {};
       final response = await http.post(Uri.parse(urlADSimg), headers: {"Content-Type": "application/json"}, body: jsonEncode(sql));
       final jsonResponse = json.decode(response.body);
-      // print(response.body);
+      // debugPrint(response.body);
       return jsonResponse;
     } catch (e) {
-      print("================================================");
-      print(e);
-      print("================================================");
+      debugPrint("================================================");
+      debugPrint(e);
+      debugPrint("================================================");
       return ['-1'];
     }
   }
@@ -128,12 +129,12 @@ class Services {
       var sql = {"IMGname": ImageName};
       final response = await http.post(Uri.parse(urlimgname), headers: {"Content-Type": "application/json"}, body: jsonEncode(sql));
       final jsonResponse = json.decode(response.body);
-      // print(response.body);
+      // debugPrint(response.body);
       return jsonResponse;
     } catch (e) {
-      print("================================================");
-      print(e);
-      print("================================================");
+      debugPrint("================================================");
+      debugPrint(e);
+      debugPrint("================================================");
       return ['-1'];
     }
   }
@@ -150,16 +151,16 @@ class Services {
         return jsonResponse;
       } catch (e) {
         error = response.body;
-        print("+++++++++++++++++++++++++++++++++++++++++++++");
-        print(error);
-        print("+++++++++++++++++++++++++++++++++++++++++++++");
+        debugPrint("+++++++++++++++++++++++++++++++++++++++++++++");
+        debugPrint(error);
+        debugPrint("+++++++++++++++++++++++++++++++++++++++++++++");
         return ['$error'];
       }
-      // print(response.body);
+      // debugPrint(response.body);
     } catch (e) {
-      print("==============================================");
-      print(e);
-      print("==============================================");
+      debugPrint("==============================================");
+      debugPrint(e);
+      debugPrint("==============================================");
 
       return ['-1'];
     }

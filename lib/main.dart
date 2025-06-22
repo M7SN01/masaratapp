@@ -7,10 +7,17 @@ import 'package:google_fonts/google_fonts.dart';
 // import '../Views/Login/Login_view2.dart';
 
 // import 'App/Controllers/user_privileges_controller.dart';
+import 'App/Bindings/cus_kshf_binding.dart';
+import 'App/Bindings/invoice_binding.dart';
+import 'App/Bindings/login_binding.dart';
+import 'App/Bindings/sanadat_binding.dart';
 import 'App/Locale/locale.dart';
 import 'App/Locale/locale_controller.dart';
 
+import 'App/Views/CustomerKshf/cus_kshf.dart';
+import 'App/Views/Invoice/invoice.dart';
 import 'App/Views/Login/Login_view.dart';
+import 'App/Views/Sanadat/sanadat.dart';
 import 'App/Views/Splash_Screen/splash_view.dart';
 
 /*
@@ -42,16 +49,56 @@ class PosApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
       locale: Get.deviceLocale,
-
       supportedLocales: const [Locale('en'), Locale('ar')],
-      localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
-
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       translations: AppLocale(),
       theme: ThemeData(
         useMaterial3: true,
         fontFamily: GoogleFonts.cairo().fontFamily,
         // scaffoldBackgroundColor: const Color(0xFFf5f7f9),
+        // textTheme: GoogleFonts.cairoTextTheme(), // ✅ correct way to effect any RichText style
+        /*
+        textTheme: GoogleFonts.cairoTextTheme().copyWith(
+          bodyLarge: GoogleFonts.cairoTextTheme().bodyLarge?.copyWith(
+                fontFamily: GoogleFonts.cairo().fontFamily,
+              ),
+          // repeat for other text styles as needed
+        ),
+        */
       ),
+      initialRoute: '/',
+      getPages: [
+        GetPage(
+          name: '/',
+          page: () => SplashScreen(),
+        ),
+        GetPage(
+          name: '/Login',
+          page: () => const Login(),
+          binding: LoginBinding(),
+        ),
+        GetPage(
+          name: '/Sanadat',
+          page: () => Sanadat(),
+          binding: SanadatBinding(),
+        ),
+        GetPage(
+          name: '/Invoice',
+          page: () => Invoice(),
+          binding: InvoiceBinding(),
+        ),
+        GetPage(
+          name: '/CustomerKshf',
+          page: () => const CustomerKshf(),
+          binding: CustomerKshfBinding(),
+        ),
+      ],
+
+      /*
       onGenerateRoute: (settings) {
         return PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 1000),
@@ -83,6 +130,8 @@ class PosApp extends StatelessWidget {
           },
         );
       },
+
+      */
     );
   }
 }

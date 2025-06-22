@@ -4,6 +4,6 @@ import '../Controllers/invoice_controller.dart';
 class InvoiceBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put<InvoiceController>(InvoiceController(), permanent: true);
+    Get.lazyPut<InvoiceController>(() => InvoiceController() /*, permanent: true*/);
   }
 }

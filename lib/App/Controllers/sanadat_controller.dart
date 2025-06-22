@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:masaratapp/App/Services/sqflite_services.dart';
 import 'package:masaratapp/App/samples/slmaples.dart';
+import 'package:sqflite/sqflite.dart';
 import '../Models/user_model.dart';
 import '../Print/direct_print.dart';
 import '../Print/pdf_viewer.dart';
@@ -13,10 +15,12 @@ import 'user_controller.dart';
 
 class SanadatController extends GetxController {
   final Services dbServices = Services();
+  SqlDb sqldb = SqlDb();
   late UserController userController;
 
   String? userId;
   String userName = "";
+  // bool isOfflineMode = false;
   late CompData compData;
 
   String? selectedSanadType;
@@ -39,6 +43,7 @@ class SanadatController extends GetxController {
     userController = Get.find<UserController>();
     userId = userController.uId;
     userName = userController.uName;
+    // isOfflineMode = userController.isOfflineMode;
     sanadatAct = userController.actPrivList.where((e) => [int.parse("53${userController.uId}"), int.parse("57${userController.uId}")].contains(e.actId)).toList();
     cusData = userController.cusDataList;
     compData = userController.compData;
@@ -73,7 +78,7 @@ class SanadatController extends GetxController {
       "t_sanad_type": savedSanadId,
       "t_date": "التاريخ",
       "date": date.text,
-      "a_t_recive_from": "استلنا من المكرم",
+      "a_t_recive_from": "استلما من المكرم",
       "e_t_recive_from": "Recevied from Mr",
       "cus_name": selecetdCustomer!.cusName,
       "a_t_amount_words": "مبلغ وقدره",
@@ -91,7 +96,7 @@ class SanadatController extends GetxController {
   Future<void> printSanad() async {
     isPostingToApi = false;
     update();
-    // print("Waite while printing ..............");
+    // debugPrint("Waite while printing ..............");
     if (isPostedBefor) {
       PrintSamples ps = PrintSamples(compData: compData);
       await printJsondirectly(
@@ -133,7 +138,12 @@ class SanadatController extends GetxController {
       } else if (selectedSanadTypeId == null) {
         showMessage(color: secondaryColor, titleMsg: "يجب اختيار نوع السند", titleFontSize: 18, durationMilliseconds: 1000);
       } else {
-        await postSanadToServer();
+        if (userController.isOfflineMode) {
+          debugPrint("Is Offline Insert0000000000000000000000");
+          await insertSanadToLocalData();
+        } else {
+          await postSanadToServer();
+        }
       }
     } else {
       showMessage(color: secondaryColor, titleMsg: "جميع الحقول اجبارية", titleFontSize: 18, durationMilliseconds: 1000);
@@ -145,7 +155,7 @@ class SanadatController extends GetxController {
     update();
     // await Future.delayed(Duration(seconds: 4));
     try {
-      // print("start posting-------------------------");
+      // debugPrint("start posting-------------------------");
       String stmt = """
         DECLARE
           last_serial NUMBER;
@@ -154,19 +164,12 @@ class SanadatController extends GetxController {
           --get last recorde R_ID and incress for the new insert
           
            SELECT NVL(MAX(ACC_HD_ID),0) + 1  INTO last_serial   FROM ACC_HD  WHERE ACC_TYPE = '$selectedSanadTypeId' ;
-         -- SELECT MAX(SS) INTO last_serial  
-         -- FROM (SELECT NVL(SRL,0) + 1  SS   FROM ACT_TYPE  WHERE ACT_ID = '$selectedSanadTypeId'  
-         -- UNION ALL
-         -- SELECT NVL(MAX(ACC_HD_ID),0) + 1  SS  FROM ACC_HD  WHERE ACC_TYPE = '$selectedSanadTypeId' 
-          --)
-
-          --last_serial := last_serial + 1;
 
           -- Inserting The Header                 
-          INSERT INTO ACC_HD(ACC_TYPE,ACC_HD_ID,DATE1,BR_ID,CUR_ID
+          INSERT INTO ACC_HD(ACC_TYPE,ACC_HD_ID,DATE1 ${userController.csClsPrivList[0].brId != "" ? ",BR_ID" : ""},CUR_ID
           ,TTL,DSCR,TRHEL,RDY,SYS_TYPE,BRNCH_ACT,EXCHNG_PR
           ,USR_INS,USR_INS_DATE,SCRN_SRC) 
-          VALUES ($selectedSanadTypeId,last_serial,TO_DATE('${date.text}', 'YYYY-MM-DD'),${userController.csClsPrivList[0].brId},'${userController.csClsPrivList[0].curId}'
+          VALUES ($selectedSanadTypeId,last_serial,TO_DATE('${date.text}', 'YYYY-MM-DD') ${userController.csClsPrivList[0].brId != "" ? ",${userController.csClsPrivList[0].brId}" : ""},'${userController.csClsPrivList[0].curId}'
           ,${amount.text},'${description.text}',0,1,'نظام العملاء'
           ,0,1
           ,$userId,TO_DATE('${DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now())}', 'MM/DD/YYYY HH24:MI:SS')
@@ -181,20 +184,20 @@ class SanadatController extends GetxController {
           ,1,${amount.text},'${description.text}',${userController.cstCntrPrivList[0].cstCntrID},1);  
 
           INSERT INTO ACC_DT(BANK_ID,ACC_TYPE,ACC_HD_ID,ACC_ID,CUR_ID
-          ,STATE,AMNT,DSCR,BR_ID,CST_ID) 
+          ,STATE,AMNT,DSCR ${userController.csClsPrivList[0].brId != "" ? ",BR_ID" : ""},CST_ID) 
           VALUES (${userController.bankPrivList[0].bankID},$selectedSanadTypeId,last_serial,'${userController.bankPrivList[0].accID}','${userController.bankPrivList[0].curId}'
-          ,2,${amount.text},'${description.text}',${userController.csClsPrivList[0].brId}
+          ,2,${amount.text},'${description.text}' ${userController.csClsPrivList[0].brId != "" ? ",${userController.csClsPrivList[0].brId}" : ""}
           ,${userController.cstCntrPrivList[0].cstCntrID});   
 
           COMMIT;
         END;
         """;
 
-      // print(vatDetails);
+      // debugPrint(vatDetails);
       // debugPrint(vatDetails.toString(), wrapWidth: 1024);
       debugPrint(stmt);
       var response = await dbServices.createRep(sqlStatment: stmt);
-      // print("****************** $response   *************");
+      // debugPrint("****************** $response   *************");
       //
       isPostingToApi = false;
       if (response.isEmpty) {
@@ -205,7 +208,7 @@ class SanadatController extends GetxController {
           SELECT MAX(ACC_HD_ID) ACC_HD_ID    FROM ACC_HD  WHERE ACC_TYPE = '$selectedSanadTypeId' AND USR_INS=$userId """,
         );
 
-        // print("****************** ${response[0]['ACC_HD_ID']}   *************");
+        // debugPrint("****************** ${response[0]['ACC_HD_ID']}   *************");
         savedSanadId = " $selectedSanadType ( ${response[0]['ACC_HD_ID'].toStringAsFixed(0)} )";
 
         showMessage(color: saveColor, titleMsg: "تم الحفظ", titleFontSize: 18, durationMilliseconds: 1000);
@@ -217,6 +220,93 @@ class SanadatController extends GetxController {
       showMessage(color: secondaryColor, titleMsg: "posting error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
     }
 
+    update();
+  }
+
+  Future<void> insertSanadToLocalData() async {
+    isPostingToApi = true;
+    update();
+
+    try {
+      Database? mydb = await sqldb.db;
+
+      // 1. الحصول على last_serial
+      final result = await mydb!.rawQuery('SELECT MAX(ACC_HD_ID) + 1 as new_srl FROM ACC_HD WHERE ACC_TYPE = ?', [selectedSanadTypeId]);
+      final lastSerial = result.first['new_srl'] ?? 1;
+
+      // 2. one shot execuet
+      var response = await mydb.transaction((txn) async {
+        await txn.rawInsert('''
+        INSERT INTO ACC_HD(ACC_TYPE, ACC_HD_ID, DATE1, CUR_ID, TTL, DSCR, TRHEL, RDY, SYS_TYPE, BRNCH_ACT, EXCHNG_PR, USR_INS, USR_INS_DATE, SCRN_SRC,SYNC ${userController.csClsPrivList[0].brId != "" ? ", BR_ID" : ""})
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,? ${userController.csClsPrivList[0].brId != "" ? ", ?" : ""})
+        ''', [
+          selectedSanadTypeId,
+          lastSerial,
+          date.text,
+          userController.csClsPrivList[0].curId,
+          amount.text,
+          description.text,
+          0,
+          1,
+          'نظام العملاء',
+          0,
+          1,
+          userId,
+          DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now()),
+          'CUS_HD_DT',
+          0, //SYNC
+          if (userController.csClsPrivList[0].brId != "") userController.csClsPrivList[0].brId,
+        ]);
+
+        await txn.rawInsert('''
+        INSERT INTO ACC_DT(CUS_ID, ACC_TYPE, ACC_HD_ID, ACC_ID, CUR_ID, STATE, AMNT, DSCR, CST_ID, SRL)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', [
+          selecetdCustomer!.cusId,
+          selectedSanadTypeId,
+          lastSerial,
+          userController.csClsPrivList[0].accId,
+          userController.csClsPrivList[0].curId,
+          1,
+          amount.text,
+          description.text,
+          userController.cstCntrPrivList[0].cstCntrID,
+          1,
+        ]);
+
+        await txn.rawInsert('''
+        INSERT INTO ACC_DT(BANK_ID, ACC_TYPE, ACC_HD_ID, ACC_ID, CUR_ID, STATE, AMNT, DSCR ${userController.csClsPrivList[0].brId != "" ? ", BR_ID" : ""}, CST_ID)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ? ${userController.csClsPrivList[0].brId != "" ? ", ?" : ""}, ?)
+        ''', [
+          userController.bankPrivList[0].bankID,
+          selectedSanadTypeId,
+          lastSerial,
+          userController.bankPrivList[0].accID,
+          userController.bankPrivList[0].curId,
+          2,
+          amount.text,
+          description.text,
+          if (userController.csClsPrivList[0].brId != "") userController.csClsPrivList[0].brId,
+          userController.cstCntrPrivList[0].cstCntrID,
+        ]);
+
+        return [];
+      });
+      isPostingToApi = false;
+      if (response.isEmpty) {
+        isPostedBefor = true;
+
+        // debugPrint("****************** ${response[0]['ACC_HD_ID']}   *************");
+        savedSanadId = " $selectedSanadType ( $lastSerial )";
+
+        showMessage(color: saveColor, titleMsg: "تم الحفظ", titleFontSize: 18, durationMilliseconds: 1000);
+      }
+    } catch (e) {
+      isPostingToApi = false;
+      isPostedBefor = false;
+      userController.appLog += "${e.toString()} \n------------------------------------------\n";
+      showMessage(color: secondaryColor, titleMsg: "posting error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
+    }
     update();
   }
 
@@ -372,14 +462,14 @@ class SanadatController extends GetxController {
                       selectedSanadType = item['ACC_TYPE'].toString();
                       savedSanadId = item['ACC_HD_ID'].toString();
                       selecetdCustomer = controller.cusData.firstWhereOrNull((c) => c.cusId == item['CUS_ID']);
-                      ;
                       date.text = item['DATE1'].toString();
                       amount.text = item['AMNT'].toStringAsFixed(2);
                       description.text = item['DSCR'].toString();
 
                       isPostedBefor = true;
-
                       update();
+
+                      Get.back();
                     },
                   );
                 },
@@ -406,155 +496,3 @@ class SanadatController extends GetxController {
     );
   }
 }
-
-/*
-Map<String, dynamic> getTestMap() {
-  final controller = Get.find<SanadatController>();
-  return containerW(
-    // w: 600,
-    // h: 400,
-    // width: mmToPixel(210),
-    height: 328, //mmToPixel(297 / 3),
-
-    padding: [10, 10, 10, 10],
-    containerDecorationW: containerDecorationW(containerDecorationBorderW: containerDecorationBorderW(width: 0.5), radius: 4),
-    child: columnW(
-      children: [
-        
-       
-        // rowW(children: [expandedW(child: dashedLineW(dashSpace: 1, dashWidth: 2, height: 1))]),
-        // expandedW(child: dashedLineW(dashSpace: 1, dashWidth: 2, height: 1)),
-        sizedBoxW(height: 10),
-        //type & date  & amount
-        rowW(
-          children: [
-            //amount
-            expandedW(
-              // flex: 1,
-              child: containerW(
-                padding: [5, 5, 5, 5],
-                // margin: [10, 0, 0, 0],
-                containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)),
-                child: rowW(mainAxisAlignment: "center", children: [textW("المبلغ", fontSize: 14), textW("   :   ", fontSize: 14), textW(controller.amount.text, fontSize: 14), sizedBoxW(width: 10), imageSvgW(assetName: "assets/images/rs.svg", height: 18, width: 18)]),
-              ),
-            ),
-
-            //sanad No
-            expandedW(
-              flex: 2,
-              child: containerW(
-                padding: [5, 5, 5, 5],
-                margin: [10, 0, 10, 0],
-                containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)),
-                child: rowW(
-                  mainAxisAlignment: "center",
-                  children: [
-                    // textW(
-                    //   controller.selectedSanadType ?? "",
-                    //   fontSize: 14,
-                    //   textAlign: "center",
-                    //   // fontWeight: "bold",
-                    // ),
-                    // textW(
-                    //   "  رقم  ",
-                    //   fontSize: 14,
-                    //   textAlign: "center",
-                    //   // fontWeight: "bold",
-                    // ),
-                    textW(
-                      controller.savedSanadId.toString(),
-                      fontSize: 14,
-                      textAlign: "center",
-                      // fontWeight: "bold",
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            //Date
-            expandedW(
-              // flex: 1,
-              child: containerW(
-                padding: [5, 5, 5, 5],
-                // margin: [0, 0, 10, 0],
-                containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)),
-                child: rowW(
-                  mainAxisAlignment: "center",
-                  children: [
-                    textW("التاريخ", fontSize: 14),
-                    textW("   :   ", fontSize: 14),
-                    textW(controller.date.text, fontSize: 14),
-                    // sizedBoxW(width: 10),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-
-        //content
-        containerW(
-          // height: 300,
-          margin: [0, 5, 0, 0],
-          padding: [5, 5, 5, 5],
-          containerDecorationW: containerDecorationW(radius: 8, containerDecorationBorderW: containerDecorationBorderW(width: 0.5)),
-          child: columnW(
-            children: [
-              // 1st  row
-              rowW(
-                children: [
-                  expandedW(flex: 1, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW("إستلمنا من المكرم"))),
-                  expandedW(flex: 3, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW(controller.selecetdCustomer!.cusName))),
-                  expandedW(flex: 1, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW("Recevied from Mr"))),
-                ],
-              ),
-
-              //2nd row
-              rowW(
-                children: [
-                  expandedW(flex: 1, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW("مبلغ وقدره"))),
-                  expandedW(flex: 3, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW(convertToArabicWords(double.parse(controller.amount.text))))),
-                  expandedW(flex: 1, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW("The Amount"))),
-                ],
-              ),
-
-              //3rd row
-              rowW(
-                children: [
-                  expandedW(flex: 1, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW("وذلك مقابل"))),
-                  expandedW(flex: 3, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW(controller.description.text))),
-                  expandedW(flex: 1, child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: textW("As payment for"))),
-                ],
-              ),
-
-              //3rd row
-              rowW(
-                children: [
-                  expandedW(child: containerW(height: 32, margin: [1, 1, 1, 1], padding: [5, 5, 5, 5], containerDecorationW: containerDecorationW(color: "#F5F5F5", radius: 4, containerDecorationBorderW: containerDecorationBorderW(width: 1)), child: rowW(mainAxisAlignment: "center", children: [textW("مدخل السند"), textW("  <=>  "), textW(controller.userName)]))),
-                ],
-              ),
-            ],
-          ),
-        ),
-        //line bootom
-        /*   rowW(
-          children: [
-            expandedW(
-              child: containerW(
-                containerDecorationW: containerDecorationW(
-                  radius: 8,
-                  containerDecorationBorderW: containerDecorationBorderW(width: 0.5),
-                ),
-              ),
-            ),
-          ],
-        ),
-   */
-      ],
-    ),
-  );
-}
-
-
-*/

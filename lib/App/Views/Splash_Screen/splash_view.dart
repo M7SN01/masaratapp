@@ -81,6 +81,7 @@ class SplashScreen extends StatelessWidget {
       screenRouteFunction: () async {
         return "Login";
       },
+
       splashTransition: SplashTransition.fadeTransition,
       //decoratedBoxTransition => blinking bakground
       // pageTransitionType: PageTransitionType.fade,

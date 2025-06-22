@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../Bindings/invoice_binding.dart';
+import 'package:masaratapp/App/Controllers/offline_user_controller.dart';
+import '../../Bindings/offline_binding.dart';
 import '../../Controllers/login_controller.dart';
-// import '../Controllers/user_controller.dart';
 import '../../utils/utils.dart';
-import '../../Views/Invoice/invoice.dart';
-
-// import '../../Controllers/invoice_controller.dart';
-import '../../Bindings/cus_kshf_binding.dart';
-import '../../Bindings/sanadat_binding.dart';
-import '../CustomerKshf/cus_kshf.dart';
-import '../Sanadat/sanadat.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -20,24 +13,25 @@ class Home extends StatelessWidget {
     return GetBuilder<LoginController>(
       builder: (controller) => Scaffold(
         appBar: AppBar(
-          title: Text("Home"),
+          title: Column(
+            children: [
+              Text("Home"),
+              if (controller.isOfflineMode)
+                Text(
+                  "العمل دون اتصال",
+                  style: TextStyle(color: secondaryColor),
+                ),
+            ],
+          ),
+          // ,
           centerTitle: true,
           leading: SizedBox(),
           actions: [
             IconButton(
               onPressed: () async {
-                //                 ucontroller.uId = "";
-                // ucontroller.uName = "";
-                // ucontroller.actPrivList.clear();
-                // ucontroller.cusDataList.clear();
-                // ucontroller.slsCntrPrivList.clear();
-                // ucontroller.cstCntrPrivList.clear();
-                // ucontroller.branchPrivList.clear();
-                // ucontroller.stWhPrivList.clear();
-                // ucontroller.csClsPrivList.clear();
-                // ucontroller.bankPrivList.clear();
-                // ucontroller.itemsDataList.clear();
                 await controller.onLogout();
+                Get.offAllNamed('/Login');
+                // Get.offAll(() => Login(), binding: LoginBinding());
               },
               icon: Icon(Icons.logout_rounded),
             ),
@@ -55,22 +49,32 @@ class Home extends StatelessWidget {
                 icon: Icons.inventory_outlined,
                 title: "فاتورة مبيعات",
                 onTap: () {
-                  // print("hhhhhhhhhhhhhhhhh");
-                  Get.to(() => const Invoice(), binding: InvoiceBinding());
+                  // debugPrint("hhhhhhhhhhhhhhhhh");
+                  Get.toNamed('/Invoice');
+                  // Get.to(() => const Invoice(), binding: InvoiceBinding());
                 },
               ),
               mainGraid(
                 icon: Icons.inventory_outlined,
                 title: "سـنـد قـبـض",
                 onTap: () {
-                  Get.to(() => const Sanadat(), binding: SanadatBinding());
+                  Get.toNamed('/Sanadat');
+                  // Get.to(() => const Sanadat(), binding: SanadatBinding());
                 },
               ),
               mainGraid(
                 icon: Icons.inventory_outlined,
                 title: "كشف حساب",
                 onTap: () {
-                  Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
+                  Get.toNamed('/CustomerKshf');
+                  // Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
+                },
+              ),
+              mainGraid(
+                icon: Icons.inventory_outlined,
+                title: "العمل دون اتصال",
+                onTap: () {
+                  Get.to(() => const OfflineSqflite(), binding: OfflineBinding());
                 },
               ),
             ],
@@ -99,6 +103,43 @@ class Home extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Center(child: Text(textAlign: TextAlign.center, title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class OfflineSqflite extends StatelessWidget {
+  const OfflineSqflite({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<OfflineUserController>(
+      builder: (controller) => Scaffold(
+        appBar: AppBar(
+          title: Text("Test"),
+        ),
+        body: Column(
+          children: [
+            Center(
+              child: ElevatedButton(
+                onPressed: controller.isLoading ? null : () => controller.setNewOfflineData(),
+                child: Text("Sync Offline Data"),
+              ),
+            ),
+            if (controller.isLoading)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: LinearProgressIndicator(
+                  value: controller.loadingProgress,
+                  minHeight: 8,
+                ),
+              ),
+            ElevatedButton(
+              onPressed: controller.isLoading ? null : () => controller.serverToLocalSanadatData(),
+              child: Text(" Get Data"),
+            ),
           ],
         ),
       ),

@@ -80,7 +80,7 @@ Future createPdfFile({pw.Widget? pdfHeader, pw.Widget? pdfFooter, required List<
     // Save the PDF file
   } catch (e) {
     p = [];
-    // print(e);
+    // debugPrint(e);
   }
 
   String fileName = pdfName != "" ? "$pdfName.pdf" : "${DateTime.now().hour.toString()}-${DateTime.now().minute.toString()}-${DateTime.now().second.toString()}.pdf";

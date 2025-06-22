@@ -16,6 +16,17 @@ class Sanadat extends StatelessWidget {
       builder: (controller) => Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          title: Column(
+            children: [
+              Text("سند قبض"),
+              if (controller.userController.isOfflineMode)
+                Text(
+                  "العمل دون اتصال",
+                  style: TextStyle(color: secondaryColor),
+                ),
+            ],
+          ),
+          centerTitle: true,
           actions: [
             //clear all
             IconButton(

@@ -267,10 +267,10 @@ class CustomerKshf extends StatelessWidget {
                               // controller.update();
                             },
                             onRowSecondaryTap: (event) {
-                              print("sssssssssssssssssssssssssssssssss");
+                              debugPrint("sssssssssssssssssssssssssssssssss");
                             },
                             // onRowDoubleTap: (event) {
-                            //   // print("fffffffffffff00ffffff : ${event.cell.column.field}");
+                            //   // debugPrint("fffffffffffff00ffffff : ${event.cell.column.field}");
                             //   if (event.cell.column.field == 'QTY') {
                             //     int? rowIndex = event.rowIdx;
                             //     controller.editqty(rowIndex);
@@ -278,7 +278,7 @@ class CustomerKshf extends StatelessWidget {
                             //   }
                             // },
                             // onSelected: (event) {
-                            //   print("select .........................");
+                            //   debugPrint("select .........................");
                             //   if (event.cell!.column.field == 'QTY') {
                             //     int? rowIndex = event.rowIdx;
                             //     if (rowIndex != null) {

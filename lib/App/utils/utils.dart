@@ -212,7 +212,7 @@ class UserColumnMenu implements PlutoColumnMenuDelegate<UserColumnMenuItem> {
           //      // stateManager.setColumnSizeConfig(PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.none));
           // stateManager.setConfiguration(_configuration);
           // // stateManager.updateVisibilityLayout();
-          // print("Colsed");
+          // debugPrint("Colsed");
           //   },
         );
 

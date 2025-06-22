@@ -250,7 +250,7 @@ class CusKshfController extends GetxController {
 
         //   // Calculate AMNT
         //   final amntValue = previousAMNT + currentAMNTMD - currentAMNTDN;
-        //   // print("$currentAMNTDN + $currentAMNTMD + $previousAMNT = $amntValue");
+        //   // debugPrint("$currentAMNTDN + $currentAMNTMD + $previousAMNT = $amntValue");
         //   currentRow.cells['BAL']!.value = amntValue;
         //   rows[rendererContext.rowIdx].cells['BAL']!.value = amntValue;
 
@@ -426,7 +426,7 @@ class CusKshfController extends GetxController {
         isPostingToApi = true;
         update();
 
-        // print("****************** $response   *************");
+        // debugPrint("****************** $response   *************");
         rows.clear();
 
         for (var element in response) {

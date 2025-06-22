@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../Controllers/login_controller.dart';
+import '../../Locale/locale_controller.dart';
 import '../Splash_Screen/splash_view.dart';
 
 class Login extends StatefulWidget {
@@ -18,8 +19,9 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
+    LocaleController localeController = Get.find();
     return GetBuilder<LoginController>(
-      init: LoginController(),
+      // init: LoginController(),
       builder: (controller) => Scaffold(
         resizeToAvoidBottomInset: false,
         body: Container(
@@ -105,32 +107,17 @@ class _LoginState extends State<Login> {
                               ),
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.white.withOpacity(
-                                    0.2,
-                                  ),
-                                  Colors.white.withOpacity(
-                                    0.2,
-                                  ),
-                                  Colors.white.withOpacity(
-                                    0.2,
-                                  ),
-                                  Colors.white.withOpacity(
-                                    0.2,
-                                  ),
+                                  Colors.white.withAlpha((0.2 * 255).round()),
+                                  Colors.white.withAlpha((0.2 * 255).round()),
+                                  Colors.white.withAlpha((0.2 * 255).round()),
+                                  Colors.white.withAlpha((0.2 * 255).round()),
                                 ],
-                                stops: const [
-                                  0.1,
-                                  0.3,
-                                  0.8,
-                                  1,
-                                ],
+                                stops: const [0.1, 0.3, 0.8, 1],
                                 begin: Alignment.bottomLeft,
                                 end: Alignment.topRight,
                               ),
                               border: Border.all(
-                                color: Colors.white.withOpacity(
-                                  0.3,
-                                ),
+                                color: Colors.white.withAlpha((0.3 * 255).round()),
                                 width: 1.0,
                               ),
                             ),
@@ -138,50 +125,32 @@ class _LoginState extends State<Login> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const SizedBox(
-                                  height: 60,
+                                  height: 70,
                                 ),
                                 //User Name
                                 Container(
                                   margin: const EdgeInsets.all(
                                     20,
                                   ),
-                                  padding: const EdgeInsets.fromLTRB(
-                                    0,
-                                    15,
-                                    0,
-                                    0,
-                                  ),
+                                  padding: EdgeInsets.zero,
                                   height: 50,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(
-                                      20,
+                                      8,
                                     ),
                                     gradient: LinearGradient(
                                       colors: [
-                                        Colors.white.withOpacity(
-                                          0.2,
-                                        ),
-                                        Colors.white.withOpacity(
-                                          0.1,
-                                        ),
-                                        Colors.white.withOpacity(
-                                          0.05,
-                                        ),
+                                        Colors.white.withAlpha((0.2 * 255).round()),
+                                        Colors.white.withAlpha((0.1 * 255).round()),
+                                        Colors.white.withAlpha((0.05 * 255).round()),
                                         Colors.transparent,
                                       ],
-                                      stops: const [
-                                        0.1,
-                                        0.3,
-                                        0.8,
-                                        1,
-                                      ],
+                                      stops: const [0.1, 0.3, 0.8, 1],
                                       begin: Alignment.bottomLeft,
                                       end: Alignment.topRight,
                                     ),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(
-                                        0.5,
-                                      ),
+                                      color: Colors.white.withAlpha((0.5 * 255).round()),
                                       width: 2,
                                     ),
                                   ),
@@ -205,46 +174,31 @@ class _LoginState extends State<Login> {
                                 ),
                                 //Password
                                 Container(
-                                  margin: const EdgeInsets.all(
-                                    20,
+                                  margin: const EdgeInsets.only(
+                                    top: 10,
+                                    bottom: 20,
+                                    left: 20,
+                                    right: 20,
                                   ),
-                                  padding: const EdgeInsets.fromLTRB(
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                  ),
+                                  padding: EdgeInsets.zero,
                                   height: 50,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(
-                                      20,
+                                      8,
                                     ),
                                     gradient: LinearGradient(
                                       colors: [
-                                        Colors.white.withOpacity(
-                                          0.2,
-                                        ),
-                                        Colors.white.withOpacity(
-                                          0.1,
-                                        ),
-                                        Colors.white.withOpacity(
-                                          0.05,
-                                        ),
+                                        Colors.white.withAlpha((0.2 * 255).round()),
+                                        Colors.white.withAlpha((0.1 * 255).round()),
+                                        Colors.white.withAlpha((0.05 * 255).round()),
                                         Colors.transparent,
                                       ],
-                                      stops: const [
-                                        0.1,
-                                        0.3,
-                                        0.8,
-                                        1,
-                                      ],
+                                      stops: const [0.1, 0.3, 0.8, 1],
                                       begin: Alignment.bottomLeft,
                                       end: Alignment.topRight,
                                     ),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(
-                                        0.5,
-                                      ),
+                                      color: Colors.white.withAlpha((0.5 * 255).round()),
                                       width: 2,
                                     ),
                                   ),
@@ -336,7 +290,7 @@ class _LoginState extends State<Login> {
                                           ),
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
-                                              20,
+                                              12,
                                             ), // Set the rounded corner radius
                                           ),
                                         ),
@@ -355,72 +309,60 @@ class _LoginState extends State<Login> {
                                 const SizedBox(
                                   height: 20,
                                 ),
-
-                                //Forget && Dont have account
-                                const Row(
-                                  textDirection: TextDirection.ltr,
-                                  children: [
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    Text(
-                                      " ? Forget password ",
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Color.fromARGB(
-                                          188,
-                                          0,
-                                          0,
-                                          0,
-                                        ),
+                                //Offline Mode
+                                Container(
+                                  height: 128,
+                                  // color: Colors.red,
+                                  margin: EdgeInsets.symmetric(horizontal: 15),
+                                  child: Column(
+                                    children: [
+                                      Switch(
+                                        value: controller.isOfflineMode,
+                                        thumbColor: const WidgetStatePropertyAll(Color(0xFF337ab7)),
+                                        trackColor: const WidgetStatePropertyAll(Colors.transparent),
+                                        thumbIcon: WidgetStatePropertyAll(Icon(controller.isOfflineMode ? Icons.wifi_off_outlined : Icons.wifi, color: Colors.white)),
+                                        trackOutlineColor: const WidgetStatePropertyAll(Color(0xFF337ab7)),
+                                        onChanged: (value) async {
+                                          await controller.changeOfflineMode();
+                                        },
                                       ),
-                                    ),
-                                    Text(
-                                      " Click Here",
-                                      style: TextStyle(
-                                        color: Color(
-                                          0xFF59709b,
-                                        ),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
+                                      Text(
+                                        "العمل بدون اتصال",
+                                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white
+                                            //  Color(
+                                            //   0xFF59709b,
+                                            // ),
+                                            ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-
-                                const Row(
-                                  textDirection: TextDirection.ltr,
-                                  children: [
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    Text(
-                                      " ? Don't have an account",
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Color.fromARGB(
-                                          188,
-                                          0,
-                                          0,
-                                          0,
+                                      if (controller.isOfflineMode) ...[
+                                        Divider(),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "آخر نسخة في  ",
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                                // Color(
+                                                //   0xFF59709b,
+                                                // ),
+                                              ),
+                                            ),
+                                            Text(
+                                              controller.lastOfflineCopyDate ?? "",
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    ),
-                                    Text(
-                                      " Sign up",
-                                      style: TextStyle(
-                                        color: Color(
-                                          0xFF59709b,
-                                        ),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(
-                                  height: 50,
+                                      ]
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -449,6 +391,39 @@ class _LoginState extends State<Login> {
                           child: LogoWidget(
                             withShimmer: false,
                           ), // Use the shared widget
+                        ),
+                      ),
+                    ),
+
+                    //Locales
+                    Positioned(
+                      top: 50,
+                      left: localeController.currentLanguage == "ar" ? null : 0,
+                      right: localeController.currentLanguage == "ar" ? 0 : null,
+                      child: IconButton(
+                        onPressed: () {
+                          if (localeController.currentLanguage == "ar") {
+                            localeController.changeLanguage("en");
+                          } else {
+                            localeController.changeLanguage("ar");
+                          }
+                        },
+                        icon: Row(
+                          children: [
+                            Icon(
+                              Icons.language,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 2),
+                            Text(
+                              localeController.currentLanguage == "ar" ? "En" : "Ar",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -490,6 +465,100 @@ class _LoginState extends State<Login> {
     );
   }
 }
+
+/*
+class AnimatedCard extends StatefulWidget {
+  final double x;
+  final double beginTop;
+  final double endTop;
+  final int scond;
+  final double cWidth;
+  final double cHight;
+
+  const AnimatedCard({
+    super.key,
+    required this.x,
+    required this.beginTop,
+    required this.endTop,
+    required this.scond,
+    required this.cWidth,
+    required this.cHight,
+  });
+
+  @override
+  State<AnimatedCard> createState() => AnimatedCardState();
+}
+
+class AnimatedCardState extends State<AnimatedCard> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: Duration(seconds: widget.scond),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(
+      begin: widget.beginTop,
+      end: widget.endTop,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(widget.x, _animation.value),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: 8.0,
+                sigmaY: 8.0,
+              ),
+              child: Container(
+                height: widget.cHight,
+                width: widget.cWidth,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white.withOpacity(0.2),
+                      Colors.white.withOpacity(0.2),
+                      Colors.white.withOpacity(0.2),
+                      Colors.white.withOpacity(0.2),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 1.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+*/
 
 class AnimatedCard extends StatefulWidget {
   final double x;
@@ -549,7 +618,7 @@ class AnimatedCardState extends State<AnimatedCard> with SingleTickerProviderSta
             ),
             child: BackdropFilter(
               filter: ImageFilter.blur(
-                sigmaX: 8.0,
+                sigmaX: 10.0,
                 sigmaY: 8.0,
               ),
               child: Container(
@@ -559,25 +628,17 @@ class AnimatedCardState extends State<AnimatedCard> with SingleTickerProviderSta
                   borderRadius: BorderRadius.circular(12),
                   gradient: LinearGradient(
                     colors: [
-                      Colors.white.withOpacity(
-                        0.2,
-                      ),
-                      Colors.white.withOpacity(
-                        0.2,
-                      ),
-                      Colors.white.withOpacity(
-                        0.2,
-                      ),
-                      Colors.white.withOpacity(
-                        0.2,
-                      ),
+                      Colors.white.withAlpha((0.2 * 255).round()),
+                      Colors.white.withAlpha((0.2 * 255).round()),
+                      Colors.white.withAlpha((0.2 * 255).round()),
+                      Colors.white.withAlpha((0.2 * 255).round()),
                     ],
                     // stops: [0.1, 0.3, 0.8, 1],
                     //  begin: Alignment.bottomLeft,
                     // end: Alignment.topRight,
                   ),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withAlpha((0.3 * 255).round()),
                     width: 1.0,
                   ),
                 ),

@@ -34,6 +34,7 @@ Widget dropDownList({
   );
 }
 
+/*
 class SearchListChkBx {
   String id;
   String name;
@@ -136,7 +137,7 @@ class CheckboxListWithSearchState extends State<CheckboxListWithSearch> {
                         option.state = value!;
                         options[options.indexOf(option)].state = option.state;
                       });
-                      // print("changed");
+                      // debugPrint("changed");
                       // Handle checkbox state change
                     },
                   );
@@ -171,7 +172,7 @@ class CheckboxListWithSearchState extends State<CheckboxListWithSearch> {
     );
   }
 }
-
+*/
 //---------------------------
 class SearchList {
   int id;
@@ -329,114 +330,3 @@ showMessage({
     // margin: const EdgeInsets.only(top: 10),
   );
 }
-
-
-/*
-class PickDateW extends StatefulWidget {
-  final TextEditingController dateDontroller;
-  final String labelText;
-  final double filedHeight;
-  final Function onSelectionChanged;
-  final int expandedFlix;
-  const PickDateW({
-    super.key,
-    required this.dateDontroller,
-    this.filedHeight = 45,
-    required this.onSelectionChanged,
-    this.labelText = "",
-    this.expandedFlix = 1,
-  });
-
-  @override
-  State<PickDateW> createState() => _PickDateWState();
-}
-
-class _PickDateWState extends State<PickDateW> {
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      flex: widget.expandedFlix,
-      child: SizedBox(
-        height: widget.filedHeight,
-        child: TextFormField(
-          // textAlignVertical: const TextAlignVertical(y: 0.5),
-          controller: widget.dateDontroller,
-          readOnly: true,
-          onTap: () {
-            showDialog(
-              useRootNavigator: true,
-              useSafeArea: true,
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                    content: SizedBox(
-                  width: 300,
-                  height: 400,
-                  child: SfDateRangePicker(
-                    initialSelectedDate: widget.dateDontroller.text == "" ? null : DateFormat('yyyy-MM-dd').parse(widget.dateDontroller.text),
-                    selectionColor: widget.dateDontroller.text == "" ? Colors.transparent : const Color(0xFF337ab7),
-                    selectionTextStyle: widget.dateDontroller.text == "" ? const TextStyle(color: Colors.black) : const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    showNavigationArrow: true,
-                    navigationMode: DateRangePickerNavigationMode.snap,
-                    headerHeight: 50,
-                    headerStyle: const DateRangePickerHeaderStyle(
-                      textAlign: TextAlign.center,
-                      textStyle: TextStyle(
-                        fontSize: 25,
-                      ),
-                    ),
-                    monthViewSettings: const DateRangePickerMonthViewSettings(
-                      dayFormat: 'EEE',
-                      viewHeaderStyle: DateRangePickerViewHeaderStyle(
-                        textStyle: TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    onSelectionChanged: (p0) {
-                      String date = DateFormat('yyyy-MM-dd').format(DateTime.parse(p0.value.toString())).toString();
-
-                      setState(() {
-                        widget.dateDontroller.text = date;
-                        widget.onSelectionChanged();
-                      });
-                      //  }
-                      Navigator.pop(context);
-                    },
-                    view: DateRangePickerView.month,
-                  ),
-                ));
-              },
-            );
-          },
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-          decoration: InputDecoration(
-            isDense: true,
-            labelText: widget.labelText,
-            prefixIcon: widget.dateDontroller.text.isNotEmpty
-                ? IconButton(
-                    onPressed: () {
-                      setState(() {
-                        widget.dateDontroller.text = "";
-                      });
-                    },
-                    icon: const Icon(
-                      Icons.clear,
-                      color: Colors.red,
-                      size: 30,
-                    ),
-                  )
-                : null,
-            border: const OutlineInputBorder(),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
-*/

@@ -1,26 +1,3 @@
-// class ActPrivModel {
-//   final int a53; // 53||1  1 is the user id
-//   final int a57; // 57||1  1 is the user id
-//   final int a58;
-//   final int a59;
-//   final int a60;
-//   final int a61;
-//   final int a77;
-//   final int a99;
-
-//   ActPrivModel({
-//     required this.a53,
-//     required this.a57,
-//     required this.a58,
-//     required this.a59,
-//     required this.a60,
-//     required this.a61,
-//     required this.a77,
-//     required this.a99,
-//   });
-
-//   //  double get total => (price * qty) - discount;
-// }
 class ItemsDataModel {
   final String itemId; // 53||1  1 is the user id
   final String barcode;
@@ -57,12 +34,12 @@ class ItemsDataModel {
 class ActPrivModel {
   final int actId; // 53||1  1 is the user id
   final String actName; // 57||1  1 is the user id
-  final bool chk;
+  // final bool chk;
 
   ActPrivModel({
     required this.actId,
     required this.actName,
-    required this.chk,
+    // required this.chk,
   });
 }
 
@@ -70,7 +47,7 @@ class CsClsPrivModel {
   final int cSClsId;
   final String cSClsName;
   final String accId;
-  final int brId;
+  final String? brId;
   final String curId;
 
   CsClsPrivModel({
@@ -114,41 +91,6 @@ class CusDataModel {
     this.isNewCus = false,
     this.previousBalance,
   });
-/*
-  CusDataModel copyWith({
-    int? cusId,
-    String? cusName,
-    String? mobl,
-    String? adrs,
-    String? taxNo,
-    int? slsManId,
-    int? stoped,
-    double? latitude,
-    double? longitude,
-    int? visitCnt,
-    int? vatStatus,
-    int? vatPr,
-    bool? isNewCus,
-    double? previousBalance,
-  }) {
-    return CusDataModel(
-      cusId: cusId ?? this.cusId,
-      cusName: cusName ?? this.cusName,
-      mobl: mobl ?? this.mobl,
-      adrs: adrs ?? this.adrs,
-      taxNo: taxNo ?? this.taxNo,
-      slsManId: slsManId ?? this.slsManId,
-      stoped: stoped ?? this.stoped,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
-      visitCnt: visitCnt ?? this.visitCnt,
-      vatStatus: vatStatus ?? this.vatStatus,
-      vatPr: vatPr ?? this.vatPr,
-      isNewCus: isNewCus ?? this.isNewCus,
-      previousBalance: previousBalance ?? this.previousBalance,
-    );
-  }
-*/
 }
 
 //

@@ -1,4 +1,5 @@
 // import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'package:flutter/widgets.dart';
 // import 'package:intl/intl.dart';
@@ -20,7 +21,7 @@ String fixFinalYaa(String text) {
       return '${word.substring(0, word.length - 1)}ـي';
     }
     // else if (word.endsWith('ي-')) {
-    //   print(word);
+    //   debugPrint(word);
     //   return '${word.substring(0, word.length - 1)}ـي';
     // }
     return word;
@@ -55,10 +56,10 @@ Future<pw.Widget> renderToPdfWidget(
   Map<String, dynamic> variables,
 //, {Map<String, List<Map<String, dynamic>>> lists = const {}}
 ) async {
-  // print(lists);
+  // debugPrint(lists);
   String interpolate(String? input) {
     if (input == null) return '';
-    // print("The input -------------------------  ( $input )");
+    // debugPrint("The input -------------------------  ( $input )");
     return input.replaceAllMapped(RegExp(r'\{\{(\w+)\}\}'), (match) {
       final key = match.group(1);
       return variables[key] ?? '';
@@ -241,9 +242,9 @@ Future<pw.Widget> renderToPdfWidget(
       final double dashSpace = args['dashSpace'] ?? 2;
       return pw.LayoutBuilder(builder: (context, constraints) {
         final dashCount = (constraints!.maxWidth / (dashWidth + dashSpace)).floor();
-        // print((constraints.maxWidth / (dashWidth + dashSpace)).floor());
-        // print(constraints.maxWidth);
-        // print("dash count : $dashCount");
+        // debugPrint((constraints.maxWidth / (dashWidth + dashSpace)).floor());
+        // debugPrint(constraints.maxWidth);
+        // debugPrint("dash count : $dashCount");
         return pw.Row(
           children: List.generate(
             dashCount * 2 - 1,
@@ -420,7 +421,7 @@ Future<Uint8List> loadAssetImage(String path) async {
     final list = bytes.buffer.asUint8List();
     return list;
   } catch (e) {
-    print('❌ Failed to load image: $path - $e');
+    debugPrint('❌ Failed to load image: $path - $e');
     rethrow;
   }
 }

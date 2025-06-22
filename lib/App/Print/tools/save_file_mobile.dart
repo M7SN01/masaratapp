@@ -31,9 +31,9 @@ class FileSaveHelper {
       try {
         await file.writeAsBytes(bytes);
         OpenFile.open(file.path);
-        //  print('$path/$fileName');
+        //  debugPrint('$path/$fileName');
       } catch (e) {
-        // print(e);
+        // debugPrint(e);
         throw Exception(e);
       }
     } else if (Platform.isWindows) {

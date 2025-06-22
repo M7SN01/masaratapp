@@ -70,7 +70,7 @@ class Invoice extends StatelessWidget {
                           callback: (val) {
                             controller.selectedInvType = val;
                             final selected = controller.act.firstWhere((e) => e.actName == val);
-                            // print('Selected actId: ${selected.actId}');
+                            // debugPrint('Selected actId: ${selected.actId}');
                             controller.selectedInvTypeId = selected.actId.toString();
                             controller.update();
                           },
@@ -293,10 +293,10 @@ class Invoice extends StatelessWidget {
                               // controller.update();
                             },
                             // onRowSecondaryTap: (event) {
-                            //   print("sssssssssssssssssssssssssssssssss");
+                            //   debugPrint("sssssssssssssssssssssssssssssssss");
                             // },
                             onRowDoubleTap: (event) {
-                              // print("fffffffffffff00ffffff : ${event.cell.column.field}");
+                              // debugPrint("fffffffffffff00ffffff : ${event.cell.column.field}");
                               if (event.cell.column.field == 'QTY') {
                                 int? rowIndex = event.rowIdx;
                                 controller.editqty(rowIndex);
