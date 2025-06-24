@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+// import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:masaratapp/App/Services/sqflite_services.dart';
 import 'package:masaratapp/App/samples/slmaples.dart';
@@ -11,16 +12,18 @@ import '../Print/pdf_viewer.dart';
 import '../Services/api_db_services.dart';
 import '../Widget/widget.dart';
 import '../utils/utils.dart';
+import 'login_controller.dart';
 import 'user_controller.dart';
 
 class SanadatController extends GetxController {
   final Services dbServices = Services();
   SqlDb sqldb = SqlDb();
   late UserController userController;
+  late LoginController loginController;
 
   String? userId;
-  String userName = "";
-  // bool isOfflineMode = false;
+  String? userName;
+  bool isOfflineMode = false;
   late CompData compData;
 
   String? selectedSanadType;
@@ -41,9 +44,10 @@ class SanadatController extends GetxController {
   @override
   void onInit() {
     userController = Get.find<UserController>();
-    userId = userController.uId;
-    userName = userController.uName;
-    // isOfflineMode = userController.isOfflineMode;
+    loginController = Get.find<LoginController>();
+    userId = loginController.logedInuserId;
+    userName = loginController.logedInuserName;
+    isOfflineMode = loginController.isOfflineMode;
     sanadatAct = userController.actPrivList.where((e) => [int.parse("53${userController.uId}"), int.parse("57${userController.uId}")].contains(e.actId)).toList();
     cusData = userController.cusDataList;
     compData = userController.compData;
@@ -127,8 +131,6 @@ class SanadatController extends GetxController {
 //-------------------------------------------
 
   saveSanad() async {
-    // isPostedBefor = false;
-    // update();
     if (isPostedBefor) {
       //محفوظة مسبقا
       showMessage(color: secondaryColor, titleMsg: "السند محفوظ مسبقا", titleFontSize: 18, durationMilliseconds: 1000);
@@ -138,8 +140,8 @@ class SanadatController extends GetxController {
       } else if (selectedSanadTypeId == null) {
         showMessage(color: secondaryColor, titleMsg: "يجب اختيار نوع السند", titleFontSize: 18, durationMilliseconds: 1000);
       } else {
-        if (userController.isOfflineMode) {
-          debugPrint("Is Offline Insert0000000000000000000000");
+        if (isOfflineMode) {
+          debugPrint("-----------------------------------------------Is Offline Insert--------------------------------");
           await insertSanadToLocalData();
         } else {
           await postSanadToServer();
@@ -153,6 +155,7 @@ class SanadatController extends GetxController {
   Future<void> postSanadToServer() async {
     isPostingToApi = true;
     update();
+
     // await Future.delayed(Duration(seconds: 4));
     try {
       // debugPrint("start posting-------------------------");
@@ -185,7 +188,7 @@ class SanadatController extends GetxController {
 
           INSERT INTO ACC_DT(BANK_ID,ACC_TYPE,ACC_HD_ID,ACC_ID,CUR_ID
           ,STATE,AMNT,DSCR ${userController.csClsPrivList[0].brId != "" ? ",BR_ID" : ""},CST_ID) 
-          VALUES (${userController.bankPrivList[0].bankID},$selectedSanadTypeId,last_serial,'${userController.bankPrivList[0].accID}','${userController.bankPrivList[0].curId}'
+          VALUES ('${userController.bankPrivList[0].bankID}',$selectedSanadTypeId,last_serial,'${userController.bankPrivList[0].accID}','${userController.bankPrivList[0].curId}'
           ,2,${amount.text},'${description.text}' ${userController.csClsPrivList[0].brId != "" ? ",${userController.csClsPrivList[0].brId}" : ""}
           ,${userController.cstCntrPrivList[0].cstCntrID});   
 
@@ -271,12 +274,12 @@ class SanadatController extends GetxController {
           amount.text,
           description.text,
           userController.cstCntrPrivList[0].cstCntrID,
-          1,
+          1, //DN
         ]);
 
         await txn.rawInsert('''
-        INSERT INTO ACC_DT(BANK_ID, ACC_TYPE, ACC_HD_ID, ACC_ID, CUR_ID, STATE, AMNT, DSCR ${userController.csClsPrivList[0].brId != "" ? ", BR_ID" : ""}, CST_ID)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ? ${userController.csClsPrivList[0].brId != "" ? ", ?" : ""}, ?)
+        INSERT INTO ACC_DT(BANK_ID, ACC_TYPE, ACC_HD_ID, ACC_ID, CUR_ID, STATE, AMNT, DSCR ${userController.csClsPrivList[0].brId != "" ? ", BR_ID" : ""}, CST_ID,SRL)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ? ${userController.csClsPrivList[0].brId != "" ? ", ?" : ""}, ?,?)
         ''', [
           userController.bankPrivList[0].bankID,
           selectedSanadTypeId,
@@ -288,6 +291,7 @@ class SanadatController extends GetxController {
           description.text,
           if (userController.csClsPrivList[0].brId != "") userController.csClsPrivList[0].brId,
           userController.cstCntrPrivList[0].cstCntrID,
+          2, //MD
         ]);
 
         return [];
@@ -318,27 +322,50 @@ class SanadatController extends GetxController {
   Future<void> fetchSearchResults(String query) async {
     if (query.isEmpty) {
       isSearchingOfSanad.value = false;
-      searchResults.clear();
+      searchResults.value = [];
       return;
     }
     isSearchingOfSanad.value = true;
 
     try {
-      var response = await dbServices.createRep(
-        sqlStatment: """
-      SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,round(a.AMNT,2) AMNT , DSCR ,
-      (SELECT TO_CHAR(DATE1,'yyyy-mm-dd') FROM ACC_HD b WHERE b.ACC_TYPE=a.ACC_TYPE AND b.ACC_HD_ID=a.ACC_HD_ID) DATE1
+      List response;
 
-      FROM ACC_DT a WHERE a.CUS_ID IS NOT NULL and a.ACC_TYPE IN(${sanadatAct.map((act) => "'${act.actId}'").join(',')})
-      AND (
-      LOWER(get_cus_name_DB(a.CUS_ID)) LIKE LOWER('%$query%') OR 
-      TO_CHAR(a.ACC_HD_ID) LIKE '%$query%' OR
-       LOWER(get_act_name(a.ACC_TYPE)) LIKE LOWER('%$query%')
-      )
-      order by SRL
-      
-      """,
-      );
+      if (isOfflineMode) {
+        String actIds = sanadatAct.map((act) => "'${act.actId}'").join(',');
+        response = await sqldb.readData(
+          """
+          SELECT  a.CUS_ID,  c.CUS_NAME,a.ACC_TYPE,t.ACT_NAME,a.ACC_HD_ID,ROUND(a.AMNT, 2) AS AMNT,a.DSCR,h.DATE1 FROM ACC_DT a
+          JOIN CUSTOMERS c ON a.CUS_ID = c.CUS_ID
+          JOIN ACT_TYPE t ON a.ACC_TYPE = t.ACT_ID
+          JOIN ACC_HD h ON a.ACC_TYPE = h.ACC_TYPE AND a.ACC_HD_ID = h.ACC_HD_ID
+          WHERE a.CUS_ID IS NOT NULL
+          AND a.ACC_TYPE IN ($actIds)
+          AND (
+          LOWER(c.CUS_NAME) LIKE ? OR
+          CAST(a.ACC_HD_ID AS TEXT) LIKE ? OR
+          LOWER(t.ACT_NAME) LIKE ?
+          )
+          ORDER BY a.SRL            
+          """,
+          ['%$query%', '%$query%', '%$query%'],
+        );
+      } else {
+        response = await dbServices.createRep(
+          sqlStatment: """
+          SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,round(a.AMNT,2) AMNT , DSCR ,
+          (SELECT TO_CHAR(DATE1,'yyyy-mm-dd') FROM ACC_HD b WHERE b.ACC_TYPE=a.ACC_TYPE AND b.ACC_HD_ID=a.ACC_HD_ID) DATE1
+
+          FROM ACC_DT a WHERE a.CUS_ID IS NOT NULL and a.ACC_TYPE IN(${sanadatAct.map((act) => "'${act.actId}'").join(',')})
+          AND (
+          LOWER(get_cus_name_DB(a.CUS_ID)) LIKE LOWER('%$query%') OR 
+          TO_CHAR(a.ACC_HD_ID) LIKE '%$query%' OR
+          LOWER(get_act_name(a.ACC_TYPE)) LIKE LOWER('%$query%')
+          )
+          order by SRL          
+          """,
+        );
+      }
+      //
       if (response.isNotEmpty && response[0]['CUS_ID'] != null) {
         searchResults.value = response;
       } else {
@@ -459,7 +486,7 @@ class SanadatController extends GetxController {
                       // if (customer == null) return;
 
                       selectedSanadTypeId = item['ACC_TYPE'].toString();
-                      selectedSanadType = item['ACC_TYPE'].toString();
+                      selectedSanadType = item['ACT_NAME'].toString();
                       savedSanadId = item['ACC_HD_ID'].toString();
                       selecetdCustomer = controller.cusData.firstWhereOrNull((c) => c.cusId == item['CUS_ID']);
                       date.text = item['DATE1'].toString();

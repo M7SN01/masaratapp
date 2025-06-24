@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:masaratapp/App/utils/utils.dart';
 
 Widget dropDownList({
   required Function(String?) callback,
@@ -327,6 +328,17 @@ showMessage({
     colorText: Colors.white,
     maxWidth: Get.mediaQuery.size.width - 50,
     borderRadius: 4,
+    mainButton: TextButton(
+        onPressed: () {
+          copyTextToClipboard("tittle :  \n $titleMsg \n ------ \n $msg");
+        },
+        child: Icon(
+          Icons.copy,
+          color: Colors.white,
+        )),
+    // onTap: (snack) {
+    //   copyTextToClipboard("tittle :  \n ${snack.title} \n ------ \n ${snack.message}");
+    // },
     // margin: const EdgeInsets.only(top: 10),
   );
 }

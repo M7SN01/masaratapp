@@ -327,7 +327,7 @@ class CusKshfController extends GetxController {
       "t_kshf": "كشف حساب",
       "fromToDate": fromToDate,
       "t_ttl_PRV_BAL": "الرصيد السابق",
-      "ttl_PRV_BAL": selecetdCustomer!.previousBalance!.toStringAsFixed(2),
+      "ttl_PRV_BAL": (selecetdCustomer!.previousBalance ?? 0.0).toStringAsFixed(2),
 
       "t_cus_no": "عميل رقم",
       "cus_no": selecetdCustomer == null ? "" : selecetdCustomer!.cusId.toString(),

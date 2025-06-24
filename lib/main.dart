@@ -15,6 +15,7 @@ import 'App/Locale/locale.dart';
 import 'App/Locale/locale_controller.dart';
 
 import 'App/Views/CustomerKshf/cus_kshf.dart';
+import 'App/Views/Home/home.dart';
 import 'App/Views/Invoice/invoice.dart';
 import 'App/Views/Login/Login_view.dart';
 import 'App/Views/Sanadat/sanadat.dart';
@@ -80,6 +81,11 @@ class PosApp extends StatelessWidget {
           name: '/Login',
           page: () => const Login(),
           binding: LoginBinding(),
+        ),
+        GetPage(
+          name: '/Home',
+          page: () => const Home(),
+          // binding: LoginBinding(),  // binding with Login binding
         ),
         GetPage(
           name: '/Sanadat',

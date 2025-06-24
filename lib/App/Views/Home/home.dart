@@ -1,15 +1,91 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:masaratapp/App/Controllers/offline_user_controller.dart';
+import 'package:masaratapp/App/Widget/loding_dots.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../Bindings/offline_binding.dart';
 import '../../Controllers/login_controller.dart';
+import '../../Controllers/user_controller.dart';
 import '../../utils/utils.dart';
+
+class WelcomeSplashScreen extends StatelessWidget {
+  final String userName;
+  final bool isOffline;
+  const WelcomeSplashScreen({super.key, required this.userName, required this.isOffline});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSplashScreen.withScreenRouteFunction(
+      backgroundColor: primaryColor.withAlpha((0.2 * 255).round()),
+      splashIconSize: Get.height / 4,
+      splash: Column(
+        children: [
+          Icon(Icons.person, size: 60, color: Colors.white),
+          const SizedBox(height: 20),
+          Shimmer.fromColors(
+            period: const Duration(milliseconds: 1000), //was 2 sceondes
+            baseColor: Colors.white,
+            highlightColor: Colors.grey[300]!,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "مرحباً ",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                Text(
+                  userName,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Center(child: SizedBox(width: 120, child: TextLodingDots()))
+        ],
+      ),
+      // splashIconSize: 140,
+      animationDuration: const Duration(seconds: 1),
+
+      // duration: 60000, //until open next page
+      // backgroundColor: PrimaryColor,
+      screenRouteFunction: () async {
+        UserController userController = Get.put(UserController(), permanent: true);
+        if (isOffline) {
+          OfflineUserController offlineUserController = Get.put(OfflineUserController());
+          offlineUserController.isOfflineMode = isOffline;
+          await offlineUserController.getAllOfflineData();
+        } else {
+          //sync the local data to server before begin online
+          await userController.syncLocalDataToserver();
+          await userController.getAllPrivileges();
+        }
+        // Get.offAllNamed("/Home");
+
+        return "/Home";
+      },
+      splashTransition: SplashTransition.fadeTransition,
+    );
+  }
+}
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final userController = Get.find<UserController>();
     return GetBuilder<LoginController>(
       builder: (controller) => Scaffold(
         appBar: AppBar(
@@ -25,16 +101,43 @@ class Home extends StatelessWidget {
           ),
           // ,
           centerTitle: true,
-          leading: SizedBox(),
+          leading: IconButton(
+            onPressed: () async {
+              await controller.onLogout();
+              Get.offAllNamed('/Login');
+              // Get.offAll(() => Login(), binding: LoginBinding());
+            },
+            icon: Icon(Icons.logout_rounded),
+          ),
           actions: [
-            IconButton(
-              onPressed: () async {
-                await controller.onLogout();
-                Get.offAllNamed('/Login');
-                // Get.offAll(() => Login(), binding: LoginBinding());
-              },
-              icon: Icon(Icons.logout_rounded),
-            ),
+            //ERROR
+            userController.errorLog.contains("ERROR:")
+                ? IconButton(
+                    onPressed: () {
+                      copyTextToClipboard(userController.errorLog);
+                      shareTextFile(userController.appLog, "errorLog.txt");
+                    },
+                    icon: Icon(
+                      Icons.error_outline_rounded,
+                      color: secondaryColor,
+                      size: 40,
+                    ),
+                  )
+                : SizedBox(),
+            //ALERT privileges
+            userController.appLog.isNotEmpty
+                ? IconButton(
+                    onPressed: () {
+                      copyTextToClipboard(userController.appLog);
+                      shareTextFile(userController.appLog, "appLog.txt");
+                    },
+                    icon: Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.amber,
+                      size: 40,
+                    ),
+                  )
+                : SizedBox(),
           ],
         ),
         body: SizedBox(
@@ -70,13 +173,14 @@ class Home extends StatelessWidget {
                   // Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
                 },
               ),
-              mainGraid(
-                icon: Icons.inventory_outlined,
-                title: "العمل دون اتصال",
-                onTap: () {
-                  Get.to(() => const OfflineSqflite(), binding: OfflineBinding());
-                },
-              ),
+              if (controller.isOfflineMode)
+                mainGraid(
+                  icon: Icons.inventory_outlined,
+                  title: "العمل دون اتصال",
+                  onTap: () {
+                    Get.to(() => const OfflineSqflite(), binding: OfflineBinding());
+                  },
+                ),
             ],
           ),
         ),
@@ -115,6 +219,7 @@ class OfflineSqflite extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userController = Get.find<UserController>();
     return GetBuilder<OfflineUserController>(
       builder: (controller) => Scaffold(
         appBar: AppBar(
@@ -125,7 +230,7 @@ class OfflineSqflite extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 onPressed: controller.isLoading ? null : () => controller.setNewOfflineData(),
-                child: Text("Sync Offline Data"),
+                child: Text("Sync Basic Offline Data"),
               ),
             ),
             if (controller.isLoading)
@@ -138,7 +243,11 @@ class OfflineSqflite extends StatelessWidget {
               ),
             ElevatedButton(
               onPressed: controller.isLoading ? null : () => controller.serverToLocalSanadatData(),
-              child: Text(" Get Data"),
+              child: Text("Sync Sanadat  Data"),
+            ),
+            ElevatedButton(
+              onPressed: controller.isLoading ? null : () => userController.syncLocalDataToserver(),
+              child: Text("Sync Sanadat  To SERVER"),
             ),
           ],
         ),

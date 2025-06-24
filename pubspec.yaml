@@ -40,6 +40,7 @@ dependencies:
   syncfusion_flutter_datepicker: ^29.1.38
   open_file: ^3.5.10
   flutter_svg: ^2.1.0
+  share_plus: ^11.0.0
 
 dev_dependencies:
   flutter_test:

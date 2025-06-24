@@ -172,7 +172,7 @@ class SqlDb {
       "DSCR" TEXT,
       "CST_ID" INTEGER,
       "SRL" INTEGER,
-      "BANK_ID" INTEGER,
+      "BANK_ID" TEXT,
       "BR_ID" TEXT,
       FOREIGN KEY ("ACC_TYPE", "ACC_HD_ID") REFERENCES "ACC_HD"("ACC_TYPE", "ACC_HD_ID") ON DELETE CASCADE ON UPDATE CASCADE
     );
@@ -253,9 +253,9 @@ class SqlDb {
   }
 
   //SELECT
-  readData(String sql) async {
+  readData(String sql, [List<Object?>? arguments]) async {
     Database? mydb = await db;
-    List<Map> response = await mydb!.rawQuery(sql);
+    List<Map> response = await mydb!.rawQuery(sql, arguments);
     return response;
   }
 

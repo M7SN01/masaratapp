@@ -323,7 +323,7 @@ class _LoginState extends State<Login> {
                                         thumbIcon: WidgetStatePropertyAll(Icon(controller.isOfflineMode ? Icons.wifi_off_outlined : Icons.wifi, color: Colors.white)),
                                         trackOutlineColor: const WidgetStatePropertyAll(Color(0xFF337ab7)),
                                         onChanged: (value) async {
-                                          await controller.changeOfflineMode();
+                                          // await controller.changeOfflineMode();
                                         },
                                       ),
                                       Text(
@@ -465,100 +465,6 @@ class _LoginState extends State<Login> {
     );
   }
 }
-
-/*
-class AnimatedCard extends StatefulWidget {
-  final double x;
-  final double beginTop;
-  final double endTop;
-  final int scond;
-  final double cWidth;
-  final double cHight;
-
-  const AnimatedCard({
-    super.key,
-    required this.x,
-    required this.beginTop,
-    required this.endTop,
-    required this.scond,
-    required this.cWidth,
-    required this.cHight,
-  });
-
-  @override
-  State<AnimatedCard> createState() => AnimatedCardState();
-}
-
-class AnimatedCardState extends State<AnimatedCard> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: Duration(seconds: widget.scond),
-      vsync: this,
-    )..repeat(reverse: true);
-
-    _animation = Tween<double>(
-      begin: widget.beginTop,
-      end: widget.endTop,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(widget.x, _animation.value),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 8.0,
-                sigmaY: 8.0,
-              ),
-              child: Container(
-                height: widget.cHight,
-                width: widget.cWidth,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.white.withOpacity(0.2),
-                      Colors.white.withOpacity(0.2),
-                      Colors.white.withOpacity(0.2),
-                      Colors.white.withOpacity(0.2),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
-                    width: 1.0,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-}
-*/
 
 class AnimatedCard extends StatefulWidget {
   final double x;

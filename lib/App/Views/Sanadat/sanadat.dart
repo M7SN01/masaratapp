@@ -19,7 +19,7 @@ class Sanadat extends StatelessWidget {
           title: Column(
             children: [
               Text("سند قبض"),
-              if (controller.userController.isOfflineMode)
+              if (controller.isOfflineMode)
                 Text(
                   "العمل دون اتصال",
                   style: TextStyle(color: secondaryColor),
@@ -29,36 +29,36 @@ class Sanadat extends StatelessWidget {
           centerTitle: true,
           actions: [
             //clear all
-            IconButton(
-              onPressed: () {
-                if (controller.selectedSanadTypeId != null || controller.selecetdCustomer != null) {
-                  Get.defaultDialog(
-                    radius: 8,
-                    title: "هل تريد حذف السند",
-                    middleText: "لن تتمكن من استرجاعه لاحقًا",
-                    confirm: ElevatedButton(
-                      style: ElevatedButton.styleFrom(shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
-                      onPressed: () {
-                        controller.clearSanadData();
-                        Get.back();
-                      },
-                      child: const Text("موافق"),
-                    ),
-                    cancel: ElevatedButton(
-                      style: ElevatedButton.styleFrom(shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
-                      onPressed: () {
-                        Get.back();
-                      },
-                      child: const Text("إلغاء"),
-                    ),
-                  );
-                }
-              },
-              icon: const Icon(
-                Icons.delete_forever_rounded,
-                color: secondaryColor,
-              ),
-            ),
+            // IconButton(
+            //   onPressed: () {
+            //     if (controller.selectedSanadTypeId != null || controller.selecetdCustomer != null) {
+            //       Get.defaultDialog(
+            //         radius: 8,
+            //         title: "هل تريد حذف السند",
+            //         // middleText: "لن تتمكن من استرجاعه لاحقًا",
+            //         confirm: ElevatedButton(
+            //           style: ElevatedButton.styleFrom(shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
+            //           onPressed: () {
+            //             controller.clearSanadData();
+            //             Get.back();
+            //           },
+            //           child: const Text("موافق"),
+            //         ),
+            //         cancel: ElevatedButton(
+            //           style: ElevatedButton.styleFrom(shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
+            //           onPressed: () {
+            //             Get.back();
+            //           },
+            //           child: const Text("إلغاء"),
+            //         ),
+            //       );
+            //     }
+            //   },
+            //   icon: const Icon(
+            //     Icons.delete_forever_rounded,
+            //     color: secondaryColor,
+            //   ),
+            // ),
           ],
         ),
         body: Card(
@@ -412,6 +412,55 @@ class Sanadat extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    TextButton(
+                      onPressed: () async {
+                        if (controller.selectedSanadTypeId != null || controller.selecetdCustomer != null) {
+                          Get.defaultDialog(
+                            radius: 8,
+                            title: "هل تريد الغاء البيانات \nالمدونة وبدء سند جديد",
+                            middleText: "",
+                            confirm: ElevatedButton(
+                              style: ElevatedButton.styleFrom(shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
+                              onPressed: () {
+                                controller.clearSanadData();
+                                Get.back();
+                              },
+                              child: const Text("موافق"),
+                            ),
+                            cancel: ElevatedButton(
+                              style: ElevatedButton.styleFrom(shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
+                              onPressed: () {
+                                Get.back();
+                              },
+                              child: const Text("إلغاء"),
+                            ),
+                          );
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        backgroundColor: Colors.deepPurpleAccent,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.add_box_rounded,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 5),
+                          const Text(
+                            "سند جديد",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     IconButton(
                       onPressed: () {
                         controller.printSanad();

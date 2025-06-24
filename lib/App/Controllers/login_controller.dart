@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+// import 'package:masaratapp/App/Views/CustomerKshf/cus_kshf.dart';
 // import '../Variable/global_variable.dart';
 import '../Views/Home/home.dart';
 import '../Services/api_db_services.dart';
 import '../Services/sqflite_services.dart';
+// import '../Widget/loding_dots.dart';
 import '../Widget/widget.dart';
 import '../utils/utils.dart';
-import 'offline_user_controller.dart';
+// import 'offline_user_controller.dart';
 import 'user_controller.dart';
 
 class LoginController extends GetxController {
@@ -158,17 +160,21 @@ class LoginController extends GetxController {
             await keepLogin();
           }
 
-          UserController userController = Get.put(UserController(), permanent: true);
-          if (isOfflineMode) {
-            OfflineUserController offlineUserController = Get.put(OfflineUserController());
-            offlineUserController.isOfflineMode = isOfflineMode;
-            await offlineUserController.getAllOfflineData();
-          } else {
-            await userController.getAllPrivileges();
-          }
+          // UserController userController = Get.put(UserController(), permanent: true);
+          // if (isOfflineMode) {
+          //   OfflineUserController offlineUserController = Get.put(OfflineUserController());
+          //   offlineUserController.isOfflineMode = isOfflineMode;
+          //   await offlineUserController.getAllOfflineData();
+          // } else {
+          //   //sync the local data to server before begin online
+          //   await syncLocalDataToserver();
+          //  await userController.getAllPrivileges();
+          // }
+          Get.offAll(() => WelcomeSplashScreen(
+                userName: jsonData[0]['U_NAME'].toString(),
+                isOffline: isOfflineMode,
+              ));
 
-          Get.offAll(() => Home());
-          //  Get.to(() => Home()); //to find data from any where
           isLogining = false;
 
           //set the current user of the app

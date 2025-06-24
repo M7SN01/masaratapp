@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
+import 'package:get/get.dart';
 import 'package:masaratapp/App/Controllers/user_controller.dart';
-// import 'package:masaratapp/App/Services/api_db_services.dart';
-// import 'package:masaratapp/App/Services/sqflite_services.dart';
+import 'package:masaratapp/App/Services/api_db_services.dart';
+import 'package:masaratapp/App/Services/sqflite_services.dart';
 import 'package:sqflite/sqflite.dart';
+
 import '../Models/user_model.dart';
 import '../Widget/widget.dart';
 import '../utils/utils.dart';
 // import 'login_controller.dart';
 
-class OfflineUserController extends UserController {
-  // SqlDb sqldb = SqlDb();
-  // late UserController userController;
-  // bool isOfflineMode = false;
+class OfflineUserController extends GetxController {
+  SqlDb sqldb = SqlDb();
+  late UserController userController;
+  bool isOfflineMode = false;
 
   double loadingProgress = 0.0;
   bool isLoading = false;
 
   @override
   void onInit() {
-    // LoginController loginController = Get.find<LoginController>();
-    // isOfflineMode = loginController.isOfflineMode;
+    userController = Get.find<UserController>();
+    isOfflineMode = userController.isOfflineMode;
     super.onInit();
   }
 
@@ -51,14 +52,14 @@ class OfflineUserController extends UserController {
     }
     //insert all new data
     try {
-      await sqldb.insertData("INSERT INTO USER(U_ID,U_NAME,U_P) VALUES('${uId}','${uName}','${uPass}')");
+      await sqldb.insertData("INSERT INTO USER(U_ID,U_NAME,U_P) VALUES('${userController.uId}','${userController.uName}','${userController.uPass}')");
 
       return ReturnedResponse.done;
     } catch (e) {
       debugPrint(e.toString());
       showMessage(
         color: secondaryColor,
-        titleMsg: "Failed to insert data to ACT_TYPE Table !",
+        titleMsg: "Failed to insert data to USER Table !",
         msg: e.toString(),
         titleFontSize: 16,
         msgFontSize: 12,
@@ -76,7 +77,7 @@ class OfflineUserController extends UserController {
     }
     //insert all new data
     try {
-      for (var act in actPrivList) {
+      for (var act in userController.actPrivList) {
         await sqldb.insertData("INSERT INTO ACT_TYPE(ACT_ID,ACT_NAME) VALUES(${act.actId},'${act.actName}')");
       }
       return ReturnedResponse.done;
@@ -102,7 +103,7 @@ class OfflineUserController extends UserController {
     }
     //insert all new data
     try {
-      for (var cus in cusDataList) {
+      for (var cus in userController.cusDataList) {
         await sqldb.insertData("""INSERT INTO 
         CUSTOMERS(CUS_ID,CUS_NAME ,ADRS ,MOBL ,TAX_NO ,STOPED ,SLS_MAN_ID ,LATITUDE ,LONGITUDE ,VISIT_CNT ,VAT_STATUS 
       ) VALUES(${cus.cusId},'${cus.cusName}','${cus.adrs}','${cus.mobl}','${cus.taxNo}',${cus.stoped},${cus.slsManId},
@@ -133,7 +134,7 @@ class OfflineUserController extends UserController {
     }
     //insert all new data
     try {
-      for (var slsCntr in slsCntrPrivList) {
+      for (var slsCntr in userController.slsCntrPrivList) {
         await sqldb.insertData("INSERT INTO SLS_CENTER(SLS_CNTR_ID,SLS_CNTR_NAME) VALUES(${slsCntr.slsCntrID},'${slsCntr.slsCntrName}')");
       }
       return ReturnedResponse.done;
@@ -159,7 +160,7 @@ class OfflineUserController extends UserController {
     }
     //insert all new data
     try {
-      for (var cst in cstCntrPrivList) {
+      for (var cst in userController.cstCntrPrivList) {
         await sqldb.insertData("INSERT INTO COST_CENTERS(CST_ID,CST_A_NAME) VALUES(${cst.cstCntrID},'${cst.cstCntrName}')");
       }
       return ReturnedResponse.done;
@@ -185,7 +186,7 @@ class OfflineUserController extends UserController {
     }
     //insert all new data
     try {
-      for (var stWh in stWhPrivList) {
+      for (var stWh in userController.stWhPrivList) {
         await sqldb.insertData("INSERT INTO STWHOUSE(WH_ID,WH_NAME) VALUES(${stWh.whID},'${stWh.whName}')");
       }
       return ReturnedResponse.done;
@@ -211,7 +212,7 @@ class OfflineUserController extends UserController {
     }
     //insert all new data
     try {
-      for (var branch in branchPrivList) {
+      for (var branch in userController.branchPrivList) {
         await sqldb.insertData("INSERT INTO BRANCH(BR_ID,BR_NAME) VALUES(${branch.brID},'${branch.brName}')");
       }
       return ReturnedResponse.done;
@@ -237,7 +238,7 @@ class OfflineUserController extends UserController {
     }
     //insert all new data
     try {
-      for (var bank in bankPrivList) {
+      for (var bank in userController.bankPrivList) {
         await sqldb.insertData(
           "INSERT INTO SH_BANKS_DTL(BANK_ID,ACC_NAME,ACC_ID,BANK_OR_CASH,STOPED,CUR_ID) VALUES('${bank.bankID}','${bank.accName}','${bank.accID}',${bank.bankOrCash},${bank.stoped},'${bank.curId}')",
         );
@@ -265,7 +266,7 @@ class OfflineUserController extends UserController {
     }
     //insert all new data
     try {
-      for (var item in itemsDataList) {
+      for (var item in userController.itemsDataList) {
         await sqldb.insertData(
           "INSERT INTO ITEMS(ITEM_ID,BARCODE,ITEM_NAME,MAIN_UNIT,PRICE1,PRICE_AFTR_VAT,CURNT_BAL) VALUES('${item.itemId}','${item.barcode}','${item.itemName}','${item.unit}',${item.price1},${item.priceAftrVat},${item.currentBal})",
         );
@@ -293,7 +294,7 @@ class OfflineUserController extends UserController {
     }
     //insert all new data
     try {
-      for (var csCls in csClsPrivList) {
+      for (var csCls in userController.csClsPrivList) {
         await sqldb.insertData("INSERT INTO CS_CLS(CS_CLS_ID,CS_CLS_NAME,ACC_ID,BR_ID,CUR_ID) VALUES(${csCls.cSClsId},'${csCls.cSClsName}','${csCls.accId}','${csCls.brId}','${csCls.curId}')");
       }
       return ReturnedResponse.done;
@@ -320,7 +321,7 @@ class OfflineUserController extends UserController {
     //insert all new data
     try {
       await sqldb.insertData(
-        "INSERT INTO COMP(REP_A_COMP_NAME,REP_E_COMP_NAME,REP_A_NTUR_WORK,REP_E_NTUR_WORK,REP_A_ADRS,REP_E_ADRS,REP_A_TEL,REP_A_FAX,TAX_NO,COMMERCIAL_REG) VALUES('${compData.aCompName}','${compData.eCompName}','${compData.aActivity}','${compData.eActivity}','${compData.aAddress}','${compData.eAddress}','${compData.tel}','${compData.fax}','${compData.taxNo}','${compData.commercialReg}')",
+        "INSERT INTO COMP(REP_A_COMP_NAME,REP_E_COMP_NAME,REP_A_NTUR_WORK,REP_E_NTUR_WORK,REP_A_ADRS,REP_E_ADRS,REP_A_TEL,REP_A_FAX,TAX_NO,COMMERCIAL_REG) VALUES('${userController.compData.aCompName}','${userController.compData.eCompName}','${userController.compData.aActivity}','${userController.compData.eActivity}','${userController.compData.aAddress}','${userController.compData.eAddress}','${userController.compData.tel}','${userController.compData.fax}','${userController.compData.taxNo}','${userController.compData.commercialReg}')",
       );
       return ReturnedResponse.done;
     } catch (e) {
@@ -336,6 +337,41 @@ class OfflineUserController extends UserController {
       return ReturnedResponse.error;
     }
   }
+
+/*
+  //Sanadat 
+   Future<ReturnedResponse> _setSanadatData() async {
+    //delete all the old date
+    ReturnedResponse result = await deleteOldOfflineDataTable(tableName: "ACC_DT");
+    if (result == ReturnedResponse.error) {
+      return ReturnedResponse.error; //stop the process if error
+    }
+    result = await deleteOldOfflineDataTable(tableName: "ACC_HD");
+    if (result == ReturnedResponse.error) {
+      return ReturnedResponse.error; //stop the process if error
+    }
+
+    //insert all new data
+    try {
+      for (var csCls in csClsPrivList) {
+        await sqldb.insertData("INSERT INTO CS_CLS(CS_CLS_ID,CS_CLS_NAME,ACC_ID,BR_ID,CUR_ID) VALUES(${csCls.cSClsId},'${csCls.cSClsName}','${csCls.accId}','${csCls.brId}','${csCls.curId}')");
+      }
+      return ReturnedResponse.done;
+    } catch (e) {
+      debugPrint(e.toString());
+      showMessage(
+        color: secondaryColor,
+        titleMsg: "Failed to insert data to CS_CLS Table !",
+        msg: e.toString(),
+        titleFontSize: 16,
+        msgFontSize: 12,
+        durationMilliseconds: 4000,
+      );
+      return ReturnedResponse.error;
+    }
+  }
+
+  */
 
   Future<ReturnedResponse> _updateLastSyncDate() async {
     try {
@@ -388,7 +424,7 @@ class OfflineUserController extends UserController {
         update();
       }
     }
-
+    debugPrint("Done set to local data ...........");
     isLoading = false;
     update();
   }
@@ -409,9 +445,9 @@ class OfflineUserController extends UserController {
       );
       return ReturnedResponse.error;
     } else {
-      actPrivList.clear();
+      userController.actPrivList.clear();
       for (var act in result) {
-        actPrivList.add(ActPrivModel(actId: act['ACT_ID'], actName: act['ACT_NAME']));
+        userController.actPrivList.add(ActPrivModel(actId: act['ACT_ID'], actName: act['ACT_NAME']));
       }
       return ReturnedResponse.done;
     }
@@ -429,9 +465,9 @@ class OfflineUserController extends UserController {
       );
       return ReturnedResponse.error;
     } else {
-      cusDataList.clear();
+      userController.cusDataList.clear();
       for (var cus in result) {
-        cusDataList.add(
+        userController.cusDataList.add(
           CusDataModel(
             cusId: cus['CUS_ID'],
             cusName: cus['CUS_NAME'],
@@ -463,9 +499,9 @@ class OfflineUserController extends UserController {
       );
       return ReturnedResponse.error;
     } else {
-      slsCntrPrivList.clear();
+      userController.slsCntrPrivList.clear();
       for (var slsCntr in result) {
-        slsCntrPrivList.add(SlsCntrPrivModel(slsCntrID: slsCntr['SLS_CNTR_ID'], slsCntrName: slsCntr['SLS_CNTR_NAME']));
+        userController.slsCntrPrivList.add(SlsCntrPrivModel(slsCntrID: slsCntr['SLS_CNTR_ID'], slsCntrName: slsCntr['SLS_CNTR_NAME']));
       }
       return ReturnedResponse.done;
     }
@@ -483,9 +519,9 @@ class OfflineUserController extends UserController {
       );
       return ReturnedResponse.error;
     } else {
-      cstCntrPrivList.clear();
+      userController.cstCntrPrivList.clear();
       for (var cst in result) {
-        cstCntrPrivList.add(CstCntrPrivModel(cstCntrID: cst['CST_ID'], cstCntrName: cst['CST_A_NAME']));
+        userController.cstCntrPrivList.add(CstCntrPrivModel(cstCntrID: cst['CST_ID'], cstCntrName: cst['CST_A_NAME']));
       }
       return ReturnedResponse.done;
     }
@@ -503,9 +539,9 @@ class OfflineUserController extends UserController {
       );
       return ReturnedResponse.error;
     } else {
-      stWhPrivList.clear();
+      userController.stWhPrivList.clear();
       for (var stWh in result) {
-        stWhPrivList.add(StWhousesPrivModel(whID: stWh['WH_ID'], whName: stWh['WH_NAME']));
+        userController.stWhPrivList.add(StWhousesPrivModel(whID: stWh['WH_ID'], whName: stWh['WH_NAME']));
       }
       return ReturnedResponse.done;
     }
@@ -523,9 +559,9 @@ class OfflineUserController extends UserController {
       );
       return ReturnedResponse.error;
     } else {
-      branchPrivList.clear();
+      userController.branchPrivList.clear();
       for (var branch in result) {
-        branchPrivList.add(BranchPrivModel(brID: branch['BR_ID'], brName: branch['BR_NAME']));
+        userController.branchPrivList.add(BranchPrivModel(brID: branch['BR_ID'], brName: branch['BR_NAME']));
       }
       return ReturnedResponse.done;
     }
@@ -543,9 +579,9 @@ class OfflineUserController extends UserController {
       );
       return ReturnedResponse.error;
     } else {
-      bankPrivList.clear();
+      userController.bankPrivList.clear();
       for (var bank in result) {
-        bankPrivList.add(
+        userController.bankPrivList.add(
           BankPrivModel(
             bankID: bank['BANK_ID'],
             accName: bank['ACC_NAME'] ?? "",
@@ -572,9 +608,9 @@ class OfflineUserController extends UserController {
       );
       return ReturnedResponse.error;
     } else {
-      itemsDataList.clear();
+      userController.itemsDataList.clear();
       for (var item in result) {
-        itemsDataList.add(
+        userController.itemsDataList.add(
           ItemsDataModel(
             itemId: item['ITEM_ID'],
             barcode: item['BARCODE'] ?? "",
@@ -602,9 +638,9 @@ class OfflineUserController extends UserController {
       );
       return ReturnedResponse.error;
     } else {
-      csClsPrivList.clear();
+      userController.csClsPrivList.clear();
       for (var csCls in result) {
-        csClsPrivList.add(
+        userController.csClsPrivList.add(
           CsClsPrivModel(
             cSClsId: csCls['CS_CLS_ID'],
             cSClsName: csCls['CS_CLS_NAME'] ?? "",
@@ -630,7 +666,7 @@ class OfflineUserController extends UserController {
       );
       return ReturnedResponse.error;
     } else {
-      compData = CompData(
+      userController.compData = CompData(
         aCompName: result[0]['REP_A_COMP_NAME'] ?? "",
         eCompName: result[0]['REP_E_COMP_NAME'] ?? "",
         aActivity: result[0]['REP_A_NTUR_WORK'] ?? "",
@@ -661,7 +697,7 @@ class OfflineUserController extends UserController {
     if (result == ReturnedResponse.done) result = await _getCompData();
 
     //update the controller
-    update();
+    userController.update();
   }
 
   Future<void> printAllSqfliteTableNames() async {
@@ -679,35 +715,45 @@ class OfflineUserController extends UserController {
 //---------------------------START SANADAT SYNC  ----------------------------------
 
   Future<void> serverToLocalSanadatData() async {
-    // Services dbServices = Services();
-    var sanadatActs = actPrivList.where((e) => [int.parse("53$uId"), int.parse("57$uId")].contains(e.actId)).toList();
-    String stmt = """
+    Services dbServices = Services();
+    List<dynamic> sanadHDResponse = [];
+    String statment = "";
+    try {
+      var sanadatActs = userController.actPrivList.where((e) => [int.parse("53${userController.uId}"), int.parse("57${userController.uId}")].contains(e.actId)).toList();
+      statment = """
         SELECT ACC_TYPE,ACC_HD_ID,TO_CHAR(DATE1,'yyyy-mm-dd') DATE1 ,BR_ID,CUR_ID,ROUND(TTL,2) TTL,DSCR,TRHEL,RDY,SYS_TYPE,BRNCH_ACT,EXCHNG_PR,USR_INS,USR_INS_DATE,SCRN_SRC
         FROM ACC_HD 
         WHERE 
         ACC_TYPE IN (${sanadatActs.map((act) => act.actId).join(',')})
       """;
-    var sanadHDResponse = await dbServices.createRep(sqlStatment: stmt);
-    // print(stmt);
-    debugPrint(sanadHDResponse.toString());
-
-    //delete all the old date
-    ReturnedResponse result = await deleteOldOfflineDataTable(tableName: "ACC_DT");
-    if (result == ReturnedResponse.done) {
-      debugPrint("DELETE ACC_DT COMPLETED ......................");
-      // return ReturnedResponse.error; //stop the process if error
-    } else {
-      debugPrint("DELETE ACC_DT NOT COMPLETED ......................");
-    }
-    result = await deleteOldOfflineDataTable(tableName: "ACC_HD");
-    if (result == ReturnedResponse.done) {
-      debugPrint("DELETE ACC_HD COMPLETED ......................");
-      // return ReturnedResponse.error; //stop the process if error
-    } else {
-      debugPrint("DELETE ACC_HD NOT COMPLETED ......................");
+      if (sanadatActs.isNotEmpty) {
+        sanadHDResponse = await dbServices.createRep(sqlStatment: statment);
+      } else {
+        showMessage(color: secondaryColor, titleMsg: "ERROR: => Sync sanadat to local database !", titleFontSize: 18, msg: "USER ${userController.uId} There is no act_id ( 53${userController.uId},57${userController.uId} ) or has no privileges", durationMilliseconds: 5000);
+        userController.errorLog += "USER ${userController.uId} There is no act_id ( 53${userController.uId},57${userController.uId} ) or has no privileges  \n $statment ";
+      }
+    } catch (e) {
+      showMessage(color: secondaryColor, titleMsg: "ERROR: => Sync sanadat to local database !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
+      userController.errorLog += "ERROR: => \n Sync sanadat to local database ! \n {{=${e.toString()}=}}\n $statment ";
     }
 
     try {
+      //delete all the old date
+      ReturnedResponse result = await deleteOldOfflineDataTable(tableName: "ACC_DT");
+      if (result == ReturnedResponse.done) {
+        debugPrint("DELETE ACC_DT COMPLETED ......................");
+        // return ReturnedResponse.error; //stop the process if error
+      } else {
+        debugPrint("DELETE ACC_DT NOT COMPLETED ......................");
+      }
+      result = await deleteOldOfflineDataTable(tableName: "ACC_HD");
+      if (result == ReturnedResponse.done) {
+        debugPrint("DELETE ACC_HD COMPLETED ......................");
+        // return ReturnedResponse.error; //stop the process if error
+      } else {
+        debugPrint("DELETE ACC_HD NOT COMPLETED ......................");
+      }
+
       Database? mydb = await sqldb.db;
 
       // 2. one shot execuet
@@ -721,50 +767,50 @@ class OfflineUserController extends UserController {
             ''', [
             rowDataHD['ACC_TYPE'],
             rowDataHD['ACC_HD_ID'],
-            rowDataHD['DATE1'], //
-            rowDataHD['CUR_ID'], //  csClsPrivList[0].curId,
-            rowDataHD['TTL'], //amount.text,
-            rowDataHD['DSCR'], //description.text,
-            rowDataHD['TRHEL'], //0,
-            rowDataHD['RDY'], //1,
-            rowDataHD['SYS_TYPE'], //'نظام العملاء',
-            rowDataHD['BRNCH_ACT'], //0,
-            rowDataHD['EXCHNG_PR'], //1,
-            rowDataHD['USR_INS'], //userId,
-            rowDataHD['USR_INS_DATE'], //DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now()),
-            rowDataHD['SCRN_SRC'], //'CUS_HD_DT',
+            rowDataHD['DATE1'],
+            rowDataHD['CUR_ID'],
+            rowDataHD['TTL'],
+            rowDataHD['DSCR'],
+            rowDataHD['TRHEL'],
+            rowDataHD['RDY'],
+            rowDataHD['SYS_TYPE'],
+            rowDataHD['BRNCH_ACT'],
+            rowDataHD['EXCHNG_PR'],
+            rowDataHD['USR_INS'],
+            rowDataHD['USR_INS_DATE'],
+            rowDataHD['SCRN_SRC'],
             1, //SYNC
-            rowDataHD['BR_ID'], //if (csClsPrivList[0].brId != "") csClsPrivList[0].brId,
+            rowDataHD['BR_ID'],
           ]);
 
           debugPrint("INSERT HEADER  ${rowDataHD['ACC_TYPE']} ===  ${rowDataHD['ACC_HD_ID']} +++++++++++++++++++++++");
 
           //Detaile----------------------------------------------------------------------------------------------------
-          stmt = """
+          statment = """
                 SELECT CUS_ID,BANK_ID, ACC_TYPE, ACC_HD_ID, ACC_ID, CUR_ID, STATE, AMNT, DSCR, CST_ID, SRL
                 FROM ACC_DT 
                 WHERE 
                 ACC_TYPE = ${rowDataHD['ACC_TYPE']} AND ACC_HD_ID=${rowDataHD['ACC_HD_ID']}
               """;
-          final sanadDTResponse = await dbServices.createRep(sqlStatment: stmt);
+          final sanadDTResponse = await dbServices.createRep(sqlStatment: statment);
 
           for (var rowDataDT in sanadDTResponse) {
             await txn.rawInsert('''
             INSERT INTO ACC_DT(CUS_ID,BANK_ID, ACC_TYPE, ACC_HD_ID, ACC_ID, CUR_ID, STATE, AMNT, DSCR, CST_ID, SRL,BR_ID)
             VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
             ''', [
-              rowDataDT['CUS_ID'], //      selecetdCustomer!.cusId,
-              rowDataDT['BANK_ID'], //BANK_ID
-              rowDataDT['ACC_TYPE'], //selectedSanadTypeId,
-              rowDataDT['ACC_HD_ID'], //lastSerial,
-              rowDataDT['ACC_ID'], //csClsPrivList[0].accId,
-              rowDataDT['CUR_ID'], //csClsPrivList[0].curId,
-              rowDataDT['STATE'], //1,
-              rowDataDT['AMNT'], //amount.text,
-              rowDataDT['DSCR'], //description.text,
-              rowDataDT['CST_ID'], //              cstCntrPrivList[0].cstCntrID,
-              rowDataDT['SRL'], //1,
-              rowDataDT['BR_ID'], //BR_ID
+              rowDataDT['CUS_ID'],
+              rowDataDT['BANK_ID'],
+              rowDataDT['ACC_TYPE'],
+              rowDataDT['ACC_HD_ID'],
+              rowDataDT['ACC_ID'],
+              rowDataDT['CUR_ID'],
+              rowDataDT['STATE'],
+              rowDataDT['AMNT'],
+              rowDataDT['DSCR'],
+              rowDataDT['CST_ID'],
+              rowDataDT['SRL'],
+              rowDataDT['BR_ID'],
             ]);
             debugPrint("INSERT DETAIL  ${rowDataDT['ACC_TYPE']} ===  ${rowDataDT['ACC_HD_ID']}  ${rowDataDT['SRL']}------------------");
           }
@@ -776,7 +822,7 @@ class OfflineUserController extends UserController {
         showMessage(color: saveColor, titleMsg: "تم مزامنة السندات", titleFontSize: 18, durationMilliseconds: 2000);
       }
     } catch (e) {
-      appLog += "${e.toString()} \n------------------------------------------\n";
+      userController.errorLog += "${e.toString()} \n------------------------------------------\n";
       showMessage(color: secondaryColor, titleMsg: "posting error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
     }
   }

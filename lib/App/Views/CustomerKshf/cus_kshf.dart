@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:masaratapp/App/Widget/loding_dots.dart';
@@ -323,6 +321,8 @@ class CustomerKshf extends StatelessWidget {
   }
 }
 
+
+/*
 class LoadingDotsText extends StatefulWidget {
   const LoadingDotsText({super.key});
 
@@ -359,3 +359,4 @@ class LoadingDotsTextState extends State<LoadingDotsText> {
     );
   }
 }
+*/

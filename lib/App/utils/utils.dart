@@ -1,7 +1,11 @@
 // lib/utils/constants.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+// import 'package:path_provider/path_provider.dart';
 import 'package:pluto_grid/pluto_grid.dart';
+import 'package:share_plus/share_plus.dart';
 
 const Color primaryColor = Colors.deepPurpleAccent;
 const Color secondaryColor = Color(0XFFF5387C);
@@ -81,6 +85,25 @@ String convertToArabicWords(double amount) {
   String halalaPart = halala > 0 ? ' و ${numberToWords(halala)} هللة' : '';
 
   return riyalPart + halalaPart;
+}
+
+void copyTextToClipboard(String text) {
+  Clipboard.setData(ClipboardData(text: text));
+}
+
+Future<void> shareTextFile(String textContent, String fileName) async {
+  final params = ShareParams(
+    files: [
+      XFile.fromData(
+        utf8.encode(textContent),
+        mimeType: 'text/plain',
+      )
+    ],
+    fileNameOverrides: [fileName],
+    //  text: "إليك الملف النصي 📄",
+  );
+
+  await SharePlus.instance.share(params);
 }
 
 final PlutoGridConfiguration configuration = PlutoGridConfiguration(
