@@ -1,7 +1,9 @@
 // lib/utils/constants.dart
 import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:intl/intl.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -104,6 +106,17 @@ Future<void> shareTextFile(String textContent, String fileName) async {
   );
 
   await SharePlus.instance.share(params);
+}
+
+Future<bool> checkInternetConnection() async {
+  var connectivityResult = await Connectivity().checkConnectivity();
+
+  if (connectivityResult == ConnectivityResult.none) {
+    return false; // No connection (Wi-Fi or Mobile)
+  }
+
+  // Check if actually connected to the internet
+  return await InternetConnectionChecker.createInstance().hasConnection;
 }
 
 final PlutoGridConfiguration configuration = PlutoGridConfiguration(

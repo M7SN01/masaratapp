@@ -2,6 +2,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../Controllers/login_controller.dart';
@@ -157,6 +158,10 @@ class _LoginState extends State<Login> {
                                   child: TextFormField(
                                     enabled: !controller.isLogining, // controller.isEnableField,
                                     controller: controller.userID,
+                                    inputFormatters: [
+                                      //to prevent database injection
+                                      FilteringTextInputFormatter.digitsOnly,
+                                    ],
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Color(
@@ -205,6 +210,11 @@ class _LoginState extends State<Login> {
                                   child: TextFormField(
                                     enabled: !controller.isLogining, //  controller.isEnableField,
                                     controller: controller.password,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.deny(
+                                        RegExp(r'''['"\\]'''),
+                                      ),
+                                    ],
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Color(
@@ -318,12 +328,12 @@ class _LoginState extends State<Login> {
                                     children: [
                                       Switch(
                                         value: controller.isOfflineMode,
-                                        thumbColor: const WidgetStatePropertyAll(Color(0xFF337ab7)),
+                                        thumbColor: WidgetStatePropertyAll(controller.isOfflineMode ? Color(0xFFfc4ba4) : Color(0xFF337ab7)),
                                         trackColor: const WidgetStatePropertyAll(Colors.transparent),
                                         thumbIcon: WidgetStatePropertyAll(Icon(controller.isOfflineMode ? Icons.wifi_off_outlined : Icons.wifi, color: Colors.white)),
-                                        trackOutlineColor: const WidgetStatePropertyAll(Color(0xFF337ab7)),
+                                        trackOutlineColor: WidgetStatePropertyAll(controller.isOfflineMode ? Color(0xFFfc4ba4) : Color(0xFF337ab7)),
                                         onChanged: (value) async {
-                                          // await controller.changeOfflineMode();
+                                          await controller.changeOfflineMode();
                                         },
                                       ),
                                       Text(

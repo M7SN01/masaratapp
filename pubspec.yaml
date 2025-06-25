@@ -41,6 +41,8 @@ dependencies:
   open_file: ^3.5.10
   flutter_svg: ^2.1.0
   share_plus: ^11.0.0
+  connectivity_plus: ^6.1.4
+  internet_connection_checker: ^3.0.1
 
 dev_dependencies:
   flutter_test:

@@ -4,11 +4,18 @@ import 'package:masaratapp/App/Controllers/user_controller.dart';
 import 'package:masaratapp/App/Services/api_db_services.dart';
 import 'package:masaratapp/App/Services/sqflite_services.dart';
 import 'package:sqflite/sqflite.dart';
+// import 'package:sqflite/sqflite.dart';
 
 import '../Models/user_model.dart';
 import '../Widget/widget.dart';
 import '../utils/utils.dart';
+
 // import 'login_controller.dart';
+enum SyncState {
+  done,
+  error,
+  waitting,
+}
 
 class OfflineUserController extends GetxController {
   SqlDb sqldb = SqlDb();
@@ -17,6 +24,7 @@ class OfflineUserController extends GetxController {
 
   double loadingProgress = 0.0;
   bool isLoading = false;
+  List<Map<String, dynamic>> dataSyncInfo = [];
 
   @override
   void onInit() {
@@ -392,30 +400,44 @@ class OfflineUserController extends GetxController {
   }
 
   Future<void> setNewOfflineData() async {
+    dataSyncInfo.clear();
     isLoading = true;
     loadingProgress = 0.0;
     update();
 
-    final List<Future<ReturnedResponse> Function()> tasks = [
-      _setOfflineUserData,
-      _setOfflineActPrivileges,
-      _setOfflineCusData,
-      _setSlsCntrPrivileges,
-      _setCstPrivileges,
-      _setstwhousePrivileges,
-      _setBranchPrivileges,
-      _setBankPrivileges,
-      _setItemsData,
-      _setCsClsPrivileges,
-      _setCompData,
-      _updateLastSyncDate,
+    final List<Map<String, dynamic>> tasks = [
+      {'task': _setOfflineUserData, 'label': "بيانات المستخدم"},
+      {'task': _setOfflineActPrivileges, 'label': "الحركات"},
+      {'task': _setOfflineCusData, 'label': "العملاء"},
+      {'task': _setSlsCntrPrivileges, 'label': "مراكز البيع"},
+      {'task': _setCstPrivileges, 'label': "مراكز التكلفة"},
+      {'task': _setstwhousePrivileges, 'label': "المخازن"},
+      {'task': _setBranchPrivileges, 'label': "الفروع"},
+      {'task': _setBankPrivileges, 'label': "البنوك والحسابات"},
+      {'task': _setItemsData, 'label': "الاصناف"},
+      {'task': _setCsClsPrivileges, 'label': "تصنيف العملاء"},
+      {'task': _setCompData, 'label': "بيانات التقارير"},
+      {'task': _updateLastSyncDate, 'label': "تحديث البيانات  المحلية"},
+      {'task': serverToLocalSanadatData, 'label': "سندات القبض"}
     ];
 
     int total = tasks.length;
     for (int i = 0; i < total; i++) {
-      final result = await tasks[i]();
+      dataSyncInfo.add({"label": tasks[i]['label'], "state": SyncState.waitting});
+      update();
+      final result = await tasks[i]['task']();
+
       // print(i);
-      if (result != ReturnedResponse.done) break;
+      if (result != ReturnedResponse.done) {
+        dataSyncInfo[i]['state'] = SyncState.error;
+        // dataSyncInfo.add({"label": tasks[i]['label'], "state": SyncState.done});
+        update();
+        break;
+      } else {
+        dataSyncInfo[i]['state'] = SyncState.done;
+        update();
+        // dataSyncInfo.add({"label": tasks[i]['label'], "state": SyncState.error});
+      }
 
       // Animate progress even if task takes time
       for (int p = 1; p <= 5; p++) {
@@ -550,13 +572,13 @@ class OfflineUserController extends GetxController {
   Future<ReturnedResponse> _getBranchPrivileges() async {
     var result = await sqldb.readData("SELECT * FROM BRANCH");
     if (result.isEmpty) {
-      showMessage(
-        color: secondaryColor,
-        titleMsg: "No data found in BRANCH Table !",
-        titleFontSize: 16,
-        msgFontSize: 12,
-        durationMilliseconds: 4000,
-      );
+      // showMessage(
+      //   color: secondaryColor,
+      //   titleMsg: "No data found in BRANCH Table !",
+      //   titleFontSize: 16,
+      //   msgFontSize: 12,
+      //   durationMilliseconds: 4000,
+      // );
       return ReturnedResponse.error;
     } else {
       userController.branchPrivList.clear();
@@ -714,7 +736,9 @@ class OfflineUserController extends GetxController {
 
 //---------------------------START SANADAT SYNC  ----------------------------------
 
-  Future<void> serverToLocalSanadatData() async {
+  Future<ReturnedResponse> serverToLocalSanadatData() async {
+    // dataSyncInfo.add({"label": "سندات القبض", "state": SyncState.waitting});
+    // update();
     Services dbServices = Services();
     List<dynamic> sanadHDResponse = [];
     String statment = "";
@@ -728,102 +752,134 @@ class OfflineUserController extends GetxController {
       """;
       if (sanadatActs.isNotEmpty) {
         sanadHDResponse = await dbServices.createRep(sqlStatment: statment);
+        //
+        dataSyncInfo[dataSyncInfo.length - 1]['state'] = SyncState.waitting;
+        dataSyncInfo[dataSyncInfo.length - 1]['label'] = "سندات القبض ${sanadHDResponse.length} / ";
+        update();
       } else {
         showMessage(color: secondaryColor, titleMsg: "ERROR: => Sync sanadat to local database !", titleFontSize: 18, msg: "USER ${userController.uId} There is no act_id ( 53${userController.uId},57${userController.uId} ) or has no privileges", durationMilliseconds: 5000);
         userController.errorLog += "USER ${userController.uId} There is no act_id ( 53${userController.uId},57${userController.uId} ) or has no privileges  \n $statment ";
+        //
+        dataSyncInfo[dataSyncInfo.length - 1]['state'] = SyncState.error;
+        dataSyncInfo[dataSyncInfo.length - 1]['label'] = "سندات القبض";
+        update();
       }
     } catch (e) {
       showMessage(color: secondaryColor, titleMsg: "ERROR: => Sync sanadat to local database !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
       userController.errorLog += "ERROR: => \n Sync sanadat to local database ! \n {{=${e.toString()}=}}\n $statment ";
+      //
+      dataSyncInfo[dataSyncInfo.length - 1]['state'] = SyncState.error;
+      dataSyncInfo[dataSyncInfo.length - 1]['label'] = "سندات القبض";
+      update();
     }
 
-    try {
-      //delete all the old date
-      ReturnedResponse result = await deleteOldOfflineDataTable(tableName: "ACC_DT");
-      if (result == ReturnedResponse.done) {
-        debugPrint("DELETE ACC_DT COMPLETED ......................");
-        // return ReturnedResponse.error; //stop the process if error
-      } else {
-        debugPrint("DELETE ACC_DT NOT COMPLETED ......................");
-      }
-      result = await deleteOldOfflineDataTable(tableName: "ACC_HD");
-      if (result == ReturnedResponse.done) {
-        debugPrint("DELETE ACC_HD COMPLETED ......................");
-        // return ReturnedResponse.error; //stop the process if error
-      } else {
-        debugPrint("DELETE ACC_HD NOT COMPLETED ......................");
-      }
+    if (dataSyncInfo[dataSyncInfo.length - 1]['state'] == SyncState.waitting) {
+      int insertedcount = 0;
+      try {
+        //delete all the old date
+        ReturnedResponse result = await deleteOldOfflineDataTable(tableName: "ACC_DT");
+        if (result == ReturnedResponse.done) {
+          debugPrint("DELETE ACC_DT COMPLETED ......................");
+          // return ReturnedResponse.error; //stop the process if error
+        } else {
+          debugPrint("DELETE ACC_DT NOT COMPLETED ......................");
+        }
+        result = await deleteOldOfflineDataTable(tableName: "ACC_HD");
+        if (result == ReturnedResponse.done) {
+          debugPrint("DELETE ACC_HD COMPLETED ......................");
+          // return ReturnedResponse.error; //stop the process if error
+        } else {
+          debugPrint("DELETE ACC_HD NOT COMPLETED ......................");
+        }
 
-      Database? mydb = await sqldb.db;
+        Database? mydb = await sqldb.db;
 
-      // 2. one shot execuet
-      var response = await mydb!.transaction((txn) async {
-        for (var rowDataHD in sanadHDResponse) {
-          //Header
-          await txn.rawInsert('''
+        // 2. one shot execuet
+        var response = await mydb!.transaction((txn) async {
+          for (var rowDataHD in sanadHDResponse) {
+            //Header
+            await txn.rawInsert('''
             INSERT INTO ACC_HD(ACC_TYPE, ACC_HD_ID, DATE1, CUR_ID, TTL, DSCR, TRHEL, RDY, SYS_TYPE, BRNCH_ACT,
             EXCHNG_PR, USR_INS, USR_INS_DATE, SCRN_SRC,SYNC , BR_ID)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,? , ?)
             ''', [
-            rowDataHD['ACC_TYPE'],
-            rowDataHD['ACC_HD_ID'],
-            rowDataHD['DATE1'],
-            rowDataHD['CUR_ID'],
-            rowDataHD['TTL'],
-            rowDataHD['DSCR'],
-            rowDataHD['TRHEL'],
-            rowDataHD['RDY'],
-            rowDataHD['SYS_TYPE'],
-            rowDataHD['BRNCH_ACT'],
-            rowDataHD['EXCHNG_PR'],
-            rowDataHD['USR_INS'],
-            rowDataHD['USR_INS_DATE'],
-            rowDataHD['SCRN_SRC'],
-            1, //SYNC
-            rowDataHD['BR_ID'],
-          ]);
+              rowDataHD['ACC_TYPE'],
+              rowDataHD['ACC_HD_ID'],
+              rowDataHD['DATE1'],
+              rowDataHD['CUR_ID'],
+              rowDataHD['TTL'],
+              rowDataHD['DSCR'],
+              rowDataHD['TRHEL'],
+              rowDataHD['RDY'],
+              rowDataHD['SYS_TYPE'],
+              rowDataHD['BRNCH_ACT'],
+              rowDataHD['EXCHNG_PR'],
+              rowDataHD['USR_INS'],
+              rowDataHD['USR_INS_DATE'],
+              rowDataHD['SCRN_SRC'],
+              1, //SYNC
+              rowDataHD['BR_ID'],
+            ]);
 
-          debugPrint("INSERT HEADER  ${rowDataHD['ACC_TYPE']} ===  ${rowDataHD['ACC_HD_ID']} +++++++++++++++++++++++");
+            debugPrint("INSERT HEADER  ${rowDataHD['ACC_TYPE']} ===  ${rowDataHD['ACC_HD_ID']} +++++++++++++++++++++++");
 
-          //Detaile----------------------------------------------------------------------------------------------------
-          statment = """
+            //Detaile----------------------------------------------------------------------------------------------------
+            statment = """
                 SELECT CUS_ID,BANK_ID, ACC_TYPE, ACC_HD_ID, ACC_ID, CUR_ID, STATE, AMNT, DSCR, CST_ID, SRL
                 FROM ACC_DT 
                 WHERE 
                 ACC_TYPE = ${rowDataHD['ACC_TYPE']} AND ACC_HD_ID=${rowDataHD['ACC_HD_ID']}
               """;
-          final sanadDTResponse = await dbServices.createRep(sqlStatment: statment);
+            final sanadDTResponse = await dbServices.createRep(sqlStatment: statment);
 
-          for (var rowDataDT in sanadDTResponse) {
-            await txn.rawInsert('''
+            for (var rowDataDT in sanadDTResponse) {
+              await txn.rawInsert('''
             INSERT INTO ACC_DT(CUS_ID,BANK_ID, ACC_TYPE, ACC_HD_ID, ACC_ID, CUR_ID, STATE, AMNT, DSCR, CST_ID, SRL,BR_ID)
             VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
             ''', [
-              rowDataDT['CUS_ID'],
-              rowDataDT['BANK_ID'],
-              rowDataDT['ACC_TYPE'],
-              rowDataDT['ACC_HD_ID'],
-              rowDataDT['ACC_ID'],
-              rowDataDT['CUR_ID'],
-              rowDataDT['STATE'],
-              rowDataDT['AMNT'],
-              rowDataDT['DSCR'],
-              rowDataDT['CST_ID'],
-              rowDataDT['SRL'],
-              rowDataDT['BR_ID'],
-            ]);
-            debugPrint("INSERT DETAIL  ${rowDataDT['ACC_TYPE']} ===  ${rowDataDT['ACC_HD_ID']}  ${rowDataDT['SRL']}------------------");
+                rowDataDT['CUS_ID'],
+                rowDataDT['BANK_ID'],
+                rowDataDT['ACC_TYPE'],
+                rowDataDT['ACC_HD_ID'],
+                rowDataDT['ACC_ID'],
+                rowDataDT['CUR_ID'],
+                rowDataDT['STATE'],
+                rowDataDT['AMNT'],
+                rowDataDT['DSCR'],
+                rowDataDT['CST_ID'],
+                rowDataDT['SRL'],
+                rowDataDT['BR_ID'],
+              ]);
+              debugPrint("INSERT DETAIL  ${rowDataDT['ACC_TYPE']} ===  ${rowDataDT['ACC_HD_ID']}  ${rowDataDT['SRL']}------------------");
+            }
+
+            //
+            insertedcount++;
+            dataSyncInfo[dataSyncInfo.length - 1]['state'] = SyncState.waitting;
+            dataSyncInfo[dataSyncInfo.length - 1]['label'] = "سندات القبض ${sanadHDResponse.length} / $insertedcount ";
+            update();
           }
+          return [];
+        });
+        // isPostingToApi = false;
+        if (response.isEmpty) {
+          // showMessage(color: saveColor, titleMsg: "تم مزامنة السندات", titleFontSize: 18, durationMilliseconds: 2000);
+          //
+          dataSyncInfo[dataSyncInfo.length - 1]['state'] = SyncState.done;
+          dataSyncInfo[dataSyncInfo.length - 1]['label'] = "سندات القبض ${sanadHDResponse.length} / $insertedcount ";
+          update();
         }
-        return [];
-      });
-      // isPostingToApi = false;
-      if (response.isEmpty) {
-        showMessage(color: saveColor, titleMsg: "تم مزامنة السندات", titleFontSize: 18, durationMilliseconds: 2000);
+      } catch (e) {
+        userController.errorLog += "${e.toString()} \n------------------------------------------\n";
+        showMessage(color: secondaryColor, titleMsg: "posting error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
+        //
+        dataSyncInfo[dataSyncInfo.length - 1]['state'] = SyncState.waitting;
+        dataSyncInfo[dataSyncInfo.length - 1]['label'] = "سندات القبض ${sanadHDResponse.length} /$insertedcount ";
+        update();
       }
-    } catch (e) {
-      userController.errorLog += "${e.toString()} \n------------------------------------------\n";
-      showMessage(color: secondaryColor, titleMsg: "posting error !", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 5000);
+      return ReturnedResponse.done;
+    } else {
+      return ReturnedResponse.error;
     }
   }
 

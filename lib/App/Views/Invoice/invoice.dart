@@ -13,6 +13,7 @@ class Invoice extends StatelessWidget {
     return GetBuilder<InvoiceController>(
       // init: InvoiceController(),
       builder: (controller) => Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           actions: [
             IconButton(
@@ -135,21 +136,35 @@ class Invoice extends StatelessWidget {
                 ),
               ),
 
-              // if (controller.selecetdCustomer != null)
+              //customer information
               AnimatedSwitcher(
-                duration: Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 500),
                 transitionBuilder: (child, animation) {
                   // final isShowing = child.key != const ValueKey('empty');
-                  final begin = controller.selecetdCustomer != null ? const Offset(1, 0) : Offset(-1, 0); //in=> on x from 1 to zero 1,1 => 0,0
-                  final end = controller.selecetdCustomer != null ? Offset.zero : Offset(0, 0); // out =>  on -x ?????
-                  return SlideTransition(position: Tween<Offset>(begin: begin, end: end).animate(animation), child: child);
+                  final begin = controller.selecetdCustomer != null ? const Offset(1, 0) : const Offset(-1, 0); //in=> on x from 1 to zero 1,1 => 0,0
+                  final end = controller.selecetdCustomer != null ? Offset.zero : const Offset(0, 0); // out =>  on -x ?????
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: begin,
+                      end: end,
+                    ).animate(animation),
+                    child: child,
+                  );
                 },
                 //FadeTransition(opacity: animation, child: child),
                 child: controller.selecetdCustomer != null
                     ? Card(
-                        margin: EdgeInsets.all(4),
+                        margin: const EdgeInsets.symmetric(vertical: 10),
                         elevation: 1,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)), side: BorderSide(color: primaryColor, width: 0.5)),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(8),
+                          ),
+                          side: BorderSide(
+                            color: primaryColor,
+                            width: 0.5,
+                          ),
+                        ),
                         child: Stack(
                           children: [
                             Padding(
@@ -158,15 +173,39 @@ class Invoice extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    SizedBox(height: 5),
-                                    Row(children: [Text("اسم العميل :"), SizedBox(width: 10), Text(controller.selecetdCustomer!.cusName)]),
-                                    Divider(),
-                                    Row(children: [Text("جوال العميل :"), SizedBox(width: 10), Text(controller.selecetdCustomer!.mobl ?? "")]),
-                                    Divider(),
-                                    Row(children: [Text("العنوان"), SizedBox(width: 10), Text(controller.selecetdCustomer!.adrs ?? "")]),
-                                    Divider(),
-                                    Row(children: [Text("الرقم الضريبي"), SizedBox(width: 10), Text(controller.selecetdCustomer!.taxNo ?? "")]),
-                                    Divider(),
+                                    const SizedBox(height: 5),
+                                    Row(
+                                      children: [
+                                        const Center(child: Text("اسم العميل :")),
+                                        const SizedBox(width: 10),
+                                        Expanded(child: Text(controller.selecetdCustomer!.cusName)),
+                                      ],
+                                    ),
+                                    const Divider(),
+                                    Row(
+                                      children: [
+                                        const Center(child: Text("جوال العميل :")),
+                                        const SizedBox(width: 10),
+                                        Expanded(child: Text(controller.selecetdCustomer!.mobl ?? "")),
+                                      ],
+                                    ),
+                                    const Divider(),
+                                    Row(
+                                      children: [
+                                        const Center(child: Text("العنوان :")),
+                                        const SizedBox(width: 10),
+                                        Expanded(child: Text(controller.selecetdCustomer!.adrs ?? "")),
+                                      ],
+                                    ),
+                                    const Divider(),
+                                    Row(
+                                      children: [
+                                        const Center(child: Text("الرقم الضريبي :")),
+                                        const SizedBox(width: 10),
+                                        Expanded(child: Text(controller.selecetdCustomer!.taxNo ?? "")),
+                                      ],
+                                    ),
+                                    const Divider(),
                                   ],
                                 ),
                               ),
@@ -191,7 +230,9 @@ class Invoice extends StatelessWidget {
                           ],
                         ),
                       )
-                    : SizedBox.shrink(key: ValueKey('empty')),
+                    : const SizedBox.shrink(
+                        key: ValueKey('empty'),
+                      ),
               ),
 
               Divider(height: 8),

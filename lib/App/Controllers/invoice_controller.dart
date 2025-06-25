@@ -62,10 +62,10 @@ class InvoiceController extends GetxController {
         backgroundColor: primaryColor,
         // suppressedAutoSize: true,
         // titlePadding: EdgeInsets.all(0),
-        width: 120,
+        width: 80,
         titleSpan: WidgetSpan(
           child: SizedBox(
-            width: 120,
+            width: 80,
             child: TextButton(
               onPressed: () {
                 printInvoiceDirectly();
@@ -611,11 +611,11 @@ class InvoiceController extends GetxController {
                                     buildCounter: (context, {required currentLength, required isFocused, required maxLength}) => null,
 
                                     textAlign: TextAlign.center,
-                                    onTap: () {
-                                      debugPrint("ontap -------------------------------");
-                                      //to change to number keyboard for qty input
-                                      fn.unfocus();
-                                    },
+                                    // onTap: () {
+                                    //   debugPrint("ontap -------------------------------");
+                                    //   //to change to number keyboard for qty input
+                                    //   fn.unfocus();
+                                    // },
                                     onChanged: (value) {
                                       // debugPrint("----------------------------- : ${item.qty}");
 

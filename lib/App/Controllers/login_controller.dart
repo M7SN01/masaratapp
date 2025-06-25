@@ -42,12 +42,22 @@ class LoginController extends GetxController {
 
   @override
   void onInit() async {
-    // if (isLogedOut) {
-    //   //open login  by log out  remove login data
-    //   await removeSqfliteLoginData();
+    bool isConnected = await checkInternetConnection();
+    if (isConnected) {
+      isOfflineMode = false;
+    } else {
+      // isOfflineMode = true;
+      // await changeOfflineMode();
+      showMessage(
+        color: secondaryColor,
+        titleMsg: "لايوجد اتصال بالانترنت",
+        titleFontSize: 16,
+        msgFontSize: 12,
+        durationMilliseconds: 4000,
+        enableCopyButton: false,
+      );
+    }
 
-    //   // isEnableField = true;
-    // } else {
     //open login Normal >> check local data That is saved befor
     List<Map> data = await sqldb.readData("select * from USER");
     if (data.isNotEmpty) {
@@ -63,19 +73,9 @@ class LoginController extends GetxController {
       }
       // isEnableField = false;
     }
-    // else {
-    //   //no data ? you can write your login data
-    //   // isEnableField = true;
-    // }
-    // }
 
     super.onInit();
   }
-
-  // @override
-  // void onClose() {
-  //   super.onClose();
-  // }
 
   changePasswordVisibility() {
     obscurePassword = !obscurePassword;
@@ -119,7 +119,11 @@ class LoginController extends GetxController {
       } else {
         var jsonData;
         if (isOfflineMode) {
-          jsonData = await sqldb.readData("Select U_ID,U_NAME,U_P from USER where U_ID='${userID.text}' and U_P='${password.text}'");
+          //  jsonData = await sqldb.readData("Select U_ID,U_NAME,U_P from USER where U_ID='${userID.text}' and U_P='${password.text}'");
+          jsonData = await sqldb.readData(
+            "SELECT U_ID, U_NAME, U_P FROM USER WHERE U_ID = ? AND U_P = ?",
+            [userID.text.trim(), password.text.trim()],
+          );
         } else {
           jsonData = await dbServices.createRep(
             sqlStatment: "Select U_ID,U_NAME,U_P from USER1 where U_ID='${userID.text}' and U_P='${password.text}'",

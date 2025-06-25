@@ -201,33 +201,33 @@ class Sanadat extends StatelessWidget {
                                       const SizedBox(height: 5),
                                       Row(
                                         children: [
-                                          const Text("اسم العميل :"),
+                                          const Center(child: Text("اسم العميل :")),
                                           const SizedBox(width: 10),
-                                          Text(controller.selecetdCustomer!.cusName),
+                                          Expanded(child: Text(controller.selecetdCustomer!.cusName)),
                                         ],
                                       ),
                                       const Divider(),
                                       Row(
                                         children: [
-                                          const Text("جوال العميل :"),
+                                          const Center(child: Text("جوال العميل :")),
                                           const SizedBox(width: 10),
-                                          Text(controller.selecetdCustomer!.mobl ?? ""),
+                                          Expanded(child: Text(controller.selecetdCustomer!.mobl ?? "")),
                                         ],
                                       ),
                                       const Divider(),
                                       Row(
                                         children: [
-                                          const Text("العنوان"),
+                                          const Center(child: Text("العنوان :")),
                                           const SizedBox(width: 10),
-                                          Text(controller.selecetdCustomer!.adrs ?? ""),
+                                          Expanded(child: Text(controller.selecetdCustomer!.adrs ?? "")),
                                         ],
                                       ),
                                       const Divider(),
                                       Row(
                                         children: [
-                                          const Text("الرقم الضريبي"),
+                                          const Center(child: Text("الرقم الضريبي :")),
                                           const SizedBox(width: 10),
-                                          Text(controller.selecetdCustomer!.taxNo ?? ""),
+                                          Expanded(child: Text(controller.selecetdCustomer!.taxNo ?? "")),
                                         ],
                                       ),
                                       const Divider(),
@@ -443,22 +443,9 @@ class Sanadat extends StatelessWidget {
                         ),
                         backgroundColor: Colors.deepPurpleAccent,
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.add_box_rounded,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 5),
-                          const Text(
-                            "سند جديد",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                      child: Icon(
+                        Icons.add_box_rounded,
+                        color: Colors.white,
                       ),
                     ),
                     IconButton(
@@ -480,25 +467,29 @@ class Sanadat extends StatelessWidget {
                       ),
                     ),
                     TextButton(
-                      onPressed: () async {
-                        controller.sanadSearchDialoag();
-                        // Get.to(() => Diatest());
-                      },
-                      style: TextButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
+                        onPressed: () async {
+                          controller.sanadSearchDialoag();
+                          // Get.to(() => Diatest());
+                        },
+                        style: TextButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          backgroundColor: Colors.deepPurpleAccent,
                         ),
-                        backgroundColor: Colors.deepPurpleAccent,
-                      ),
-                      child: const Text(
-                        "بحث عن سند",
-                        style: TextStyle(
+                        child: Icon(
+                          Icons.search,
                           color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        )
+                        // const Text(
+                        //   "بحث عن سند",
+                        //   style: TextStyle(
+                        //     color: Colors.white,
+                        //     fontSize: 16,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        // ),
                         ),
-                      ),
-                    ),
                   ],
                 )
               ],

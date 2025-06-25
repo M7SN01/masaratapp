@@ -35,6 +35,7 @@ void main() async {
 
   //screen orientations => restricts the app to only work in portrait mode
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   runApp(const PosApp());
 }
 

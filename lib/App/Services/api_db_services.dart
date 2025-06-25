@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -9,7 +11,7 @@ import '../utils/utils.dart';
 // String server = "http://10.147.19.83:80";
 // String server = "http://10.242.132.113:80";
 String protocol = "http";
-String ip = "10.242.132.113"; //192.168.192.200 MASARAT IP
+String ip = "192.168.195.83"; //"10.242.132.113"; //192.168.192.200 MASARAT IP
 // Zero "10.242.132.113"; //"localhost";
 String port = '881';
 var url = '$protocol://$ip:$port/pos/api/values/CMD/1';
@@ -56,6 +58,16 @@ class Services {
       showMessage(color: secondaryColor, titleMsg: response.statusCode.toString(), msg: "فشل الإتصال بالسيرفر   \n ${response.body}", titleFontSize: 18, durationMilliseconds: 4000);
       // errorCallback!("${response.body} فشل الإتصال بالسيرفر");
       return [response.body];
+    }
+  }
+
+  Future<bool> isServerReachable(String ip, int port, {Duration timeout = const Duration(seconds: 3)}) async {
+    try {
+      final socket = await Socket.connect(ip, port, timeout: timeout);
+      socket.destroy(); // Close socket immediately
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 

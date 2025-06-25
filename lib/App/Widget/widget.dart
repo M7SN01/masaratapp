@@ -291,6 +291,7 @@ showMessage({
   double titleFontSize = 14,
   double msgFontSize = 14,
   int durationMilliseconds = 2000,
+  bool enableCopyButton = true,
 }) {
   Get.snackbar(
     titleMsg,
@@ -328,14 +329,17 @@ showMessage({
     colorText: Colors.white,
     maxWidth: Get.mediaQuery.size.width - 50,
     borderRadius: 4,
-    mainButton: TextButton(
-        onPressed: () {
-          copyTextToClipboard("tittle :  \n $titleMsg \n ------ \n $msg");
-        },
-        child: Icon(
-          Icons.copy,
-          color: Colors.white,
-        )),
+    mainButton: enableCopyButton
+        ? TextButton(
+            onPressed: () {
+              copyTextToClipboard("tittle :  \n $titleMsg \n ------ \n $msg");
+            },
+            child: Icon(
+              Icons.copy,
+              color: Colors.white,
+            ),
+          )
+        : null,
     // onTap: (snack) {
     //   copyTextToClipboard("tittle :  \n ${snack.title} \n ------ \n ${snack.message}");
     // },
