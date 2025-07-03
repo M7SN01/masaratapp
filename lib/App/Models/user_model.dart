@@ -29,6 +29,26 @@ class ItemsDataModel {
 
   double get total => priceAftrVat * qty;
   double get vat => price1 * qty * (vatPr / 100);
+
+  ItemsDataModel copyWith({
+    String? itemId,
+    String? itemName,
+    String? barcode,
+    String? unit,
+    int? qty,
+    double? price1,
+    double? priceAftrVat,
+  }) {
+    return ItemsDataModel(
+      itemId: itemId ?? this.itemId,
+      itemName: itemName ?? this.itemName,
+      barcode: barcode ?? this.barcode,
+      unit: unit ?? this.unit,
+      qty: qty ?? this.qty,
+      price1: price1 ?? this.price1,
+      priceAftrVat: priceAftrVat ?? this.priceAftrVat,
+    );
+  }
 }
 
 class ActPrivModel {

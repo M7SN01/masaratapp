@@ -41,6 +41,116 @@ class _LoginState extends State<Login> {
           //Card glass
           child: Stack(
             children: [
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 10),
+                child: GestureDetector(
+                  onTap: () async {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("set_connection".tr),
+                          content: Form(
+                            key: controller.formKey,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(top: 5, bottom: 5, left: 0, right: 0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(4),
+                                    ),
+                                    border: Border.all(color: Colors.grey, width: 0.5),
+                                  ),
+                                  child: TextFormField(
+                                    controller: controller.serverProtocol,
+                                    decoration: InputDecoration(
+                                      labelText: "protocol".tr,
+                                      contentPadding: EdgeInsets.only(left: 10, right: 5),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(top: 5, bottom: 5, left: 0, right: 0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(4),
+                                    ),
+                                    border: Border.all(color: Colors.grey, width: 0.5),
+                                  ),
+                                  child: TextFormField(
+                                    controller: controller.serverIp,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: "ip_address".tr,
+                                      contentPadding: EdgeInsets.only(left: 10, right: 5),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(top: 5, bottom: 5, left: 0, right: 0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(4),
+                                    ),
+                                    border: Border.all(color: Colors.grey, width: 0.5),
+                                  ),
+                                  child: TextFormField(
+                                    controller: controller.serverPort,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: "port".tr,
+                                      contentPadding: EdgeInsets.only(left: 10, right: 5),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(top: 5, bottom: 5, left: 0, right: 0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(4),
+                                    ),
+                                    border: Border.all(color: Colors.grey, width: 0.5),
+                                  ),
+                                  child: TextFormField(
+                                    controller: controller.notificationTopic,
+                                    // keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: "notification_center".tr,
+                                      contentPadding: EdgeInsets.only(left: 10, right: 5),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () => controller.setServerConnectionData(),
+                                  child: Text('save'.tr),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 25),
+                    child: Stack(
+                      children: [
+                        Icon(
+                          Icons.domain,
+                          size: 45,
+                          color: Colors.white,
+                        ),
+                        // Center(
+                        //  child:
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
               //Cards in back{================================}
               //top center
               Positioned(
@@ -171,8 +281,8 @@ class _LoginState extends State<Login> {
                                     cursorColor: Colors.black,
                                     cursorWidth: 2,
                                     keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                      hintText: "User Id",
+                                    decoration: InputDecoration(
+                                      hintText: "user_id".tr,
                                       border: OutlineInputBorder(borderSide: BorderSide.none),
                                     ),
                                   ),
@@ -226,7 +336,7 @@ class _LoginState extends State<Login> {
                                     keyboardType: TextInputType.number,
                                     obscureText: controller.obscurePassword,
                                     decoration: InputDecoration(
-                                      hintText: "Password",
+                                      hintText: "password".tr,
                                       border: const OutlineInputBorder(
                                         //to remove under line *****
                                         borderSide: BorderSide.none,
@@ -265,8 +375,8 @@ class _LoginState extends State<Login> {
                                           }
                                         },
                                       ),
-                                      const Text(
-                                        "Remember Me",
+                                      Text(
+                                        "remember_me".tr,
                                         style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
@@ -291,10 +401,10 @@ class _LoginState extends State<Login> {
                                           await controller.login();
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          fixedSize: const Size(
-                                            100,
-                                            40,
-                                          ),
+                                          // fixedSize: const Size(
+                                          //   100,
+                                          //   40,
+                                          // ),
                                           backgroundColor: const Color(
                                             0xFFffffff,
                                           ),
@@ -304,9 +414,9 @@ class _LoginState extends State<Login> {
                                             ), // Set the rounded corner radius
                                           ),
                                         ),
-                                        child: const Text(
-                                          'Login',
-                                          style: TextStyle(
+                                        child: Text(
+                                          'login'.tr,
+                                          style: const TextStyle(
                                             color: Color(
                                               0xFF59709b,
                                             ),
@@ -337,7 +447,7 @@ class _LoginState extends State<Login> {
                                         },
                                       ),
                                       Text(
-                                        "العمل بدون اتصال",
+                                        "work_without_connection".tr,
                                         style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white
                                             //  Color(
                                             //   0xFF59709b,
@@ -350,7 +460,7 @@ class _LoginState extends State<Login> {
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              "آخر نسخة في  ",
+                                              "last_backup_in".tr,
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.bold,

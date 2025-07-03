@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 // import '../Views/Login/Login_view2.dart';
 
 // import 'App/Controllers/user_privileges_controller.dart';
+import 'App/Bindings/act_kshf_binding.dart';
 import 'App/Bindings/cus_kshf_binding.dart';
 import 'App/Bindings/invoice_binding.dart';
 import 'App/Bindings/login_binding.dart';
@@ -14,6 +15,7 @@ import 'App/Bindings/sanadat_binding.dart';
 import 'App/Locale/locale.dart';
 import 'App/Locale/locale_controller.dart';
 
+import 'App/Views/Act_Kshf/act_kshf.dart';
 import 'App/Views/CustomerKshf/cus_kshf.dart';
 import 'App/Views/Home/home.dart';
 import 'App/Views/Invoice/invoice.dart';
@@ -50,7 +52,7 @@ class PosApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
-      locale: Get.deviceLocale,
+      locale: Locale('ar'),
       supportedLocales: const [Locale('en'), Locale('ar')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -102,6 +104,11 @@ class PosApp extends StatelessWidget {
           name: '/CustomerKshf',
           page: () => const CustomerKshf(),
           binding: CustomerKshfBinding(),
+        ),
+        GetPage(
+          name: '/ActKshf',
+          page: () => const ActKshf(),
+          binding: ActKshfBinding(),
         ),
       ],
 

@@ -40,6 +40,70 @@ class LoginController extends GetxController {
   String? lastOfflineCopyDate;
   bool isOfflineMode = false;
 
+  //
+  final formKey = GlobalKey<FormState>();
+  TextEditingController serverProtocol = TextEditingController();
+  TextEditingController serverIp = TextEditingController();
+  TextEditingController serverPort = TextEditingController();
+  TextEditingController notificationTopic = TextEditingController();
+
+//  updaeTheUrls() {
+//     docurl = "$protocol://$ip:$port/GsApi/api/gsEmp/GetImage/";
+//     imagesUrl = "$protocol://$ip:$port/gsHr/assets/img/";
+//     domain = "$protocol://$ip:$port/GsApi/api/";
+//     url = '$protocol://$ip:$port/GsApi/api/createrep/1';
+//     // notification_url = "$protocol://$ip:$port/FireNotification/api/values/push";
+//   }
+
+  List<Map> serverResponse = [];
+  Future serverConnectionData() async {
+    serverResponse.clear();
+    serverResponse = await sqldb.readData('select * from server');
+    if (serverResponse.isNotEmpty) {
+      serverProtocol.text = serverResponse[0]['protocol'];
+      serverIp.text = serverResponse[0]['ip'];
+      serverPort.text = serverResponse[0]['port'];
+      notificationTopic.text = serverResponse[0]['topic'];
+
+      protocol = serverResponse[0]['protocol'];
+      ip = serverResponse[0]['ip'];
+      port = serverResponse[0]['port'];
+    } else {
+      await masaratInitialConnection();
+      serverProtocol.text = "http";
+      serverIp.text = '192.168.192.200'; // '192.168.195.83';
+      serverPort.text = '881';
+      // notificationTopic.text = serverResponse[0]['topic'];
+      protocol = "http";
+      ip = '192.168.192.200'; // '192.168.195.83';
+      port = '881';
+    }
+
+    update();
+  }
+
+  Future<void> masaratInitialConnection() async {
+    await sqldb.insertData("INSERT INTO SERVER (PROTOCOL,IP,PORT,TOPIC) VALUES('http','192.168.192.200','881','')");
+  }
+
+  Future<void> setServerConnectionData() async {
+    // if (formKey.currentState!.validate()) {
+    if (serverProtocol.text.isNotEmpty && serverIp.text.isNotEmpty && serverPort.text.isNotEmpty) {
+      await sqldb.deleteTable(tableName: 'SERVER');
+      await sqldb.insertData("INSERT INTO SERVER (PROTOCOL,IP,PORT,TOPIC) VALUES('${serverProtocol.text}','${serverIp.text}','${serverPort.text}','${notificationTopic.text}')");
+      Get.back();
+    } else {
+      showMessage(
+        color: secondaryColor,
+        titleMsg: "ادخل الحقول المطلوبة",
+        titleFontSize: 16,
+        msgFontSize: 12,
+        durationMilliseconds: 4000,
+        enableCopyButton: false,
+      );
+    }
+  }
+
   @override
   void onInit() async {
     bool isConnected = await checkInternetConnection();
@@ -58,14 +122,16 @@ class LoginController extends GetxController {
       );
     }
 
+    await serverConnectionData();
+
     //open login Normal >> check local data That is saved befor
-    List<Map> data = await sqldb.readData("select * from USER");
+    List<Map> data = await sqldb.readData("select * from USER where AUTO_LOGIN=1");
     if (data.isNotEmpty) {
       //fill saved data to fileds
       userID.text = data[0]['U_ID'];
       password.text = data[0]['U_P'];
 
-      keepmelogin = data[0]['AUTO_LOGIN'].toString() == '0';
+      keepmelogin = data[0]['AUTO_LOGIN'].toString() == '1';
       // GlobalVariable().setUserId = userID.text;
       update();
       if (keepmelogin) {
@@ -83,8 +149,6 @@ class LoginController extends GetxController {
   }
 
   Future<void> disableAutoLogin() async {
-    // debugPrint("delete auto login data");
-    // await sqldb.deleteData("DELETE FROM USER");
     await sqldb.updateData("UPDATE USER SET AUTO_LOGIN='0'  ");
     showMessage(titleMsg: " Loged Out Done", color: Colors.greenAccent);
   }
@@ -93,9 +157,9 @@ class LoginController extends GetxController {
     List<Map> data = await sqldb.readData("select * from USER");
     if (data.isEmpty) {
       //no data saved before
-      await sqldb.insertData("INSERT INTO USER(U_ID,U_NAME,U_P) VALUES('$logedInuserId','$logedInuserName','$logedInPassword')");
+      await sqldb.insertData("INSERT INTO USER(U_ID,U_NAME,U_P,AUTO_LOGIN) VALUES('$logedInuserId','$logedInuserName','$logedInPassword',1)");
     } else {
-      await sqldb.updateData("UPDATE USER SET U_ID='${userID.text}' ,U_NAME = '$logedInuserName', U_P='$logedInPassword' ");
+      await sqldb.updateData("UPDATE USER SET U_ID='${userID.text}' ,U_NAME = '$logedInuserName', U_P='$logedInPassword' ,AUTO_LOGIN=1 ");
       // userID.text = data[0]['U_ID'];
       // password.text = data[0]['U_P'];
       // update();
@@ -108,6 +172,23 @@ class LoginController extends GetxController {
     //start loading
     isLogining = true;
     update();
+
+    bool isConnected = await checkInternetConnection();
+    if (!isConnected && !isOfflineMode) {
+      // isOfflineMode = true;
+      // await changeOfflineMode();
+      isLogining = false;
+      update();
+      showMessage(
+        color: secondaryColor,
+        titleMsg: "لايوجد اتصال بالانترنت",
+        titleFontSize: 16,
+        msgFontSize: 12,
+        durationMilliseconds: 4000,
+        enableCopyButton: false,
+      );
+      return;
+    }
 
     try {
       //Check if empty fildes

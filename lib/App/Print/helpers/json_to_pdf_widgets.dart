@@ -368,23 +368,39 @@ Future<pw.Widget> renderToPdfWidget(
 
 //------------------------------------Rows STYLE-----------------------
 
-        cellStyle: map['args']['cellStyle'] != null
-            ? pw.TextStyle(
-                fontSize: (map['args']['cellStyle']['fontSize'] ?? 12).toDouble(),
-                fontWeight: map['args']['cellStyle']['fontWeight'] == "bold" ? pw.FontWeight.bold : pw.FontWeight.normal,
-                color: PdfColor.fromHex(map['args']['cellStyle']['color'] ?? "#00000"),
-              )
+        // cellStyle: map['args']['cellStyle'] != null
+        //     ? pw.TextStyle(
+        //         fontSize: (map['args']['cellStyle']['fontSize'] ?? 12).toDouble(),
+        //         fontWeight: map['args']['cellStyle']['fontWeight'] == "bold" ? pw.FontWeight.bold : pw.FontWeight.normal,
+        //         color: PdfColor.fromHex(map['args']['cellStyle']['color'] ?? "#00000"),
+        //       )
+        //     : null,
+        //
+
+        textStyleBuilder: map['args']['cellStyle'] != null
+            ? (index, data, rowNum) {
+                String cellStyle = rowNum == dataList.length ? "footerCellStyle" : "cellStyle";
+                return pw.TextStyle(
+                  fontSize: (map['args'][cellStyle]['fontSize'] ?? 12).toDouble(),
+                  fontWeight: map['args'][cellStyle]['fontWeight'] == "bold" ? pw.FontWeight.bold : pw.FontWeight.normal,
+                  color: PdfColor.fromHex(map['args'][cellStyle]['color'] ?? "#00000"),
+                );
+              }
             : null,
 
         cellDecoration: map['args']['cellDecoration'] != null
-            ? (index, data, rowNum) => pw.BoxDecoration(
-                  color: PdfColor.fromHex(map['args']['cellDecoration']['color']),
-                  borderRadius: pw.BorderRadius.all(pw.Radius.circular(map['args']['cellDecoration']['borderRadius'])),
+            ? (index, data, rowNum) {
+                //if need to apply vertical decoration compare with the index (column index)
+                String decoration = rowNum == dataList.length ? "footerCellDecoration" : "cellDecoration";
+                return pw.BoxDecoration(
+                  color: PdfColor.fromHex(map['args'][decoration]['color']),
+                  borderRadius: pw.BorderRadius.all(pw.Radius.circular(map['args'][decoration]['borderRadius'])),
                   border: pw.Border.all(
-                    color: PdfColor.fromHex(map['args']['cellDecoration']['border_color']),
-                    width: map['args']['cellDecoration']['border_width'],
+                    color: PdfColor.fromHex(map['args'][decoration]['border_color']),
+                    width: map['args'][decoration]['border_width'],
                   ),
-                )
+                );
+              }
             : null,
 
         rowDecoration: map['args']['rowDecoration'] != null

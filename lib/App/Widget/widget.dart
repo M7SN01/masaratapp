@@ -285,7 +285,7 @@ class _SearchListDialogState extends State<SearchListDialog> {
 showMessage({
   String titleMsg = " ",
   String msg = " ",
-  Color color = Colors.red,
+  Color color = secondaryColor,
   Color titelTextColor = Colors.white,
   Color msgTextColor = Colors.white,
   double titleFontSize = 14,
@@ -293,6 +293,8 @@ showMessage({
   int durationMilliseconds = 2000,
   bool enableCopyButton = true,
 }) {
+  Get.closeAllSnackbars();
+
   Get.snackbar(
     titleMsg,
     msg,
@@ -325,6 +327,8 @@ showMessage({
     duration: Duration(
       milliseconds: durationMilliseconds,
     ),
+    // animationDuration: Duration(milliseconds: 500),
+
     backgroundColor: color,
     colorText: Colors.white,
     maxWidth: Get.mediaQuery.size.width - 50,

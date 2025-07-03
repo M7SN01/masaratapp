@@ -214,6 +214,11 @@ class SanadatController extends GetxController {
         // debugPrint("****************** ${response[0]['ACC_HD_ID']}   *************");
         savedSanadId = " $selectedSanadType ( ${response[0]['ACC_HD_ID'].toStringAsFixed(0)} )";
 
+        var result = await SqlDb().readData("SELECT LAST_OFFLINE_SYNC FROM COMP WHERE HAS_OFFLINE_DATA = 1");
+        if (result.isNotEmpty) {
+          await insertSanadToLocalData(sync: 1);
+        }
+
         showMessage(color: saveColor, titleMsg: "تم الحفظ", titleFontSize: 18, durationMilliseconds: 1000);
       }
     } catch (e) {
@@ -226,7 +231,7 @@ class SanadatController extends GetxController {
     update();
   }
 
-  Future<void> insertSanadToLocalData() async {
+  Future<void> insertSanadToLocalData({int sync = 0}) async {
     isPostingToApi = true;
     update();
 
@@ -257,7 +262,7 @@ class SanadatController extends GetxController {
           userId,
           DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now()),
           'CUS_HD_DT',
-          0, //SYNC
+          sync, //SYNC
           if (userController.csClsPrivList[0].brId != "") userController.csClsPrivList[0].brId,
         ]);
 

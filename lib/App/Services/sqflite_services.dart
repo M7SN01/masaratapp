@@ -26,7 +26,7 @@ class SqlDb {
     Database mydb = await openDatabase(
       path,
       onCreate: _onCreate,
-      version: 3,
+      version: 6,
       onUpgrade: _onUpgrade,
     );
     // print("XXXXXXXXXXXXXXXXXXXXXXXXX-- OPEN DATABASE --XXXXXXXXXXXXXXXXX");
@@ -36,6 +36,14 @@ class SqlDb {
   //create database only first time the  app run
   _onCreate(Database db, int version) async {
     Batch batch = db.batch();
+    batch.execute('''
+    CREATE TABLE IF NOT EXISTS "server"(      
+      "protocol"  TEXT  ,
+      "ip"  TEXT  ,
+      "port"  TEXT ,
+      "topic"  TEXT
+    )
+    ''');
     batch.execute('''
     CREATE TABLE "USER"(      
       "U_ID" TEXT,
@@ -230,22 +238,11 @@ class SqlDb {
 
   _onUpgrade(Database db, int oldversion, int newversion) async {
     await db.execute('''
-    CREATE TABLE "SLS_SHOW_DT" (
-      "R_TP" TEXT,
-      "R_ID" INTEGER,
-      "BARCODE" TEXT,
-      "ITEM_ID" TEXT,
-      "UNIT" TEXT,
-      "QTY" REAL,
-      "PRICE" REAL,
-      "DISCNT" REAL,
-      "HWMNY" INTEGER,
-      "SRL" INTEGER,
-      "VAT_IN" INTEGER,
-      "IT_VAT" REAL,
-      "VAT_VAL" REAL,
-      "PRICE_AFTR_VAT" REAL,
-      FOREIGN KEY ("R_TP", "R_ID") REFERENCES "SLS_SHOW_HD"("R_TP", "R_ID") ON DELETE CASCADE ON UPDATE CASCADE
+    CREATE TABLE IF NOT EXISTS "server"(      
+      "protocol"  TEXT  ,
+      "ip"  TEXT  ,
+      "port"  TEXT ,
+      "topic"  TEXT
     );
     ''');
 

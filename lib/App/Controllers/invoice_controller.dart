@@ -415,11 +415,13 @@ class InvoiceController extends GetxController {
   }
 
   List<ItemsDataModel> filteredItems = [];
+  List<ItemsDataModel> tmpItems = [];
   // var searchItemQuery = "".obs;
   void filterSearch(String query) {
     // searchItemQuery.value = query;
-    if (query.isEmpty) {
-      final results = itemsData.where((item) => item.qty > 0).toList();
+    if (query == "") {
+      filteredItems.clear();
+      final results = tmpItems.where((item) => item.qty > 0 && rows.any((row) => row.cells['ITEM_ID']!.value == item.itemId)).toList();
       results.sort((a, b) => (b.qty).compareTo(a.qty));
       filteredItems = results;
     } else {
@@ -429,7 +431,7 @@ class InvoiceController extends GetxController {
       // filteredItems = results;
 
       final lowerQuery = query.toLowerCase();
-      final results = itemsData
+      final results = tmpItems
           .where(
             (item) => item.itemName.toLowerCase().contains(lowerQuery) || item.itemId.toString().contains(lowerQuery) || item.barcode.toLowerCase().contains(lowerQuery),
           )
@@ -446,6 +448,13 @@ class InvoiceController extends GetxController {
       //محفوظة مسبقا
       showMessage(color: secondaryColor, titleMsg: "الفاتورة محفوظة مسبقا", titleFontSize: 18, durationMilliseconds: 1000);
     } else {
+      filterSearch(""); //to clear any old search result
+      //new copy from items
+      tmpItems = itemsData.map((item) => item.copyWith()).toList();
+
+      showAddItemsDialog();
+
+      /*
       Get.dialog(
         AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -492,7 +501,7 @@ class InvoiceController extends GetxController {
                   ItemsDataModel item = controller.filteredItems[index];
                   // final TextEditingController xx=TextEditingController();
                   bool exists = rows.any((row) => row.cells['ITEM_ID']?.value == item.itemId);
-
+                  int qty = exists ? rows.firstWhere((row) => row.cells['ITEM_ID']?.value == item.itemId).cells['QTY']!.value : 0;
                   return Card(
                     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)), side: BorderSide(width: 0.08)),
                     // color: Colors.white,
@@ -556,7 +565,7 @@ class InvoiceController extends GetxController {
                                   flex: 1,
                                   child: GestureDetector(
                                     child: Text(
-                                      "${item.qty}  - ${item.unit}",
+                                      "$qty  - ${item.unit}",
                                       style: const TextStyle(fontWeight: FontWeight.bold, color: secondaryColor),
                                       textAlign: TextAlign.center,
                                     ),
@@ -656,6 +665,7 @@ class InvoiceController extends GetxController {
           ],
         ),
       );
+      */
     }
   }
 
@@ -1235,4 +1245,260 @@ class InvoiceController extends GetxController {
 
     update();
   }
+
+//************************************************************************* */
+
+  void showAddItemsDialog() {
+    final controller = Get.find<InvoiceController>();
+
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        title: _buildDialogTitle(controller),
+        titlePadding: const EdgeInsets.only(top: 10, right: 10, left: 10),
+        contentPadding: const EdgeInsets.all(10),
+        actionsPadding: const EdgeInsets.all(10),
+        content: _buildDialogContent(controller),
+        actions: [_buildDialogActions()],
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  Widget _buildDialogTitle(InvoiceController controller) {
+    return Container(
+      height: 100,
+      margin: const EdgeInsets.only(top: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(4),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+      ),
+      child: Column(
+        children: [
+          const Text("اضافة اصناف للفاتورة"),
+          const Divider(),
+          SizedBox(
+            height: 45,
+            child: TextFormField(
+              focusNode: controller.fn,
+              controller: controller.searchTextController,
+              keyboardType: TextInputType.text,
+              textAlignVertical: const TextAlignVertical(y: -0.4),
+              decoration: InputDecoration(
+                labelText: "search".tr,
+                labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                suffixIcon: const Icon(Icons.search, color: primaryColor),
+                border: const OutlineInputBorder(
+                  gapPadding: 4,
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: controller.filterSearch,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDialogContent(InvoiceController controller) {
+    return Container(
+      height: 400,
+      width: 300,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(4),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+      ),
+      child: GetBuilder<InvoiceController>(
+        builder: (controller) => ListView.builder(
+          shrinkWrap: true,
+          itemCount: controller.filteredItems.length,
+          itemBuilder: (context, index) => _buildItemCard(controller, index),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItemCard(InvoiceController controller, int index) {
+    final item = controller.filteredItems[index];
+    final exists = rows.any((row) => row.cells['ITEM_ID']?.value == item.itemId);
+
+    return Card(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+        side: BorderSide(width: 0.08),
+      ),
+      elevation: 1,
+      child: ListTile(
+        key: ValueKey(item.itemId),
+        subtitle: _buildItemSubtitle(controller, item),
+        title: exists ? _buildExistingItemRow(item) : _buildNewItemRow(item),
+        onTap: () => controller.addPlutoRow(item),
+      ),
+    );
+  }
+
+  Widget _buildItemSubtitle(InvoiceController controller, ItemsDataModel item) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Center(
+            child: ThemedRichText(
+              text: highlightQueryInText(
+                item.itemId,
+                controller.searchTextController.text,
+                const TextStyle(color: Colors.black),
+                const TextStyle(color: secondaryColor),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: ThemedRichText(
+            text: highlightQueryInText(
+              item.barcode,
+              controller.searchTextController.text,
+              const TextStyle(color: Colors.black),
+              const TextStyle(color: secondaryColor),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExistingItemRow(ItemsDataModel item) {
+    int qty = rows.firstWhere((row) => row.cells['ITEM_ID']?.value == item.itemId).cells['QTY']!.value;
+
+    return Row(
+      children: [
+        // Item Name
+        Expanded(
+          flex: 2,
+          child: Center(
+            child: ThemedRichText(
+              textAlign: TextAlign.center,
+              text: highlightQueryInText(
+                item.itemName,
+                Get.find<InvoiceController>().searchTextController.text,
+                const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.black,
+                ),
+                const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                  color: secondaryColor,
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Cancel quantity
+        Expanded(
+          flex: 1,
+          child: GestureDetector(
+            child: Text(
+              "$qty  - ${item.unit}",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: secondaryColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            onTap: () {
+              item.qty = 0;
+              rows.removeWhere((row) => row.cells['ITEM_ID']?.value == item.itemId);
+              update();
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNewItemRow(ItemsDataModel item) {
+    return Row(
+      children: [
+        // Item Name
+        Expanded(
+          child: Center(
+            child: ThemedRichText(
+              textAlign: TextAlign.center,
+              text: highlightQueryInText(
+                item.itemName,
+                Get.find<InvoiceController>().searchTextController.text,
+                const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.black,
+                ),
+                const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                  color: secondaryColor,
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Add/Edit quantity
+        SizedBox(
+          height: 50,
+          width: 70,
+          child: TextFormField(
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(
+                gapPadding: 4,
+                borderSide: BorderSide(width: 0.5, color: primaryColor),
+              ),
+            ),
+            maxLength: 4,
+            buildCounter: (context, {required currentLength, required isFocused, required maxLength}) => null,
+            textAlign: TextAlign.center,
+            onChanged: (value) {
+              item.qty = int.tryParse(value) ?? 0;
+              update();
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDialogActions() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextButton(
+            onPressed: () => Get.back(),
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              backgroundColor: secondaryColor,
+            ),
+            child: const Text(
+              "خروج",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+//
 }

@@ -131,6 +131,20 @@ class CusKshfController extends GetxController {
         enableEditingMode: false,
         enableColumnDrag: false,
         // hide: true,
+        footerRenderer: (context) {
+          return isPostingToApi
+              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+              : TextButton(
+                  onPressed: () {
+                    printKshf();
+                  },
+                  style: TextButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), backgroundColor: rows.isNotEmpty && !isPostedBefor ? saveColor : disabledColor),
+                  child: Icon(
+                    Icons.print,
+                    color: Colors.white,
+                  ),
+                );
+        },
       ),
       PlutoColumn(
         title: "التاريخ",
@@ -303,14 +317,14 @@ class CusKshfController extends GetxController {
     }
     //last Row---
     tmp.add({
-      "srl": "--",
-      "ACT_TYPE": "عدد الحركات =>",
-      "ACT_NO": "(  ${rows.length}  )",
-      "DATE": "----------",
-      "DESC": "الرصيد الحالي ==> (  ${(ttlBAL).toStringAsFixed(2)}  )",
-      "DN": "-----",
-      "MD": "-----",
-      "BAL": "-----",
+      "srl": "",
+      "ACT_TYPE": "عدد الحركات",
+      "ACT_NO": "${rows.length}",
+      "DATE": "",
+      "DESC": "الرصيد الحالي",
+      "DN": "",
+      "MD": "",
+      "BAL": (ttlBAL).toStringAsFixed(2),
     });
     // ttlBAL = ttlMD - ttlDN;
     //repeat_element

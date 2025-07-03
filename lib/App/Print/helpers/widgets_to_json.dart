@@ -242,6 +242,18 @@ Map<String, dynamic> tableWCellStyle({
   };
 }
 
+Map<String, dynamic> tableWFooterStyle({
+  double? fontSize = 10,
+  String? fontWeight,
+  String? color = "#000000",
+}) {
+  return {
+    "fontSize": fontSize,
+    if (fontWeight != null) "fontWeight": fontWeight,
+    "color": color,
+  };
+}
+
 Map<String, dynamic> tableWHeaderCellDecoration({
   double? borderRadius = 0,
   String? color = "#ffffff",
@@ -257,6 +269,20 @@ Map<String, dynamic> tableWHeaderCellDecoration({
 }
 
 Map<String, dynamic> tableWCellDecoration({
+  double? borderRadius = 0,
+  String? color = "#ffffff",
+  String? borderColor = "#000000",
+  double? borderWidth = 1,
+}) {
+  return {
+    "color": color,
+    "borderRadius": borderRadius,
+    "border_color": borderColor,
+    "border_width": borderWidth,
+  };
+}
+
+Map<String, dynamic> tableWFooterDecoration({
   double? borderRadius = 0,
   String? color = "#ffffff",
   String? borderColor = "#000000",
@@ -320,6 +346,8 @@ Map<String, dynamic> tableW({
   Map<String, dynamic>? tableWRowDecoration,
   Map<String, dynamic>? tableWOddRowDecoration,
   Map<String, dynamic>? tableWHeaderDecoration,
+  Map<String, dynamic>? tableWFooterDecoration,
+  Map<String, dynamic>? tableWFooterStyle,
 }) {
   return {
     "type": "table",
@@ -332,6 +360,8 @@ Map<String, dynamic> tableW({
       "cellDecoration": tableWCellDecoration,
       "rowDecoration": tableWRowDecoration,
       "oddRowDecoration": tableWOddRowDecoration,
+      "footerCellDecoration": tableWFooterDecoration ?? tableWCellDecoration,
+      "footerCellStyle": tableWFooterStyle ?? tableWCellStyle,
     }
   };
 }
