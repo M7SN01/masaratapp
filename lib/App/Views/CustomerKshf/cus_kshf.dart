@@ -15,41 +15,9 @@ class CustomerKshf extends StatelessWidget {
     return GetBuilder<CusKshfController>(
       builder: (controller) => Scaffold(
         appBar: AppBar(
-            /*
-          actions: [
-            IconButton(
-              onPressed: () {
-                if (controller.selectedInvTypeId != null || controller.selecetdCustomer != null) {
-                  Get.defaultDialog(
-                    radius: 8,
-                    title: "هل تريد حذف الفاتورة؟",
-                    middleText: "لن تتمكن من استرجاعها لاحقًا",
-                    confirm: ElevatedButton(
-                      style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
-                      onPressed: () {
-                        controller.clearInvoiceData();
-                        Get.back();
-                      },
-                      child: Text("موافق"),
-                    ),
-                    cancel: ElevatedButton(
-                      style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
-                      onPressed: () {
-                        Get.back();
-                      },
-                      child: Text("إلغاء"),
-                    ),
-                  );
-                }
-              },
-              icon: Icon(
-                Icons.delete_forever_rounded,
-                color: secondaryColor,
-              ),
-            ),
-          ],
-          */
-            ),
+          title: Text("كشف حساب"),
+          centerTitle: true,
+        ),
         body: Card(
           margin: EdgeInsets.all(10),
 
@@ -302,20 +270,20 @@ class CustomerKshf extends StatelessWidget {
             ],
           ),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-        floatingActionButton: Container(
-          padding: const EdgeInsets.all(4),
-          decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.red),
-          child: IconButton(
-            onPressed: () {
-              controller.printKshf();
-            },
-            icon: Icon(
-              controller.rows.isEmpty ? Icons.print_disabled : Icons.print,
-              color: Colors.white,
-            ),
-          ),
-        ),
+        // floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+        // floatingActionButton: Container(
+        //   padding: const EdgeInsets.all(4),
+        //   decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+        //   child: IconButton(
+        //     onPressed: () {
+        //       controller.printKshf();
+        //     },
+        //     icon: Icon(
+        //       controller.rows.isEmpty ? Icons.print_disabled : Icons.print,
+        //       color: Colors.white,
+        //     ),
+        //   ),
+        // ),
       ),
     );
   }

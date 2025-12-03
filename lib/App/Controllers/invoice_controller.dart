@@ -48,7 +48,7 @@ class InvoiceController extends GetxController {
   void onInit() {
     userController = Get.find<UserController>();
     //int.parse("53${userController.uId}"), int.parse("57${userController.uId}"),
-    act = userController.actPrivList.where((e) => [58, 59, 60, 61, 77, 99].contains(e.actId)).toList();
+    act = userController.actPrivList.where((e) => [/*58, 59, 60, 61,*/ 77, 99].contains(e.actId)).toList();
     cusData = userController.cusDataList;
     itemsData = userController.itemsDataList;
 

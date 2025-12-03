@@ -139,7 +139,10 @@ class ActKshfController extends GetxController {
                   onPressed: () {
                     printKshf();
                   },
-                  style: TextButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), backgroundColor: rows.isNotEmpty && !isPostedBefor ? saveColor : disabledColor),
+                  style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                    backgroundColor: primaryColor,
+                  ),
                   child: Icon(
                     Icons.print,
                     color: Colors.white,
