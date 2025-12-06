@@ -170,6 +170,14 @@ class Home extends StatelessWidget {
                 ),
                 mainGraid(
                   icon: Icons.inventory_outlined,
+                  title: "زيارة عميل",
+                  onTap: () {
+                    Get.toNamed('/VisitMap');
+                    // Get.to(() => const Sanadat(), binding: SanadatBinding());
+                  },
+                ),
+                mainGraid(
+                  icon: Icons.inventory_outlined,
                   title: "كشف حساب",
                   onTap: () {
                     Get.toNamed('/CustomerKshf');

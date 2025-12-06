@@ -8,6 +8,10 @@
         android:label="masaratapp"
         android:name="${applicationName}"
         android:icon="@mipmap/pos_launcher">
+        <!-- GOOGLE MAP API-->
+          <!-- <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyBkqsPZ2r9abLw-NMgDsRbG_5bfl06TjeY"/> -->
+        <!-- GOOGLE MAP API-->
         <activity
             android:name=".MainActivity"
             android:exported="true"

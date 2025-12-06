@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:masaratapp/App/Bindings/visit_map_binding.dart';
 // import '../Views/Login/Login_view2.dart';
 
 // import 'App/Controllers/user_privileges_controller.dart';
@@ -20,6 +21,7 @@ import 'App/Views/CustomerKshf/cus_kshf.dart';
 import 'App/Views/Home/home.dart';
 import 'App/Views/Invoice/invoice.dart';
 import 'App/Views/Login/Login_view.dart';
+import 'App/Views/Maps/map_view.dart';
 import 'App/Views/Sanadat/sanadat.dart';
 import 'App/Views/Splash_Screen/splash_view.dart';
 
@@ -109,6 +111,11 @@ class PosApp extends StatelessWidget {
           name: '/ActKshf',
           page: () => const ActKshf(),
           binding: ActKshfBinding(),
+        ),
+        GetPage(
+          name: '/VisitMap',
+          page: () => const VisitMap(),
+          binding: VisitMapBinding(),
         ),
       ],
 

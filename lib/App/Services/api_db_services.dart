@@ -16,12 +16,13 @@ String? port; // = '881';
 class Services {
   Future<List<dynamic>> createRep({
     required String sqlStatment,
+    int timeOutSeconds = 20,
     // Function(String error)? errorCallback,
   }) async {
     var url = '$protocol://$ip:$port/pos/api/values/CMD/1';
     var sql = {"CMD": sqlStatment};
 
-    final response = await http.post(Uri.parse(url), body: sql); //.timeout(Duration(seconds: 20));
+    final response = await http.post(Uri.parse(url), body: sql).timeout(Duration(seconds: timeOutSeconds));
     if (response.statusCode == 200) {
       try {
         final jsonResponse = json.decode(response.body);

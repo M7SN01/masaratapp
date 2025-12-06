@@ -69,22 +69,24 @@ class LoginController extends GetxController {
       ip = serverResponse[0]['ip'];
       port = serverResponse[0]['port'];
     } else {
-      await masaratInitialConnection();
-      serverProtocol.text = "http";
-      serverIp.text = '192.168.192.200'; // '192.168.195.83';
-      serverPort.text = '881';
       // notificationTopic.text = serverResponse[0]['topic'];
       protocol = "http";
-      ip = '192.168.192.200'; // '192.168.195.83';
+      ip = '10.147.17.83'; //'192.168.192.200'; // '192.168.195.83';
       port = '881';
+
+      // await masaratInitialConnection();
+      await sqldb.insertData("INSERT INTO SERVER (PROTOCOL,IP,PORT,TOPIC) VALUES('$protocol','$ip','$port','')");
+      serverProtocol.text = protocol!;
+      serverIp.text = ip!; // '192.168.195.83';
+      serverPort.text = port!;
     }
 
     update();
   }
 
-  Future<void> masaratInitialConnection() async {
-    await sqldb.insertData("INSERT INTO SERVER (PROTOCOL,IP,PORT,TOPIC) VALUES('http','192.168.192.200','881','')");
-  }
+  // Future<void> masaratInitialConnection() async {
+  //   await sqldb.insertData("INSERT INTO SERVER (PROTOCOL,IP,PORT,TOPIC) VALUES('http','192.168.192.200','881','')");
+  // }
 
   Future<void> setServerConnectionData() async {
     // if (formKey.currentState!.validate()) {
@@ -207,7 +209,7 @@ class LoginController extends GetxController {
           );
         } else {
           jsonData = await dbServices.createRep(
-            sqlStatment: "Select U_ID,U_NAME,U_P from USER1 where U_ID='${userID.text}' and U_P='${password.text}'",
+            sqlStatment: "Select U_ID,U_NAME,U_P from USER1 where U_ID='${userID.text}' and U_P='${password.text}'", timeOutSeconds: 5,
             // errorCallback: (error) {
             //   // showMessage(
             //   //   msg: error,
