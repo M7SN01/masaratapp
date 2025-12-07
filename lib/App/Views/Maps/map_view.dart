@@ -185,6 +185,60 @@ class _VisitMapState extends State<VisitMap> {
                                     ],
                                   ),
                                   const Divider(),
+                                  IntrinsicHeight(
+                                    child: Row(children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Get.defaultDialog(
+                                              title: "تنبية",
+                                              middleText: "هل انت متاكد إن موقعك الحالى هو موقع :\n ${controller.selecetdCustomer!.cusName} ",
+                                              textConfirm: "تأكيد",
+                                              textCancel: "الغاء",
+
+                                              middleTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                              onConfirm: () {
+                                                controller.setCurrentLocation();
+                                                debugPrint("chose the location");
+                                                Get.back();
+                                              },
+                                              // onCancel: () {},
+                                            );
+                                          },
+                                          child: Opacity(
+                                            opacity: 1.0,
+                                            child: Container(
+                                              height: double.infinity,
+                                              decoration: BoxDecoration(
+                                                color: controller.selecetdCustomer == null ? primaryColor : secondaryColor,
+                                                border: Border.all(color: Colors.grey, width: 1),
+                                                borderRadius: BorderRadius.circular(5),
+                                                shape: BoxShape.rectangle,
+                                              ),
+                                              child: const Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                    Icons.location_pin,
+                                                    size: 30,
+                                                    color: Colors.white,
+                                                  ),
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Text(
+                                                    "تحديد موقع العميل",
+                                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ]),
+                                  ),
+                                  const Divider(),
                                 ],
                               ),
                             ),
@@ -221,6 +275,7 @@ class _VisitMapState extends State<VisitMap> {
               child: Stack(
                 children: [
                   FlutterMap(
+                    mapController: controller.animatedMapController.mapController,
                     options: MapOptions(
                       initialCenter: controller.latlang(21.502988278492147, 39.18250154703856),
                       initialZoom: 10,
@@ -356,7 +411,47 @@ class _VisitMapState extends State<VisitMap> {
                   ],
                 ],
               ),
-            )
+            ),
+            IntrinsicHeight(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Opacity(
+                        opacity: !controller.isPostedBefor ? 1.0 : 0.5,
+                        child: Container(
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            color: controller.selecetdCustomer == null ? primaryColor : secondaryColor,
+                            border: Border.all(color: Colors.grey, width: 1),
+                            borderRadius: BorderRadius.circular(5),
+                            shape: BoxShape.rectangle,
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.checklist_rounded,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                "زيـــارة",
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            //
           ],
         ),
       ),

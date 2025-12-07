@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:masaratapp/App/Controllers/login_controller.dart';
 import 'package:masaratapp/App/Controllers/user_controller.dart';
 import 'package:latlong2/latlong.dart' as latLngPackage;
+import 'package:masaratapp/App/Widget/widget.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../Models/user_model.dart';
+import '../utils/utils.dart';
 
 typedef LatLang = latLngPackage.LatLng;
 
-class VisitMapController extends GetxController {
+class VisitMapController extends GetxController with GetSingleTickerProviderStateMixin {
+  // MapController mapController = MapController();
+  // late final MapController mapController;
+  late final AnimatedMapController animatedMapController;
+  //
   late UserController userController;
   late LoginController loginController;
   String? userId;
@@ -35,7 +44,21 @@ class VisitMapController extends GetxController {
     userId = loginController.logedInuserId;
     userName = loginController.logedInuserName;
     cusData = userController.cusDataList;
+    //----
+    //  mapController = MapController();
+    animatedMapController = AnimatedMapController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeInOut,
+    );
+
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    animatedMapController.dispose();
+    super.onClose();
   }
 
   //
@@ -304,6 +327,7 @@ class VisitMapController extends GetxController {
     update();
   }
 
+/*
   buildMarkerBestCus(List<dynamic> responeData) async {
     // showInfDt("Bst");
     // defultmarker.clear();
@@ -707,7 +731,7 @@ class VisitMapController extends GetxController {
     showBestCus;
     update();
   }
-
+*/
 // Graham scan algorithm to find the convex hull
   List<LatLang> getConvexHull(List<LatLang> points) {
     // Sort points by x-coordinate
@@ -738,5 +762,71 @@ class VisitMapController extends GetxController {
 // Cross product of vectors OA and OB
   double _cross(LatLang O, LatLang A, LatLang B) {
     return (A.longitude - O.longitude) * (B.latitude - O.latitude) - (A.latitude - O.latitude) * (B.longitude - O.longitude);
+  }
+
+  //if private edit your location...
+  Future<Position?> getCurrentLocation() async {
+    bool serviceEnable = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnable) {
+      showMessage(color: secondaryColor, titleMsg: "خدمات الموقع معطلة", durationMilliseconds: 2000);
+      return null;
+      // ShowMessage(context, Locales.string(context, "locationservicesdisabled"), Colors.red);
+      // return Future.error("Locales.string(context, locationservicesdisabled)");
+    }
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // ShowMessage(context, Locales.string(context, "locationpermissiondisabled"), Colors.red);
+        showMessage(color: secondaryColor, titleMsg: "امنح التطبيق صلاحيات استخدام موقعك", durationMilliseconds: 2000);
+        // return Future.error("Locales.string(context, locationpermissiondisabled)");
+        return null;
+      } else if (permission == LocationPermission.deniedForever) {
+        // ShowMessage(context, Locales.string(context, "locationpermissionsdenide"), Colors.red);
+        // return Future.error("Locales.string(context, locationpermissionsdenide)");
+
+        // showMessage(color: secondaryColor, titleMsg: "من الاعدادات امنح التطبيق صلاحيات استخدام موقعك", durationMilliseconds: 2000);
+
+        Get.defaultDialog(
+          title: "فتح الاعدادات لمنح صلاحيات استخدام الموقع",
+          // middleText: "",
+          textConfirm: "تأكيد",
+          textCancel: "الغاء",
+
+          middleTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          onConfirm: () {
+            Get.back();
+            openAppSettings();
+            // Geolocator.openLocationSettings();
+          },
+          // onCancel: () {},
+        );
+
+        return null;
+      }
+    } else if (permission == LocationPermission.deniedForever) {
+      // ShowMessage(context, Locales.string(context, "locationpermissionsdenide"), Colors.red);
+      // return Future.error("Locales.string(context, locationpermissionsdenide)");
+      showMessage(color: secondaryColor, titleMsg: "امنح التطبيق صلاحيات استخدام موقعك", durationMilliseconds: 2000);
+      return null;
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  void animateToPosition(double lat, double lng) {
+    animatedMapController.animateTo(
+      dest: LatLang(lat, lng),
+      zoom: 19,
+      // تقدر تضيف rotation أو غيره إذا تحتاج
+    );
+  }
+
+  setCurrentLocation() async {
+    Position? position = await getCurrentLocation();
+    if (position != null) {
+      animateToPosition(position.latitude, position.longitude);
+      update();
+    }
   }
 }

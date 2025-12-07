@@ -47,5 +47,9 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<!-- geolocator -->
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>We need your location to show it on the map.</string>
+		<!--  -->
 	</dict>
 </plist>

@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.masaratapp"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35 //flutter.compileSdkVersion  //to make permission_handler open the spicific app setting to enable the location services
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
