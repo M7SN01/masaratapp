@@ -50,9 +50,10 @@ dependencies:
   flutter_map: ^8.2.2
   flutter_map_marker_popup: ^8.1.0
   geolocator: 9.0.2
-  permission_handler: ^12.0.1
   flutter_map_animations: ^0.9.0
-  # geolocator: ^14.0.2
+  latlong2: ^0.9.1
+  # huawei_location: ^6.16.0+300
+
 
 
 

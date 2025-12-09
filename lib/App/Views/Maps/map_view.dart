@@ -37,11 +37,7 @@ class _VisitMapState extends State<VisitMap> {
                                   return SearchListDialog(
                                     title: "اختر عميل",
                                     originalData: controller.cusData.map((e) => SearchList(id: e.cusId, name: e.cusName)).toList(),
-                                    onSelected: (selectedItem) {
-                                      controller.selecetdCustomer = controller.cusData.firstWhere((e) => e.cusId == selectedItem.id);
-                                      controller.update();
-                                      Get.back();
-                                    },
+                                    onSelected: (selectedItem) => controller.onSelectCustomer(selectedItem),
                                   );
                                 },
                               );
@@ -186,57 +182,71 @@ class _VisitMapState extends State<VisitMap> {
                                   ),
                                   const Divider(),
                                   IntrinsicHeight(
-                                    child: Row(children: [
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            Get.defaultDialog(
-                                              title: "تنبية",
-                                              middleText: "هل انت متاكد إن موقعك الحالى هو موقع :\n ${controller.selecetdCustomer!.cusName} ",
-                                              textConfirm: "تأكيد",
-                                              textCancel: "الغاء",
-
-                                              middleTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                              onConfirm: () {
-                                                controller.setCurrentLocation();
-                                                debugPrint("chose the location");
-                                                Get.back();
-                                              },
-                                              // onCancel: () {},
-                                            );
-                                          },
-                                          child: Opacity(
-                                            opacity: 1.0,
-                                            child: Container(
-                                              height: double.infinity,
-                                              decoration: BoxDecoration(
-                                                color: controller.selecetdCustomer == null ? primaryColor : secondaryColor,
-                                                border: Border.all(color: Colors.grey, width: 1),
-                                                borderRadius: BorderRadius.circular(5),
-                                                shape: BoxShape.rectangle,
-                                              ),
-                                              child: const Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    Icons.location_pin,
-                                                    size: 30,
-                                                    color: Colors.white,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: controller.isCustomerHasLocation ? controller.makeCustomerVisit : null,
+                                            child: Opacity(
+                                              opacity: controller.isCustomerHasLocation ? 1.0 : 0.5,
+                                              child: Container(
+                                                height: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  color: primaryColor,
+                                                  border: Border.all(color: Colors.grey, width: 1),
+                                                  borderRadius: BorderRadius.circular(5),
+                                                  shape: BoxShape.rectangle,
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    "زيـــارة",
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                    // textAlign: TextAlign.center,
                                                   ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Text(
-                                                    "تحديد موقع العميل",
-                                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                                  ),
-                                                ],
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ]),
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: controller.newCustomerLocation != null ? controller.setCustomerNewLocation : null,
+                                            child: Opacity(
+                                              opacity: controller.newCustomerLocation != null ? 1 : 0.5,
+                                              child: Container(
+                                                height: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  color: primaryColor,
+                                                  border: Border.all(color: Colors.grey, width: 1),
+                                                  borderRadius: BorderRadius.circular(5),
+                                                  shape: BoxShape.rectangle,
+                                                ),
+                                                child: const Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.location_pin,
+                                                      size: 30,
+                                                      color: Colors.white,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    Text(
+                                                      "تحديد موقع العميل",
+                                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                   const Divider(),
                                 ],
@@ -274,53 +284,76 @@ class _VisitMapState extends State<VisitMap> {
               // flex: 5,
               child: Stack(
                 children: [
-                  FlutterMap(
-                    mapController: controller.animatedMapController.mapController,
-                    options: MapOptions(
-                      initialCenter: controller.latlang(21.502988278492147, 39.18250154703856),
-                      initialZoom: 10,
-                      onTap: (tapPosition, point) {
-                        controller.popupController.hideAllPopups();
-                      },
-                      onLongPress: (tapPosition, point) {},
-                    ),
-                    children: [
-                      TileLayer(
-                        urlTemplate: 'https://maps.googleapis.com/maps/vt?lyrs=m&x={x}&y={y}&z={z}&style=feature:park|visibility:off&style=feature:road|visibility:off',
-                        additionalOptions: const {
-                          'key': 'AIzaSyBkqsPZ2r9abLw-NMgDsRbG_5bfl06TjeY',
-                        },
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        8,
                       ),
-                      PolygonLayer(
-                        polygons: controller.polygons,
-                      ),
-                      MarkerLayer(markers: controller.defultmarker),
-                      PopupMarkerLayer(
-                        options: PopupMarkerLayerOptions(
-                          popupController: controller.popupController,
-                          markers: controller.defultmarker,
-                          popupDisplayOptions: PopupDisplayOptions(
-                            builder: (BuildContext context, Marker marker) {
-                              return GestureDetector(
-                                child: Card(
-                                  child: Padding(padding: const EdgeInsets.all(8.0), child: controller.infoWindow[marker.key]),
-                                ),
-                                onLongPress: () {
-                                  // // print(marker.key.toString().replaceAll("[<'", '').replaceAll("'>]", '') + "-" + cusIds[marker.key.toString().replaceAll("[<'", '').replaceAll("'>]", '')].toString());
-                                  // Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                  //   return OpenKshf(
-                                  //     accId: "", // accIdInfo[marker.key]!.replaceAll(" ", ""),
-                                  //     cusId: cusIds[marker.key.toString().replaceAll("[<'", '').replaceAll("'>]", '')] ?? "", // marker.key.toString().replaceAll("[<'", '').replaceAll("'>]", ''),
-                                  //     accName: cusName[marker.key] ?? "",
-                                  //   );
-                                  // }));
-                                },
-                              );
+                      child: FlutterMap(
+                        mapController: controller.animatedMapController.mapController,
+                        options: MapOptions(
+                          initialCenter: controller.latlang(21.502988278492147, 39.18250154703856),
+                          initialZoom: 10,
+                          onTap: (tapPosition, point) {
+                            controller.popupController.hideAllPopups();
+                          },
+                          onLongPress: (tapPosition, point) => controller.putCustomerMarkerOnLongPress(point),
+                        ),
+                        children: [
+                          TileLayer(
+                            urlTemplate: 'https://maps.googleapis.com/maps/vt?lyrs=m&x={x}&y={y}&z={z}&style=feature:park|visibility:off&style=feature:road|visibility:off',
+                            additionalOptions: const {
+                              'key': 'AIzaSyBkqsPZ2r9abLw-NMgDsRbG_5bfl06TjeY',
                             },
                           ),
-                        ),
-                      )
-                    ],
+                          PolygonLayer(
+                            polygons: controller.polygons,
+                          ),
+                          PopupMarkerLayer(
+                            options: PopupMarkerLayerOptions(
+                              popupController: controller.popupController,
+                              markers: controller.defultmarker,
+                              popupDisplayOptions: PopupDisplayOptions(
+                                builder: (BuildContext context, Marker marker) {
+                                  return GestureDetector(
+                                    child: Card(
+                                      child: Padding(padding: const EdgeInsets.all(8.0), child: controller.infoWindow[marker.key]),
+                                    ),
+                                    onLongPress: () {
+                                      // // print(marker.key.toString().replaceAll("[<'", '').replaceAll("'>]", '') + "-" + cusIds[marker.key.toString().replaceAll("[<'", '').replaceAll("'>]", '')].toString());
+                                      // Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                      //   return OpenKshf(
+                                      //     accId: "", // accIdInfo[marker.key]!.replaceAll(" ", ""),
+                                      //     cusId: cusIds[marker.key.toString().replaceAll("[<'", '').replaceAll("'>]", '')] ?? "", // marker.key.toString().replaceAll("[<'", '').replaceAll("'>]", ''),
+                                      //     accName: cusName[marker.key] ?? "",
+                                      //   );
+                                      // }));
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          CircleLayer(
+                            circles: <CircleMarker>[
+                              CircleMarker(point: controller.latlang(0.0, 0.0), radius: 0.0),
+                              if (controller.circulerMarker != null) controller.circulerMarker!,
+                            ],
+                          ),
+                          MarkerLayer(
+                            markers: [
+                              ...controller.defultmarker,
+                              if (controller.userMarker != null) controller.userMarker!,
+                              if (controller.customerMarker != null) controller.customerMarker!,
+
+                              if (controller.newCustomerMarker != null) controller.newCustomerMarker!,
+                              //  if (controller.customerLocation != null) controller.customerLocation!,
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   //---------------
 
@@ -344,10 +377,10 @@ class _VisitMapState extends State<VisitMap> {
                               ),
                               child: ListView.builder(
                                 padding: const EdgeInsets.all(10),
-                                itemCount: controller.cus_count.length,
+                                itemCount: controller.cusCount.length,
                                 itemBuilder: (context, index) {
-                                  String key = controller.cus_count.keys.elementAt(index);
-                                  Map<String, dynamic> data = controller.cus_count[key]!;
+                                  String key = controller.cusCount.keys.elementAt(index);
+                                  Map<String, dynamic> data = controller.cusCount[key]!;
 
                                   return index == 0
                                       ? Column(
@@ -409,41 +442,18 @@ class _VisitMapState extends State<VisitMap> {
                       },
                     ),
                   ],
-                ],
-              ),
-            ),
-            IntrinsicHeight(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Opacity(
-                        opacity: !controller.isPostedBefor ? 1.0 : 0.5,
-                        child: Container(
-                          height: double.infinity,
-                          decoration: BoxDecoration(
-                            color: controller.selecetdCustomer == null ? primaryColor : secondaryColor,
-                            border: Border.all(color: Colors.grey, width: 1),
-                            borderRadius: BorderRadius.circular(5),
-                            shape: BoxShape.rectangle,
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.checklist_rounded,
-                                color: Colors.white,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                "زيـــارة",
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
+                  //
+                  Positioned(
+                    bottom: 10,
+                    left: 10,
+                    child: Card(
+                      shape: StadiumBorder(),
+                      child: IconButton(
+                        padding: EdgeInsets.all(10),
+                        onPressed: controller.setCurrentUserLocation,
+                        icon: Icon(
+                          Icons.gps_fixed_rounded,
+                          color: primaryColor,
                         ),
                       ),
                     ),
@@ -451,7 +461,6 @@ class _VisitMapState extends State<VisitMap> {
                 ],
               ),
             ),
-            //
           ],
         ),
       ),
