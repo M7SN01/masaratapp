@@ -9,17 +9,17 @@ import 'package:get/get.dart';
 import 'package:masaratapp/App/Controllers/login_controller.dart';
 import 'package:masaratapp/App/Controllers/user_controller.dart';
 import 'package:latlong2/latlong.dart' as lat_lang;
+import 'package:masaratapp/App/Services/api_db_services.dart';
 import 'package:masaratapp/App/Widget/widget.dart';
 // import 'package:permission_handler/permission_handler.dart' as permission_handler;
 
 import '../Models/user_model.dart';
+// import '../Views/Maps/saudi_bounds.dart';
 import '../utils/utils.dart';
 
 typedef LatLang = lat_lang.LatLng;
 
 class VisitMapController extends GetxController with GetTickerProviderStateMixin {
-  // MapController mapController = MapController();
-  // late final MapController mapController;
   late final AnimatedMapController animatedMapController;
   //
   late UserController userController;
@@ -36,15 +36,19 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
   Marker? customerMarker;
 //
   bool isPostingToApi = false;
-  bool isPostedBefor = false;
 
   final PopupController popupController = PopupController();
 
-  latlang(double lat, double lang) => LatLang(lat, lang);
-
   bool isExpandedMapKey = false;
+
+  // final saudiCenter = LatLngBounds(LatLang(34.4, 16.2), LatLang(55.7, 32.2));
+// LatLng(latitude:32.059274, longitude:33.432972)
+  //LatLng(latitude:17.974449, longitude:56.617129)
+  bool isLoading = true;
+
   @override
-  void onInit() {
+  void onInit() async {
+    debugPrint("Start -----------------------");
     userController = Get.find<UserController>();
     loginController = Get.find<LoginController>();
     userId = loginController.logedInuserId;
@@ -58,13 +62,18 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
       curve: Curves.easeInOut,
     );
 
+    // animatedMapController.mapController.camera.
+    userCurrentLocation = await getCurrentLocation();
+    isLoading = false;
+    update();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      userCurrentLocation = await getCurrentLocation();
-      debugPrint(userCurrentLocation.toString());
+      // debugPrint(userCurrentLocation.toString());
       if (userCurrentLocation == null) {
         Get.back(); //close this page untill give location privileges
       } else {
-        setCurrentUserLocation();
+        await setCurrentUserLocation();
+
+        debugPrint("End -----------------------");
       }
     });
 
@@ -77,9 +86,23 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
     super.onClose();
   }
 
+  latlang(double lat, double lang) => LatLang(lat, lang);
+
+  get isCustomerHasLocation => selecetdCustomer?.latitude != null && selecetdCustomer?.longitude != null;
   //
-  //
-  //
+
+  // List<LatLang> getSaudiPolygon() {
+  //   return saudiBounds
+  //       .map((p) => LatLang(p[1], p[0])) // LatLng(lat, lon)
+  //       .toList();
+  // }
+
+  resetMapValues() {
+    customerMarker = null;
+    newCustomerMarker = null;
+    newCustomerLocation = null;
+    update();
+  }
 
   Widget cusInfoWindo(CusDataModel element) {
     return Column(
@@ -142,14 +165,9 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
   List<Marker> defultmarker = [];
   List<Polygon> polygons = [];
   Map<String, Map<String, dynamic>> cusCount = {};
-  Map<String, Map<String, dynamic>> cusBalCount3MR = {};
-
   Map<Key, Widget> infoWindow = {};
-  Map<Key, String> accIdInfo = {};
   Map<Key, String> cusName = {};
-
   Map<Key, String> cusIds = {};
-
   int totalCusCount = 0;
 
   buildMarkerAndPolygon() {
@@ -320,39 +338,7 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
     update();
   }
 
-// Graham scan algorithm to find the convex hull
-  List<LatLang> getConvexHull(List<LatLang> points) {
-    // Sort points by x-coordinate
-    points.sort((a, b) => a.longitude.compareTo(b.longitude));
-
-    final List<LatLang> lower = [];
-    for (final point in points) {
-      while (lower.length >= 2 && _cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0) {
-        lower.removeLast();
-      }
-      lower.add(point);
-    }
-
-    final List<LatLang> upper = [];
-    for (final point in points.reversed) {
-      while (upper.length >= 2 && _cross(upper[upper.length - 2], upper[upper.length - 1], point) <= 0) {
-        upper.removeLast();
-      }
-      upper.add(point);
-    }
-
-    lower.removeLast();
-    upper.removeLast();
-    lower.addAll(upper);
-    return lower;
-  }
-
-// Cross product of vectors OA and OB
-  double _cross(LatLang O, LatLang A, LatLang B) {
-    return (A.longitude - O.longitude) * (B.latitude - O.latitude) - (A.latitude - O.latitude) * (B.longitude - O.longitude);
-  }
-
-  //if private edit your location...
+  //
   Future<Position?> getCurrentLocation() async {
     try {
       bool serviceEnable = await Geolocator.isLocationServiceEnabled();
@@ -456,14 +442,9 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
     }
   }
 
-  get isCustomerHasLocation => selecetdCustomer?.latitude != null && selecetdCustomer?.longitude != null;
-
-  onSelectCustomer(SearchList selectedItem) {
-    customerMarker = null;
-    newCustomerMarker = null;
-    newCustomerLocation = null;
-
-    selecetdCustomer = cusData.firstWhere((e) => e.cusId == selectedItem.id);
+  onSelectCustomer(int customerId) {
+    resetMapValues();
+    selecetdCustomer = cusData.firstWhere((e) => e.cusId == customerId);
 
     if (isCustomerHasLocation) {
       customerMarker = Marker(
@@ -483,6 +464,7 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
             LatLang(userCurrentLocation!.latitude, userCurrentLocation!.longitude),
           ],
           forceIntegerZoomLevel: true, //to fit both two marker in the map
+          maxZoom: 19,
         ),
       );
     }
@@ -497,12 +479,16 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
     return Geolocator.distanceBetween(latitude, longitude, userCurrentLocation!.latitude, userCurrentLocation!.longitude);
   }
 
-  void makeCustomerVisit() {
+  void makeCustomerVisit() async {
     if (isCustomerHasLocation) {
       double distance = getDistanceInMeter(selecetdCustomer!.latitude!, selecetdCustomer!.longitude!);
       if (distance <= 20) {
+        isPostingToApi = true;
+        update();
         //Do visit Logic
-/**************************************************************** */
+        await postVisit();
+
+        isPostingToApi = false;
         update();
       } else {
         showMessage(color: secondaryColor, titleMsg: "يجب ان تكون قريب من موقع العميل كحد اقصى 20 متر", durationMilliseconds: 2000);
@@ -512,7 +498,12 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
 
   Marker? newCustomerMarker;
   LatLang? newCustomerLocation;
+
   putCustomerMarkerOnLongPress(LatLang selectedLocation) {
+    if (selecetdCustomer == null) {
+      showMessage(color: secondaryColor, titleMsg: "قم بإختيار عميل", durationMilliseconds: 2000);
+      return null;
+    }
     if (isCustomerHasLocation) {
       showMessage(color: secondaryColor, titleMsg: "موقع العميل تم حفظة مسبقاً", durationMilliseconds: 2000);
       return null;
@@ -541,10 +532,66 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
     }
   }
 
-  void setCustomerNewLocation() {
-    if (isCustomerHasLocation) return;
-    debugPrint("On Save new Location for Customer");
-    // post the cordnite to server if done => enable visit button
-    /**************************************************************** */
+  void setCustomerNewLocation() async {
+    try {
+      if (isCustomerHasLocation) return;
+      debugPrint("On Save new Location for Customer");
+      // post the cordnite to server if done => enable visit button
+      /**************************************************************** */
+      String stmt = "UPDATE CUSTOMERS set LATITUDE=${newCustomerLocation!.latitude}  , LONGITUDE =${newCustomerLocation!.longitude}   WHERE CUS_ID=${selecetdCustomer!.cusId}";
+      debugPrint(stmt);
+      isPostingToApi = true;
+      update();
+      final response = await Services().createRep(sqlStatment: stmt);
+      if (response.isEmpty) {
+        showMessage(color: primaryColor, titleMsg: "تم حفظ موقع العميل", durationMilliseconds: 2000);
+
+        int index = userController.cusDataList.indexWhere((e) => e.cusId == selecetdCustomer!.cusId);
+
+        if (index != -1) {
+          userController.cusDataList[index] = userController.cusDataList[index].copyWith(
+            latitude: newCustomerLocation!.latitude,
+            longitude: newCustomerLocation!.longitude,
+          );
+        }
+        selecetdCustomer = userController.cusDataList[index];
+        newCustomerLocation = null;
+        // debugPrint("done");
+      } else {
+        debugPrint(response.toString());
+        userController.errorLog += "ERROR: => setCustomerNewLocation the response is not empty after \n UPDATE {{=(${response.toString()})=}}  \n";
+      }
+      isPostingToApi = false;
+      update();
+    } catch (e) {
+      userController.errorLog += "ERROR: => setCustomerNewLocation {{=($e)=}}  \n";
+    }
+  }
+
+  postVisit() async {
+//${DateFormat('yyyy/MM/dd').format( DateTime.now())}
+    try {
+      String checkVisitToday = "SELECT 1 FROM CUSTOMERS_VISIT WHERE  CUS_ID=${selecetdCustomer!.cusId} AND SLS_MAN_ID=$userId AND TO_DATE(VISIT_DATE, 'YYYY/MM/DD') = TO_DATE(sysdate, 'YYYY/MM/DD') ";
+      final visitToday = await Services().createRep(sqlStatment: checkVisitToday);
+      //
+      if (visitToday.isEmpty) {
+        String insertVisit = "INSERT INTO CUSTOMERS_VISIT ( CUS_ID  ,VISIT_DATE  ,SLS_MAN_ID ) VALUES(${selecetdCustomer!.cusId},sysdate,$userId)";
+        // debugPrint(insertVisitstmt);
+        final response = await Services().createRep(sqlStatment: insertVisit);
+        String updateVisitCount = "UPDATE CUS_SLS_MAN SET VISIT_CNT= NVL(VISIT_CNT,0)+1  WHERE SLS_MAN_ID=$userId AND CUS_ID=${selecetdCustomer!.cusId} ";
+        final responseu = await Services().createRep(sqlStatment: updateVisitCount);
+
+        if (response.isEmpty && responseu.isEmpty) {
+          showMessage(color: primaryColor, titleMsg: "تمت الزيارة", durationMilliseconds: 2000);
+        } else {
+          debugPrint(response.toString());
+          userController.errorLog += "ERROR: => postVisit the response is not empty after \n INSERT {{=(${response.toString()})=}}  \n UPDATE {{=(${responseu.toString()})=}}  \n";
+        }
+      } else {
+        showMessage(color: secondaryColor, titleMsg: "تم حفظ الزيارة مسبقاً", durationMilliseconds: 2000);
+      }
+    } catch (e) {
+      userController.errorLog += "ERROR: => postVisit {{=($e)=}}  \n";
+    }
   }
 }

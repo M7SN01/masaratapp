@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:latlong2/latlong.dart' as lat_lang;
 
 const Color primaryColor = Colors.deepPurpleAccent;
 const Color secondaryColor = Color(0XFFF5387C);
@@ -167,6 +168,43 @@ String checkNullString(String val) {
   return val == "null" ? "" : val;
 }
 
+//---------------MAP
+typedef LatLang = lat_lang.LatLng;
+
+// Graham scan algorithm to find the convex hull
+List<LatLang> getConvexHull(List<LatLang> points) {
+  // Sort points by x-coordinate
+  points.sort((a, b) => a.longitude.compareTo(b.longitude));
+
+  final List<LatLang> lower = [];
+  for (final point in points) {
+    while (lower.length >= 2 && _cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0) {
+      lower.removeLast();
+    }
+    lower.add(point);
+  }
+
+  final List<LatLang> upper = [];
+  for (final point in points.reversed) {
+    while (upper.length >= 2 && _cross(upper[upper.length - 2], upper[upper.length - 1], point) <= 0) {
+      upper.removeLast();
+    }
+    upper.add(point);
+  }
+
+  lower.removeLast();
+  upper.removeLast();
+  lower.addAll(upper);
+  return lower;
+}
+
+// Cross product of vectors OA and OB
+double _cross(LatLang O, LatLang A, LatLang B) {
+  return (A.longitude - O.longitude) * (B.latitude - O.latitude) - (A.latitude - O.latitude) * (B.longitude - O.longitude);
+}
+//----------------
+
+/*
 class UserColumnMenu implements PlutoColumnMenuDelegate<UserColumnMenuItem> {
   // BuildContext context;
   // UserColumnMenu({required this.context});
@@ -288,3 +326,4 @@ class _ShowTableFullSreccnState extends State<ShowTableFullSreccn> {
     );
   }
 }
+*/

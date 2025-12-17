@@ -71,7 +71,8 @@ class LoginController extends GetxController {
     } else {
       // notificationTopic.text = serverResponse[0]['topic'];
       protocol = "http";
-      ip = '10.147.17.83'; //'192.168.192.200'; // '192.168.195.83';
+      //88503383900fa363   masarat zero is
+      ip = '192.168.192.200'; //'10.147.17.83'; //'192.168.192.200'; // '192.168.195.83';
       port = '881';
 
       // await masaratInitialConnection();

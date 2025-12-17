@@ -230,10 +230,10 @@ class _PickMonthWState extends State<PickMonthW> {
 
 Widget switchW({required bool value, required Function(bool) state}) {
   return Switch(
-    thumbColor: const MaterialStatePropertyAll(Color(0xFF337ab7)),
-    trackColor: const MaterialStatePropertyAll(Colors.transparent),
-    thumbIcon: const MaterialStatePropertyAll(Icon(Icons.date_range_outlined, color: Colors.white)),
-    trackOutlineColor: const MaterialStatePropertyAll(Color(0xFF337ab7)),
+    thumbColor: const WidgetStatePropertyAll(Color(0xFF337ab7)),
+    trackColor: const WidgetStatePropertyAll(Colors.transparent),
+    thumbIcon: const WidgetStatePropertyAll(Icon(Icons.date_range_outlined, color: Colors.white)),
+    trackOutlineColor: const WidgetStatePropertyAll(Color(0xFF337ab7)),
     value: value,
     onChanged: (val) {
       state(val);

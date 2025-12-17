@@ -41,6 +41,7 @@ class _LoginState extends State<Login> {
           //Card glass
           child: Stack(
             children: [
+/*
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 10),
                 child: GestureDetector(
@@ -150,6 +151,7 @@ class _LoginState extends State<Login> {
                   ),
                 ),
               ),
+*/
 
               //Cards in back{================================}
               //top center
@@ -438,10 +440,10 @@ class _LoginState extends State<Login> {
                                     children: [
                                       Switch(
                                         value: controller.isOfflineMode,
-                                        thumbColor: MaterialStatePropertyAll(controller.isOfflineMode ? Color(0xFFfc4ba4) : Color(0xFF337ab7)),
-                                        trackColor: const MaterialStatePropertyAll(Colors.transparent),
-                                        thumbIcon: MaterialStatePropertyAll(Icon(controller.isOfflineMode ? Icons.wifi_off_outlined : Icons.wifi, color: Colors.white)),
-                                        trackOutlineColor: MaterialStatePropertyAll(controller.isOfflineMode ? Color(0xFFfc4ba4) : Color(0xFF337ab7)),
+                                        thumbColor: WidgetStatePropertyAll(controller.isOfflineMode ? Color(0xFFfc4ba4) : Color(0xFF337ab7)),
+                                        trackColor: const WidgetStatePropertyAll(Colors.transparent),
+                                        thumbIcon: WidgetStatePropertyAll(Icon(controller.isOfflineMode ? Icons.wifi_off_outlined : Icons.wifi, color: Colors.white)),
+                                        trackOutlineColor: WidgetStatePropertyAll(controller.isOfflineMode ? Color(0xFFfc4ba4) : Color(0xFF337ab7)),
                                         onChanged: (value) async {
                                           await controller.changeOfflineMode();
                                         },

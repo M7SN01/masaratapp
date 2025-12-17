@@ -22,6 +22,7 @@ import 'App/Views/Home/home.dart';
 import 'App/Views/Invoice/invoice.dart';
 import 'App/Views/Login/Login_view.dart';
 import 'App/Views/Maps/map_view.dart';
+import 'App/Views/Maps/visit_plan_view.dart';
 import 'App/Views/Sanadat/sanadat.dart';
 import 'App/Views/Splash_Screen/splash_view.dart';
 
@@ -116,6 +117,11 @@ class PosApp extends StatelessWidget {
           name: '/VisitMap',
           page: () => const VisitMap(),
           binding: VisitMapBinding(),
+        ),
+        GetPage(
+          name: '/VisitPlan',
+          page: () => const VisitPlan(),
+          binding: VisitPlanBinding(),
         ),
       ],
 

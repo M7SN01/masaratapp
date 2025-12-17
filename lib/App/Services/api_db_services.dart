@@ -13,16 +13,34 @@ String? port; // = '881';
 //http://26.226.13.72:881/pos/api/values/CMD/1
 //http://26.226.13.72:881/pos/api/values/CMD/1
 
+/*
+ headers: {
+        'Content-Type': 'application/json',
+        'CF-Access-Client-Id': '15208f41704a4bb4ac01f8f57d5b3362.access',
+        'CF-Access-Client-Secret': '4bc166f99090e11e469f77a09e3cfe4c2df14f3100028bdc058a2a68274b533e',
+      },
+*/
+
 class Services {
   Future<List<dynamic>> createRep({
     required String sqlStatment,
     int timeOutSeconds = 20,
     // Function(String error)? errorCallback,
   }) async {
-    var url = '$protocol://$ip:$port/pos/api/values/CMD/1';
+    // var url = '$protocol://$ip:$port/pos/api/values/CMD/1';
+    var url = 'https://mapi.m7sn.org/pos/api/values/CMD/1';
+
     var sql = {"CMD": sqlStatment};
 
-    final response = await http.post(Uri.parse(url), body: sql).timeout(Duration(seconds: timeOutSeconds));
+    final response = await http.post(
+      Uri.parse(url),
+      body: sql,
+      headers: {
+        // 'Content-Type': 'application/json',
+        'CF-Access-Client-Id': 'f3a5373bc6f00987dedd44a923b4df61.access',
+        'CF-Access-Client-Secret': '68c84d0f95de61a5197e0b739b70c09617069a264178affef1dc8e6da72364db',
+      },
+    ).timeout(Duration(seconds: timeOutSeconds));
     if (response.statusCode == 200) {
       try {
         final jsonResponse = json.decode(response.body);

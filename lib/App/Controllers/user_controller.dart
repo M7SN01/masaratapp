@@ -46,6 +46,8 @@ class UserController extends GetxController {
   List<ItemsDataModel> itemsDataList = [];
   late CompData compData;
 
+  List<int> customersInVisitPlan = [];
+
   //add loading present increased after each async function ******************
 
   checkPrivileges({required List lst, required String tabel, required bool needOnlyOneRow}) {
@@ -391,6 +393,36 @@ class UserController extends GetxController {
     }
   }
 
+  Future<void> _getCusVisitPlan() async {
+    /*
+CUS_SLS_MAN
+(
+  CUS_ID      NUMBER(6),
+  SLS_MAN_ID  NUMBER(3),
+  VISIT_CNT   NUMBER(3),
+  DAY1        NUMBER(1),
+  AMNT        NUMBER
+)
+    */
+
+    //dont add this condition => SLS_MAN_ID=$uId
+    //we get all customers in spcific day after that only show customers
+    //who the Login user has prmission on them
+    //becouse no CS_CLS_ID  in CUS_SLS_MAN
+    statment = "SELECT *  FROM CUS_SLS_MAN WHERE  DAY1=TO_CHAR(SYSDATE, 'D')";
+    try {
+      var response = await dbServices.createRep(
+        sqlStatment: statment,
+      );
+      customersInVisitPlan = [];
+      for (var element in response) {
+        customersInVisitPlan.add(element["CUS_ID"]);
+      }
+    } catch (e) {
+      errorLog += "$statment \n ERROR: => getCusVisitPlan {{=($e)=}}  \n";
+    }
+  }
+
   Future<void> getAllPrivileges() async {
     //initializing
     LoginController loginController = Get.find<LoginController>();
@@ -444,13 +476,13 @@ class UserController extends GetxController {
     appLog += "START -------- GET_CUSTOMERS_DATA--------\n";
     debugPrint("START -------- GET_CUSTOMERS_DATA--------");
     await _getCusData();
+    //
+    //
+    appLog += "START -------- GET_CUSTOMERS_ID_IN_PLAN--------\n";
+    debugPrint("START -------- GET_CUSTOMERS_ID_IN_PLAN--------");
+    await _getCusVisitPlan();
     // debugPrint("END ************************************ \n $errorLog");
     // debugPrint("************************************\n************************************\n************************************\n $appLog");
-  }
-
-  @override
-  void onInit() {
-    super.onInit();
   }
 
   //post any offline data that SYNC=0
