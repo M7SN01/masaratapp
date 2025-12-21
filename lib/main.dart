@@ -33,7 +33,7 @@ ctrl+shift+p  => type =>  Flutter: Select Device
 
 */
 void main() async {
-  // await Future.delayed(const Duration(milliseconds: 10));
+  await Future.delayed(const Duration(milliseconds: 10));
   FlutterNativeSplash.remove();
 
   WidgetsFlutterBinding.ensureInitialized();
