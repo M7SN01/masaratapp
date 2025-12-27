@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -64,6 +67,20 @@ class CusKshfController extends GetxController {
       // ),
       PlutoColumn(
         title: "نوع الحركة",
+        field: 'TYPE',
+        textAlign: PlutoColumnTextAlign.center,
+        titleTextAlign: PlutoColumnTextAlign.center,
+        type: PlutoColumnType.text(),
+        backgroundColor: primaryColor,
+        hide: true,
+        suppressedAutoSize: true,
+        titleSpan: autoMultiLineColumn("نوع الحركة"),
+        enableContextMenu: false,
+        enableEditingMode: false,
+        enableColumnDrag: false,
+      ),
+      PlutoColumn(
+        title: "اسم الحركة",
         field: 'ACT_TYPE',
         textAlign: PlutoColumnTextAlign.center,
         titleTextAlign: PlutoColumnTextAlign.center,
@@ -72,7 +89,7 @@ class CusKshfController extends GetxController {
         // width: 90,
         // width: PlutoGridSettings.minColumnWidth,
         suppressedAutoSize: true,
-        titleSpan: autoMultiLineColumn("نوع الحركة"),
+        titleSpan: autoMultiLineColumn("اسم الحركة"),
         enableContextMenu: false,
         enableEditingMode: false,
         enableColumnDrag: false,
@@ -121,15 +138,20 @@ class CusKshfController extends GetxController {
         field: 'ACT_NO',
         textAlign: PlutoColumnTextAlign.center,
         titleTextAlign: PlutoColumnTextAlign.center,
-        type: PlutoColumnType.number(),
+        type: PlutoColumnType.number(format: '#########'),
         backgroundColor: primaryColor,
-        // width: 90,
-        width: PlutoGridSettings.minColumnWidth,
+        width: 110,
+        // width: PlutoGridSettings.bodyMinWidth,
         suppressedAutoSize: true,
         titleSpan: autoMultiLineColumn("رقم الحركة"),
         enableContextMenu: false,
         enableEditingMode: false,
         enableColumnDrag: false,
+        //
+        renderer: (rendererContext) => openActDetail(
+          actType: rendererContext.row.cells['TYPE']!.value.toString(),
+          field: rendererContext.row.cells[rendererContext.column.field]!.value.toString(),
+        ),
         // hide: true,
         footerRenderer: (context) {
           return isPostingToApi
@@ -430,7 +452,7 @@ class CusKshfController extends GetxController {
                 SELECT * FROM ( 
                   select TRHEL,(SELECT ACT_NAME FROM ACT_TYPE WHERE ACT_ID =CUS_HD_TYPE) ACT_NAME,CUS_HD_ID,DATE1,DSCR
                   ,round( TTL,2) TTL,STATE,REF,CUS_ID_CST_ID,round(MD,2) MD,round(DN,2)DN  
-                  ,CUS_ID,GET_CUS_CLS_ID(CUS_ID) CUS_CLS_ID
+                  ,CUS_ID,GET_CUS_CLS_ID(CUS_ID) CUS_CLS_ID,CUS_HD_TYPE TYPE
                   from cus_hd_cus_dt  $cond  
                 ) 
                 WHERE  CUS_CLS_ID IN (SELECT CS_CLS_ID FROM USER_CUS_GRP WHERE U_ID='$userId' AND CHK = 1)
@@ -455,6 +477,7 @@ class CusKshfController extends GetxController {
               cells: {
                 "TRHEL": PlutoCell(value: checkNullString(element['TRHEL'].toString())),
                 'ACT_TYPE': PlutoCell(value: checkNullString(element['ACT_NAME'].toString())),
+                'TYPE': PlutoCell(value: checkNullString(element['TYPE'].toString())),
                 'ACT_NO': PlutoCell(value: element['CUS_HD_ID']),
                 'DATE': PlutoCell(value: checkNullString(element['DATE1'].toString())),
                 'DESC': PlutoCell(value: checkNullString(element['DSCR'].toString())),
@@ -475,6 +498,205 @@ class CusKshfController extends GetxController {
       isPostingToApi = false;
       update();
     }
+  }
+
+  ///---------------------------
+  ///
+
+  Map<String, dynamic> getInvoiceVariablesData({required responseHd, required responseDt}) {
+    List<Map<String, dynamic>> tmp = [];
+    num ttlQty = 0;
+    double ttlPrice = 0;
+    // double ttlVat = 0;
+    // double ttlPriceAftrVat = 0;
+
+    for (var row in responseDt) {
+      tmp.add({
+        "srl": row['SRL'].toString(),
+        "item_id": row['ITEM_ID'].toString(),
+        "item_name": row['ITEM_NAME'].toString(),
+        "unit": row['UNIT'].toString(),
+        "item_qty": row['QTY'].toString(),
+        "item_price": row['PRICE'].toString(),
+        "item_vat": row['VAT_VAL'].toString(),
+        "item_total": row['PRICE_AFTR_VAT'].toString(),
+      });
+      ttlQty += row['QTY'];
+      ttlPrice += row['PRICE'] * row['QTY'];
+      // ttlVat += row['PRICE'] * row['QTY'] * 0.15;
+      // ttlPriceAftrVat += row['PRICE_AFTR_VAT'];
+    }
+    //repeat_element
+    // variables = {...controller.variables, "repeat_element": tmp};
+
+    // DateTime invoiceDate = DateTime.parse(responseHd[0]['USR_INS_DATE'].toString());
+    // debugPrint(responseHd[0]['DATE1'].toString());
+    return {
+      "a_comp_name": userController.compData.aCompName,
+      "a_activity": userController.compData.aActivity,
+      "commercial_reg": userController.compData.commercialReg,
+      "tax_no": userController.compData.taxNo,
+      "mobile_no": userController.compData.tel,
+      "e_comp_name": userController.compData.eCompName,
+      "e_activity": userController.compData.eActivity,
+      //
+      "t_inv_type": "نوع الفاتورة",
+      "inv_type": responseHd[0]['ACT_NAME'].toString(),
+      "t_inv_no": "رقم الفاتورة",
+      "inv_no": responseHd[0]['ST_ID'].toString(),
+      "t_inv_date": "التاريخ",
+      "inv_date": responseHd[0]['DATE1'].toString(),
+      "t_cus_no": "عميل رقم",
+      "cus_no": selecetdCustomer!.cusId.toString(),
+      "t_cus_name": "اسم العميل",
+      "cus_name": selecetdCustomer!.cusName,
+      "t_cus_adrs": "العنوان",
+      "cus_adrs": selecetdCustomer!.adrs,
+      "t_cus_mobile": "رقم الهاتف",
+      "cus_mobile": selecetdCustomer!.mobl,
+      "t_cus_tax_no": "الرقم الضريبي",
+      "cus_tax_no": selecetdCustomer!.taxNo,
+      "t_inv_desc": "الوصف",
+      "inv_desc": responseHd[0]['DESCR'].toString(),
+      //
+      "h_srl": "N.",
+      "h_item_id": "رقم الصنف",
+      "h_item_name": "اسم الصنف",
+      "h_unit": "العبوة",
+      "h_item_qty": "الكمية",
+      "h_item_price": "السعر",
+      "h_item_vat": "الضريبة",
+      "h_item_total": "الاجمالي",
+      //
+      "repeat_element": tmp,
+      //
+      "t_ttl_qty": "اجمالي الكمية",
+      "ttl_qty": ttlQty.toString(),
+      "t_ttl_price": "الاجمالي",
+      "ttl_price": ttlPrice.toStringAsFixed(2),
+      "t_ttl_dis": "الخصم",
+      "ttl_dis": responseHd[0]['DISCNT'].toString(),
+      "t_ttl_aftr_dis": "بعد الخصم",
+      "ttl_aftr_dis": (ttlPrice - responseHd[0]['DISCNT']).toStringAsFixed(2),
+      "t_ttl_vat": "الضريبة 15%",
+      "ttl_vat": responseHd[0]['ADDED_VALUE'].toString(),
+      "t_ttl_aftr_vat": "الاجمالي شامل الضريبة",
+      "ttl_aftr_vat": responseHd[0]['PUR_TTL'].toString(),
+      "qr_data": zatcaQrBase64(
+        sellerName: userController.compData.aCompName,
+        vatNumber: userController.compData.taxNo,
+        invoiceDate: responseHd[0]['USR_INS_DATE'].toString(),
+        invoiceTotalWithVat: responseHd[0]['PUR_TTL'],
+        vatTotal: responseHd[0]['ADDED_VALUE'],
+      ),
+    };
+  }
+
+  Widget openActDetail({required actType, required field}) {
+    return GestureDetector(
+      onLongPress: () async {
+        print("ActType : $actType");
+        print("field : $field");
+        //57,58,59,60,
+        if (['57', '58', '59', '60'].contains(actType)) {
+          openInvoice(actType: actType, field: field);
+        }
+        //53,57
+      },
+      child: Container(
+        color: Colors.transparent,
+        child: Center(
+          child: Text(
+            field,
+            style: const TextStyle(color: Colors.blue),
+          ),
+        ),
+      ),
+    );
+  }
+
+  openInvoice({required actType, required field}) async {
+    int roundDigit = 2;
+    String stmt = """ SELECT ST_TYPE,get_act_name(ST_TYPE) ACT_NAME,ST_ID,TO_CHAR(DATE1, 'YYYY-MM-DD') DATE1,USR_INS_DATE,DESCR,CUS_ID,CUS_NM1,CUS_MOBILE,TAX_NO,NVL(ROUND(DISCNT,$roundDigit),0)DISCNT,
+                          ROUND(PUR_TTL,$roundDigit)PUR_TTL,ROUND(ADDED_VALUE,$roundDigit)ADDED_VALUE ,ROUND(VAT_PR,$roundDigit)VAT_PR 
+                          FROM ST_HD 
+                          WHERE ST_TYPE=$actType  AND ST_ID=$field  """;
+    // debugPrint(stmt);
+
+    var responseHd = await dbServices.createRep(sqlStatment: stmt);
+    debugPrint(responseHd.length.toString());
+//--------------
+    stmt = """ SELECT SRL,ITEM_ID,GET_ITEM_NAME_DB(ITEM_ID) ITEM_NAME,UNIT,QTY,ROUND(PRICE,$roundDigit)PRICE,ROUND(VAT_VAL,$roundDigit)VAT_VAL ,ROUND(PRICE_AFTR_VAT,$roundDigit)PRICE_AFTR_VAT
+                          FROM ST_DT
+                          WHERE ST_TYPE=$actType  AND ST_ID=$field  """;
+    // debugPrint(stmt);
+
+    var responseDt = await dbServices.createRep(sqlStatment: stmt);
+    debugPrint(responseDt.length.toString());
+
+    try {
+      responseHd[0]['ST_TYPE'];
+      responseDt[0]['ST_TYPE'];
+    } catch (e) {
+      showMessage(color: secondaryColor, titleMsg: "لايمكن عرض الفاتورة", msg: e.toString(), titleFontSize: 18, durationMilliseconds: 2000);
+      return;
+    }
+//--------------
+    if (responseHd.isEmpty || responseDt.isEmpty) return;
+
+    // if (isPostedBefor) {
+    PrintSamples ps = PrintSamples(compData: userController.compData, hideDiscount: responseHd[0]['DISCNT'] == 0);
+    Get.to(() => PdfPreviewScreen(
+          jsonLayout: ps.getSlsInvoiceSample,
+          variables: getInvoiceVariablesData(responseHd: responseHd, responseDt: responseDt),
+        ));
+    // } else {
+    //   showMessage(color: secondaryColor, titleMsg: "يرجى حفظ الفاتورة", titleFontSize: 18, durationMilliseconds: 1000);
+    // }
+  }
+
+  // showInvoiceInPdfPreviewer() {
+  //   if (isPostedBefor) {
+  //     PrintSamples ps = PrintSamples(compData: userController.compData);
+  //     Get.to(() => PdfPreviewScreen(
+  //           jsonLayout: ps.getSlsShowSample,
+  //           variables: getVariablesData(),
+  //         ));
+  //   } else {
+  //     showMessage(color: secondaryColor, titleMsg: "يرجى حفظ الفاتورة", titleFontSize: 18, durationMilliseconds: 1000);
+  //   }
+  // }
+
+  /// ZATCA Phase-1 QR (Simplified Tax Invoice): TLV(Base64) of Tags 1..5.
+  String zatcaQrBase64({
+    required String sellerName,
+    required String vatNumber,
+    required String invoiceDate,
+    required num invoiceTotalWithVat,
+    required num vatTotal,
+  }) {
+    // ZATCA expects these values as UTF-8 bytes in TLV.
+    // final ts = invoiceDate.toUtc().toIso8601String(); // commonly used format
+    final total = invoiceTotalWithVat.toStringAsFixed(2);
+    final vat = vatTotal.toStringAsFixed(2);
+
+    final bytes = BytesBuilder()
+      ..add(_tlv(tag: 1, value: sellerName))
+      ..add(_tlv(tag: 2, value: vatNumber))
+      ..add(_tlv(tag: 3, value: invoiceDate))
+      ..add(_tlv(tag: 4, value: total))
+      ..add(_tlv(tag: 5, value: vat));
+
+    return base64Encode(bytes.toBytes());
+  }
+
+  /// TLV: [Tag:1 byte][Length:1 byte][Value:UTF8 bytes]
+  Uint8List _tlv({required int tag, required String value}) {
+    final v = utf8.encode(value);
+    if (v.length > 255) {
+      throw ArgumentError('TLV value too long for 1-byte length: tag=$tag');
+    }
+    return Uint8List.fromList([tag, v.length, ...v]);
   }
 }
 

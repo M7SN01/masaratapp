@@ -68,8 +68,11 @@ Future<pw.Widget> renderToPdfWidget(
 
   switch (map['type']) {
     case 'text':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       var args = map['args'];
       var style = args['style'] ?? {};
+
       String txt = "";
       if (!args['to_arabic_words']) {
         txt = interpolate(args['text']);
@@ -89,7 +92,10 @@ Future<pw.Widget> renderToPdfWidget(
       );
 
     case 'container':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       var args = map['args'];
+
       return pw.Container(
         width: (args['width'] as num?)?.toDouble(),
         height: (args['height'] as num?)?.toDouble(),
@@ -101,7 +107,10 @@ Future<pw.Widget> renderToPdfWidget(
       );
 
     case 'row':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       List children = map['args']['children'] ?? [];
+
       List<pw.Widget> rowChildren = [];
 
       for (var child in children) {
@@ -112,6 +121,8 @@ Future<pw.Widget> renderToPdfWidget(
           );
 
     case 'column':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       List children = map['args']['children'] ?? [];
       List<pw.Widget> columnChildren = [];
 
@@ -124,12 +135,16 @@ Future<pw.Widget> renderToPdfWidget(
       );
 
     case 'expanded':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       return pw.Expanded(
         flex: map['args']['flex'] ?? 1,
         child: await renderToPdfWidget(Map<String, dynamic>.from(map['args']['child']), variables),
       );
 
     case 'sized_box':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       var args = map['args'];
       return pw.SizedBox(
         width: (args['width'] as num?)?.toDouble(),
@@ -137,6 +152,8 @@ Future<pw.Widget> renderToPdfWidget(
         child: args['child'] != null ? await renderToPdfWidget(Map<String, dynamic>.from(map['args']['child']), variables) : null,
       );
     case 'center':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       var args = map['args'];
       return pw.Center(
         child: args['child'] != null ? await renderToPdfWidget(Map<String, dynamic>.from(map['args']['child']), variables) : null,
@@ -145,6 +162,8 @@ Future<pw.Widget> renderToPdfWidget(
       // var args = map['args'];
       return pw.Spacer();
     case 'svg_image':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       var args = map['args'];
       final raw = await rootBundle.loadString(args['name']);
       return pw.SvgImage(
@@ -154,6 +173,8 @@ Future<pw.Widget> renderToPdfWidget(
       );
 
     case 'asset_image':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       var args = map['args'];
       final bytes = await loadAssetImage(args['name']);
       final image = pw.MemoryImage(bytes);
@@ -163,7 +184,11 @@ Future<pw.Widget> renderToPdfWidget(
         height: args['height'],
       );
     case 'barcode':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       final args = map['args'];
+      if (args['hide'] != null) return pw.SizedBox();
+
       return pw.BarcodeWidget(
         barcode: pw.Barcode.code128(), // or pw.Barcode.qrCode()
         data: interpolate(args['data']), // args['data'] ?? '',
@@ -193,8 +218,11 @@ Future<pw.Widget> renderToPdfWidget(
       */
 
     case 'qr_code':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       final args = map['args'];
       final imgBytes = args['image'] != null ? pw.MemoryImage(await loadAssetImage(args['image'])) : null;
+
       return pw.Stack(
         alignment: pw.Alignment.center,
         children: [
@@ -237,6 +265,8 @@ Future<pw.Widget> renderToPdfWidget(
       );
 
     case 'dashed_line':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       final args = map['args'];
       final double dashWidth = args['dashWidth'] ?? 2;
       final double dashSpace = args['dashSpace'] ?? 2;
@@ -276,6 +306,8 @@ Future<pw.Widget> renderToPdfWidget(
       });
 
     case 'repeat':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       // final listName = map['args']['for']; // listName <=  'items' Map key  {'items' :  [list of Map items rows] }
       //  final dataList =  lists[listName] ?? []; // [list of Map items rows]
       //final template = map['args']['template']; //   row widget structuer
@@ -306,6 +338,8 @@ Future<pw.Widget> renderToPdfWidget(
       return pw.Column(children: repeatedWidgets);
 
     case 'table':
+      if (map['args']['hide'] != null) return pw.SizedBox();
+
       final dataList = (variables['repeat_element'] as List).cast<Map<String, dynamic>>();
 
       // final columns = map['args']['columns'] as List<dynamic>;
