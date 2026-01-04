@@ -5,15 +5,13 @@ import '../Print/helpers/widgets_to_json.dart';
 
 class PrintSamples {
   late CompData _compData;
-  late bool _hideDiscount;
-  PrintSamples({required CompData compData, bool hideDiscount = false}) {
+  PrintSamples({required CompData compData}) {
     _compData = compData;
-    _hideDiscount = hideDiscount;
   }
 
   get getSlsShowSample => _slsShowSample(compData: _compData);
 
-  get getSlsInvoiceSample => _slsInvoiceSample(compData: _compData, hideDiscount: _hideDiscount);
+  get getSlsInvoiceSample => _slsInvoiceSample(compData: _compData);
 
   get getCusKshfSample => _cusKshfSample(compData: _compData);
 
@@ -21,7 +19,7 @@ class PrintSamples {
 
   get getSanadSample => _sanadSample(compData: _compData);
 
-  static Map<String, dynamic> _slsInvoiceSample({required CompData compData, hideDiscount}) {
+  static Map<String, dynamic> _slsInvoiceSample({required CompData compData}) {
     return containerW(
       padding: [10, 10, 10, 10],
       containerDecorationW: containerDecorationW(
@@ -478,7 +476,6 @@ class PrintSamples {
                         ),
                         //Row 2
                         rowW(
-                          hide: hideDiscount,
                           children: [
                             containerW(
                               width: 120,
@@ -503,7 +500,6 @@ class PrintSamples {
                         //Row3
 
                         rowW(
-                          hide: hideDiscount,
                           children: [
                             containerW(
                               width: 120,
@@ -1926,7 +1922,7 @@ class PrintSamples {
                           mainAxisAlignment: "center",
                           children: [
                             textW(
-                              "رقم السجل التجاري",
+                              "{{t_commercial_reg}}",
                             ),
                             textW(
                               "  :  ",
@@ -1942,7 +1938,7 @@ class PrintSamples {
                           mainAxisAlignment: "center",
                           children: [
                             textW(
-                              "الرقم الضريبي",
+                              "{{t_tax_no}}",
                               fontSize: 14,
                               // fontFamily: "arial",
                             ),
@@ -1964,7 +1960,7 @@ class PrintSamples {
                           mainAxisAlignment: "center",
                           children: [
                             textW(
-                              "رقم الهاتف",
+                              "{{t_mobile_no}}",
                               fontSize: 14,
                               // fontFamily: "arial",
                             ),

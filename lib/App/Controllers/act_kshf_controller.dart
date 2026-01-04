@@ -10,6 +10,8 @@ import '../samples/slmaples.dart';
 import '../utils/utils.dart';
 
 class ActKshfController extends GetxController {
+  //الحركات المدخلة من قبل المندوب فقط
+  //كشف الحساب جميع حركات العميل في النظام
   final Services dbServices = Services();
   late UserController userController;
   PlutoGridStateManager? stateManager;
@@ -345,7 +347,7 @@ class ActKshfController extends GetxController {
                 WHERE  CUS_CLS_ID IN (SELECT CS_CLS_ID FROM USER_CUS_GRP WHERE U_ID='$userId' AND CHK = 1)
                 ORDER BY DATE1
                   """;
-      // debugPrint(stmt);
+      debugPrint(stmt);
 
       response = await dbServices.createRep(sqlStatment: stmt);
 

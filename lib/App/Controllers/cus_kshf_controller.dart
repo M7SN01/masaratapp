@@ -13,6 +13,8 @@ import '../samples/slmaples.dart';
 import '../utils/utils.dart';
 
 class CusKshfController extends GetxController {
+  //مراجعةالحركات =>المدخلة من قبل المندوب فقط
+  //كشف الحساب جميع حركات العميل في النظام
   final Services dbServices = Services();
   late UserController userController;
   PlutoGridStateManager? stateManager;
@@ -450,14 +452,15 @@ class CusKshfController extends GetxController {
         String cond = selecetdCustomer != null || date != "" ? " where 1=1  $date  ${selecetdCustomer != null ? " and cus_id=${selecetdCustomer!.cusId} " : ""}" : "";
         String stmt = """
                 SELECT * FROM ( 
-                  select TRHEL,(SELECT ACT_NAME FROM ACT_TYPE WHERE ACT_ID =CUS_HD_TYPE) ACT_NAME,CUS_HD_ID,DATE1,DSCR
-                  ,round( TTL,2) TTL,STATE,REF,CUS_ID_CST_ID,round(MD,2) MD,round(DN,2)DN  
-                  ,CUS_ID,GET_CUS_CLS_ID(CUS_ID) CUS_CLS_ID,CUS_HD_TYPE TYPE
-                  from cus_hd_cus_dt  $cond  
+                  select TRHEL,ACT_NAME,ACT_ID,DATE1,DESCR
+                 ,round(MD,2) MD,round(DN,2)DN  
+                  ,CUS_ID,GET_CUS_CLS_ID(CUS_ID) CUS_CLS_ID,ACT_TP 
+                  from ACC_MULTI.CUS_HD_CUS_DT_TRANS  $cond  
                 ) 
                 WHERE  CUS_CLS_ID IN (SELECT CS_CLS_ID FROM USER_CUS_GRP WHERE U_ID='$userId' AND CHK = 1)
                 ORDER BY DATE1
                   """;
+
         // debugPrint(stmt);
 
         response = await dbServices.createRep(sqlStatment: stmt);
@@ -477,10 +480,10 @@ class CusKshfController extends GetxController {
               cells: {
                 "TRHEL": PlutoCell(value: checkNullString(element['TRHEL'].toString())),
                 'ACT_TYPE': PlutoCell(value: checkNullString(element['ACT_NAME'].toString())),
-                'TYPE': PlutoCell(value: checkNullString(element['TYPE'].toString())),
-                'ACT_NO': PlutoCell(value: element['CUS_HD_ID']),
+                'TYPE': PlutoCell(value: checkNullString(element['ACT_TP'].toString())),
+                'ACT_NO': PlutoCell(value: element['ACT_ID']),
                 'DATE': PlutoCell(value: checkNullString(element['DATE1'].toString())),
-                'DESC': PlutoCell(value: checkNullString(element['DSCR'].toString())),
+                'DESC': PlutoCell(value: checkNullString(element['DESCR'].toString())),
                 'DN': PlutoCell(value: element['DN']),
                 'MD': PlutoCell(value: element['MD']),
                 'BAL': PlutoCell(value: currentBalance),
@@ -526,11 +529,7 @@ class CusKshfController extends GetxController {
       // ttlVat += row['PRICE'] * row['QTY'] * 0.15;
       // ttlPriceAftrVat += row['PRICE_AFTR_VAT'];
     }
-    //repeat_element
-    // variables = {...controller.variables, "repeat_element": tmp};
-
-    // DateTime invoiceDate = DateTime.parse(responseHd[0]['USR_INS_DATE'].toString());
-    // debugPrint(responseHd[0]['DATE1'].toString());
+    double discount = responseHd[0]['DISCNT'];
     return {
       "a_comp_name": userController.compData.aCompName,
       "a_activity": userController.compData.aActivity,
@@ -574,10 +573,18 @@ class CusKshfController extends GetxController {
       "ttl_qty": ttlQty.toString(),
       "t_ttl_price": "الاجمالي",
       "ttl_price": ttlPrice.toStringAsFixed(2),
-      "t_ttl_dis": "الخصم",
-      "ttl_dis": responseHd[0]['DISCNT'].toString(),
-      "t_ttl_aftr_dis": "بعد الخصم",
-      "ttl_aftr_dis": (ttlPrice - responseHd[0]['DISCNT']).toStringAsFixed(2),
+      if (discount != 0) ...{
+        "t_ttl_dis": "الخصم",
+        "ttl_dis": discount.toString(), // responseHd[0]['DISCNT'].toString(),
+        "t_ttl_aftr_dis": "بعد الخصم",
+        "ttl_aftr_dis": (ttlPrice - discount).toStringAsFixed(2),
+      } else ...{
+        "t_ttl_dis": "\n",
+        "ttl_dis": "\n", // responseHd[0]['DISCNT'].toString(),
+        "t_ttl_aftr_dis": "\n",
+        "ttl_aftr_dis": "\n",
+      },
+
       "t_ttl_vat": "الضريبة 15%",
       "ttl_vat": responseHd[0]['ADDED_VALUE'].toString(),
       "t_ttl_aftr_vat": "الاجمالي شامل الضريبة",
@@ -592,14 +599,60 @@ class CusKshfController extends GetxController {
     };
   }
 
+//
+
+  Map<String, dynamic> getSanadtVariablesData({required response}) {
+    return {
+      "a_comp_name": userController.compData.aCompName,
+      "a_activity": userController.compData.aActivity,
+      "t_commercial_reg": "رقم السجل التجاري",
+      "commercial_reg": userController.compData.commercialReg,
+      "t_tax_no": "الرقم الضريبي",
+      "tax_no": userController.compData.taxNo,
+      "t_mobile_no": "رقم الهاتف",
+      "mobile_no": userController.compData.tel,
+      "e_comp_name": userController.compData.eCompName,
+      "e_activity": userController.compData.eActivity,
+      "t_amount": "المبلغ",
+      "amount": response[0]['AMNT'].toString(),
+      "t_sanad_type": "${response[0]['ACT_NAME']}  ( ${response[0]['ACC_HD_ID']} )",
+      "t_date": "التاريخ",
+      "date": response[0]['DATE1'].toString(),
+      "a_t_recive_from": "استلما من المكرم",
+      "e_t_recive_from": "Recevied from Mr",
+      "cus_name": response[0]['CUS_NAME'].toString(),
+      "a_t_amount_words": "مبلغ وقدره",
+      "e_t_amount_words": "The Amount",
+      "amount_words": response[0]['AMNT'].toString(),
+      "a_t_payment_for": "وذلك مقابل",
+      "e_t_payment_for": "As Payment for",
+      "payment_for": response[0]['DSCR'].toString(),
+      "t_user_ins": "مدخل السند",
+      "user_ins": response[0]['USER_INS_NAME'].toString(),
+    };
+  }
+
   Widget openActDetail({required actType, required field}) {
+    if (!['53', '57', '58', '59', '60', '61'].contains(actType)) {
+      return Container(
+        color: Colors.transparent,
+        child: Center(
+          child: Text(
+            field,
+            // style: const TextStyle(color: Colors.blue),
+          ),
+        ),
+      );
+    }
     return GestureDetector(
-      onLongPress: () async {
-        print("ActType : $actType");
-        print("field : $field");
+      onTap: () async {
+        // print("ActType : $actType");
+        // print("field : $field");
         //57,58,59,60,
-        if (['57', '58', '59', '60'].contains(actType)) {
+        if (['58', '59', '60', '61'].contains(actType)) {
           openInvoice(actType: actType, field: field);
+        } else if (['53', '57'].contains(actType)) {
+          openSanad(actType: actType, field: field);
         }
         //53,57
       },
@@ -611,6 +664,44 @@ class CusKshfController extends GetxController {
             style: const TextStyle(color: Colors.blue),
           ),
         ),
+      ),
+    );
+  }
+
+  openSanad({required actType, required field}) async {
+    // selectedSanadTypeId = item['ACC_TYPE'].toString();
+    // selectedSanadType = item['ACT_NAME'].toString();
+    // savedSanadId = item['ACC_HD_ID'].toString();
+    // selecetdCustomer = controller.cusData.firstWhereOrNull((c) => c.cusId == item['CUS_ID']);
+    // date.text = item['DATE1'].toString();
+    // amount.text = item['AMNT'].toStringAsFixed(2);
+    // description.text = item['DSCR'].toString();
+    String stmt = """
+                  SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,round(a.AMNT,2) AMNT , a.DSCR ,
+                            TO_CHAR(b.DATE1,'yyyy-mm-dd')  DATE1,GET_USER_NAME_DB(b.USR_INS) USER_INS_NAME
+                            FROM ACC_DT a, ACC_HD b  
+                            WHERE b.ACC_TYPE=a.ACC_TYPE AND b.ACC_HD_ID=a.ACC_HD_ID  AND a.ACC_TYPE=$actType AND a.ACC_HD_ID=$field  
+                            AND a.CUS_ID=${selecetdCustomer!.cusId}    
+                  """;
+    var response = await dbServices.createRep(sqlStatment: stmt);
+
+    debugPrint(response.length.toString());
+    try {
+      response[0]['ACC_TYPE'];
+    } catch (e) {
+      showMessage(color: secondaryColor, titleMsg: "لايمكن عرض الفاتورة", msg: e.toString(), titleFontSize: 18, durationMilliseconds: 2000);
+      return;
+    }
+//--------------
+    if (response.isEmpty) return;
+
+    PrintSamples ps = PrintSamples(compData: compData);
+    Get.to(
+      () => PdfPreviewScreen(
+        // tableHeader: hesders,
+        // tableData: data,
+        jsonLayout: ps.getSanadSample,
+        variables: getSanadtVariablesData(response: response),
       ),
     );
   }
@@ -645,7 +736,7 @@ class CusKshfController extends GetxController {
     if (responseHd.isEmpty || responseDt.isEmpty) return;
 
     // if (isPostedBefor) {
-    PrintSamples ps = PrintSamples(compData: userController.compData, hideDiscount: responseHd[0]['DISCNT'] == 0);
+    PrintSamples ps = PrintSamples(compData: userController.compData);
     Get.to(() => PdfPreviewScreen(
           jsonLayout: ps.getSlsInvoiceSample,
           variables: getInvoiceVariablesData(responseHd: responseHd, responseDt: responseDt),
@@ -654,18 +745,6 @@ class CusKshfController extends GetxController {
     //   showMessage(color: secondaryColor, titleMsg: "يرجى حفظ الفاتورة", titleFontSize: 18, durationMilliseconds: 1000);
     // }
   }
-
-  // showInvoiceInPdfPreviewer() {
-  //   if (isPostedBefor) {
-  //     PrintSamples ps = PrintSamples(compData: userController.compData);
-  //     Get.to(() => PdfPreviewScreen(
-  //           jsonLayout: ps.getSlsShowSample,
-  //           variables: getVariablesData(),
-  //         ));
-  //   } else {
-  //     showMessage(color: secondaryColor, titleMsg: "يرجى حفظ الفاتورة", titleFontSize: 18, durationMilliseconds: 1000);
-  //   }
-  // }
 
   /// ZATCA Phase-1 QR (Simplified Tax Invoice): TLV(Base64) of Tags 1..5.
   String zatcaQrBase64({

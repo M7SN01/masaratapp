@@ -726,7 +726,7 @@ class InvoiceController extends GetxController {
       "t_inv_date": "التاريخ",
       "inv_date": savedInvoiceDate,
       "t_cus_no": "عميل رقم",
-      "cus_no": selecetdCustomer!.cusId.toString(),
+      "cus_no": selecetdCustomer?.cusId.toString() == "0" ? "" : selecetdCustomer?.cusId.toString() ?? "",
       "t_cus_name": "اسم العميل",
       "cus_name": selecetdCustomer!.cusName,
       "t_cus_adrs": "العنوان",
@@ -948,7 +948,7 @@ class InvoiceController extends GetxController {
           INSERT INTO SLS_SHOW_HD 
           (
           R_TP ,R_ID,DATE1${selecetdCustomer!.isNewCus ? " " : " ,CUS_ID "}
-          ,PUR_TTL,DSCR,CUS_NM,CUS_NM1,CUS_MOBILE,USR_INS,USR_INS_DATE,VAT_STATUS,VAT_PR,VAT,PRICE_TYPE,TAX_NO,SAVE_NO 
+          ,PUR_TTL,DSCR,CUS_NM1,CUS_NM,CUS_MOBILE,USR_INS,USR_INS_DATE,VAT_STATUS,VAT_PR,VAT,PRICE_TYPE,TAX_NO,SAVE_NO 
           )
           VALUES (
           '$selectedInvTypeId',last_serial,TO_DATE('${DateFormat('MM/dd/yyyy HH:mm:ss').format(DateTime.now())}', 'MM/DD/YYYY HH24:MI:SS') 
@@ -1009,21 +1009,22 @@ class InvoiceController extends GetxController {
       return;
     }
     isSearchingOfSanad.value = true;
-
+// AND ( USR_INS =${userController.uId}  OR 1  = CHK_CUS_USR_PRV (CUS_ID ,${userController.uId} ) )
+//inserted by user or has privileges on it
     try {
-      var response = await dbServices.createRep(sqlStatment: """
+      String stmt = """
         SELECT R_TP ,get_act_name(R_TP) ACT_NAME,R_ID,TO_CHAR(DATE1,'yyyy-mm-dd') DATE1 , CUS_ID ,ROUND(PUR_TTL,2) PUR_TTL , DSCR,CUS_NM,CUS_NM1,CUS_MOBILE,USR_INS,TAX_NO
         FROM SLS_SHOW_HD
         WHERE R_TP IN(${act.map((act) => "'${act.actId}'").join(',')})
-        AND USR_INS =${userController.uId} 
-        AND 1  = CHK_CUS_USR_PRV (CUS_ID ,${userController.uId} )
+        AND ( USR_INS =${userController.uId}  OR 1  = CHK_CUS_USR_PRV (CUS_ID ,${userController.uId} ) )
         AND (
         LOWER(get_cus_name_DB(CUS_ID)) LIKE LOWER('%$query%') OR
         TO_CHAR(R_ID) LIKE '%$query%' OR
          LOWER(get_act_name(R_TP)) LIKE LOWER('%$query%')
         )
-        """);
-      // debugPrint(response.toString());
+        """;
+      var response = await dbServices.createRep(sqlStatment: stmt);
+      // debugPrint(stmt);
       if (response.isNotEmpty && response[0]['R_TP'] != null) {
         searchResults.value = response;
       } else {
@@ -1165,7 +1166,7 @@ class InvoiceController extends GetxController {
                   final controller = Get.find<InvoiceController>();
                   return ListTile(
                     enabled: !isGettingFromApi,
-                    title: Text(item['CUS_NM'].toString()),
+                    title: Text(item['CUS_NM1'].toString()),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1190,7 +1191,14 @@ class InvoiceController extends GetxController {
                       controller.selectedInvTypeId = item['R_TP'].toString();
                       controller.selectedInvType = item['ACT_NAME'].toString();
                       controller.invDescription.text = item['DSCR'].toString();
-                      controller.selecetdCustomer = controller.cusData.firstWhereOrNull((c) => c.cusId == item['CUS_ID']);
+                      controller.selecetdCustomer = controller.cusData.firstWhereOrNull((c) => c.cusId == item['CUS_ID']) ??
+                          CusDataModel(
+                            cusId: 0,
+                            cusName: item['CUS_NM1'].toString(),
+                            adrs: item['CUS_NM'].toString(),
+                            mobl: item['CUS_MOBILE'].toString(),
+                            taxNo: item['TAX_NO'].toString(),
+                          );
                       controller.savedInvoiceId = item['R_ID'].toString();
                       controller.isPostedBefor = true;
                       controller.rows.clear();

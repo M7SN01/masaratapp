@@ -93,10 +93,11 @@ class Sanadat extends StatelessWidget {
                             iconColor: primaryColor,
                             chosedItem: controller.selectedSanadType,
                             showedList: controller.sanadatAct.map((e) => e.actName).toList(),
+                            disabledValues: controller.sanadatAct.where((e) => e.actId == 53 || e.actId == 57).map((e) => e.actName).toList(),
                             callback: (val) {
-                              controller.selectedSanadType = val;
                               final selected = controller.sanadatAct.firstWhere((e) => e.actName == val);
 
+                              controller.selectedSanadType = val;
                               controller.selectedSanadTypeId = selected.actId.toString();
                               controller.update();
                             },

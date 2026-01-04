@@ -48,7 +48,8 @@ class SanadatController extends GetxController {
     userId = loginController.logedInuserId;
     userName = loginController.logedInuserName;
     isOfflineMode = loginController.isOfflineMode;
-    sanadatAct = userController.actPrivList.where((e) => [int.parse("53${userController.uId}"), int.parse("57${userController.uId}")].contains(e.actId)).toList();
+    sanadatAct = userController.actPrivList.where((e) => e.actId.toString().contains("53") || e.actId.toString().contains("57")).toList();
+    // sanadatAct = userController.actPrivList.where((e) => [int.parse("53${userController.uId}"), int.parse("57${userController.uId}")].contains(e.actId)).toList();
     cusData = userController.cusDataList;
     compData = userController.compData;
     super.onInit();
@@ -61,6 +62,8 @@ class SanadatController extends GetxController {
     selecetdCustomer = null;
     selectedSanadTypeId = null;
     selectedSanadType = null;
+    userName = loginController.logedInuserName;
+
     amount.clear();
     description.clear();
     date.clear();
@@ -70,10 +73,20 @@ class SanadatController extends GetxController {
 
   Map<String, dynamic> getVariablesData() {
     return {
+      // "a_comp_name": userController.compData.aCompName,
+      // "a_activity": userController.compData.aActivity,
+      // "commercial_reg": userController.compData.commercialReg,
+      // "tax_no": userController.compData.taxNo,
+      // "mobile_no": userController.compData.tel,
+      // "e_comp_name": userController.compData.eCompName,
+      // "e_activity": userController.compData.eActivity,
       "a_comp_name": userController.compData.aCompName,
       "a_activity": userController.compData.aActivity,
+      "t_commercial_reg": "رقم السجل التجاري",
       "commercial_reg": userController.compData.commercialReg,
+      "t_tax_no": "الرقم الضريبي",
       "tax_no": userController.compData.taxNo,
+      "t_mobile_no": "رقم الهاتف",
       "mobile_no": userController.compData.tel,
       "e_comp_name": userController.compData.eCompName,
       "e_activity": userController.compData.eActivity,
@@ -155,6 +168,21 @@ class SanadatController extends GetxController {
   Future<void> postSanadToServer() async {
     isPostingToApi = true;
     update();
+    String errorMsg = "";
+    if (userController.csClsPrivList.isEmpty) {
+      errorMsg = "ليس لديك صلاحيات على مجموعة عملاء";
+    } else if (userController.cstCntrPrivList.isEmpty) {
+      errorMsg = "ليس لديك صلاحيات على مركز تكلفة ";
+    } else if (userController.bankPrivList.isEmpty) {
+      errorMsg = "ليس لديك صلاحيات على بنك او حساب ";
+    }
+
+    if (errorMsg != "") {
+      showMessage(color: secondaryColor, titleMsg: "No prmission !", titleFontSize: 18, msg: errorMsg, durationMilliseconds: 5000);
+      isPostingToApi = false;
+      update();
+      return;
+    }
 
     // await Future.delayed(Duration(seconds: 4));
     try {
@@ -195,7 +223,6 @@ class SanadatController extends GetxController {
           COMMIT;
         END;
         """;
-
       // debugPrint(vatDetails);
       // debugPrint(vatDetails.toString(), wrapWidth: 1024);
       debugPrint(stmt);
@@ -355,19 +382,33 @@ class SanadatController extends GetxController {
           ['%$query%', '%$query%', '%$query%'],
         );
       } else {
-        response = await dbServices.createRep(
-          sqlStatment: """
-          SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,round(a.AMNT,2) AMNT , DSCR ,
-          (SELECT TO_CHAR(DATE1,'yyyy-mm-dd') FROM ACC_HD b WHERE b.ACC_TYPE=a.ACC_TYPE AND b.ACC_HD_ID=a.ACC_HD_ID) DATE1
+        String stmt =
+            // """
+            //   SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,round(a.AMNT,2) AMNT , DSCR ,
+            //   (SELECT TO_CHAR(DATE1,'yyyy-mm-dd') FROM ACC_HD b WHERE b.ACC_TYPE=a.ACC_TYPE AND b.ACC_HD_ID=a.ACC_HD_ID) DATE1
 
-          FROM ACC_DT a WHERE a.CUS_ID IS NOT NULL and a.ACC_TYPE IN(${sanadatAct.map((act) => "'${act.actId}'").join(',')})
+            //   FROM ACC_DT a WHERE a.CUS_ID IS NOT NULL and a.ACC_TYPE IN(${sanadatAct.map((act) => "'${act.actId}'").join(',')})
+            //   AND (
+            //   LOWER(get_cus_name_DB(a.CUS_ID)) LIKE LOWER('%$query%') OR
+            //   TO_CHAR(a.ACC_HD_ID) LIKE '%$query%' OR
+            //   LOWER(get_act_name(a.ACC_TYPE)) LIKE LOWER('%$query%')
+            //   )
+            //   order by SRL
+            //   """;
+            """
+          SELECT a.CUS_ID,a.CUS_NAME,a.ACC_TYPE,a.ACT_NAME ,a.ACC_HD_ID,round(a.AMNT,2) AMNT , DSCR ,TO_CHAR(a.DATE1, 'yyyy-MM-dd') DATE1,
+           GET_USER_NAME_DB(NVL(USR_UPD,USR_INS) ) USER_UP_INS_NAME
+          FROM ACC_MULTI.ACC_TRANS_ALL a WHERE a.CUS_ID IS NOT NULL and a.ACC_TYPE IN(${sanadatAct.map((act) => "'${act.actId}'").join(',')})
           AND (
-          LOWER(get_cus_name_DB(a.CUS_ID)) LIKE LOWER('%$query%') OR 
-          TO_CHAR(a.ACC_HD_ID) LIKE '%$query%' OR
-          LOWER(get_act_name(a.ACC_TYPE)) LIKE LOWER('%$query%')
-          )
-          order by SRL          
-          """,
+          LOWER(a.CUS_NAME) LIKE LOWER('%$query%') OR 
+           TO_CHAR(a.ACC_HD_ID) LIKE '%$query%' OR
+           LOWER(a.ACT_NAME) LIKE LOWER('%$query%')
+          ) 
+          AND   (select CS_CLS_ID from CUSTOMERS WHERE CUS_ID=a.CUS_ID ) IN ( SELECT CS_CLS_ID FROM USER_CUS_GRP u WHERE u.U_ID=$userId AND u.CHK = 1)
+          order by SRL 
+          """;
+        response = await dbServices.createRep(
+          sqlStatment: stmt,
         );
       }
       //
@@ -497,6 +538,7 @@ class SanadatController extends GetxController {
                       date.text = item['DATE1'].toString();
                       amount.text = item['AMNT'].toStringAsFixed(2);
                       description.text = item['DSCR'].toString();
+                      userName = item['USER_UP_INS_NAME'].toString();
 
                       isPostedBefor = true;
                       update();

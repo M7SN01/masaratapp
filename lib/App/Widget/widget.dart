@@ -10,6 +10,7 @@ Widget dropDownList({
   Color? iconColor,
   Widget? icon,
   bool enable = true,
+  List disabledValues = const [],
 }) {
   return DropdownButtonHideUnderline(
     child: DropdownButton<String>(
@@ -19,16 +20,18 @@ Widget dropDownList({
       isExpanded: true,
       iconEnabledColor: iconColor,
       icon: icon,
-      onChanged: enable
-          ? (newValue) {
-              callback(newValue);
-              // state.didChange(newValue);
-            }
-          : null,
+      onChanged: enable ? (newValue) => callback(newValue) : null,
       items: showedList.map((String value) {
+        bool isEnable = !disabledValues.contains(value);
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(value),
+          enabled: isEnable,
+          child: isEnable
+              ? Text(value)
+              : Container(
+                  color: Colors.redAccent,
+                  child: Text(value),
+                ),
         );
       }).toList(),
     ),

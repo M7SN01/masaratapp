@@ -10,12 +10,10 @@ Map<String, dynamic> textW(
   String color = "#000000",
   String? fontFamily, // <-- add this
   bool doubleToArabicWords = false,
-  bool hide = false,
 }) {
   return {
     "type": "text",
     "args": {
-      if (hide) "hide": "true",
       "text": text,
       "to_arabic_words": doubleToArabicWords,
       "textAlign": textAlign,
@@ -68,12 +66,10 @@ Map<String, dynamic> containerW({
   List? margin,
   String? alignment,
   Map? containerDecorationW,
-  bool hide = false,
 }) {
   return {
     "type": "container",
     "args": {
-      if (hide) "hide": "true",
       if (child != null) "child": child,
       if (containerDecorationW == null && color != null) "color": color,
       if (width != null) "width": width,
@@ -90,12 +86,10 @@ Map<String, dynamic> rowW({
   List<Map>? children,
   String? mainAxisAlignment,
   String? crossAxisAlignment,
-  bool hide = false,
 }) {
   return {
     "type": "row",
     "args": {
-      if (hide) "hide": "true",
       "children": children,
       if (mainAxisAlignment != null) "mainAxisAlignment": mainAxisAlignment,
       if (crossAxisAlignment != null) "crossAxisAlignment": crossAxisAlignment,
@@ -107,12 +101,10 @@ Map<String, dynamic> columnW({
   required List<Map> children,
   String? mainAxisAlignment,
   String? crossAxisAlignment,
-  bool hide = false,
 }) {
   return {
     "type": "column",
     "args": {
-      if (hide) "hide": "true",
       "children": children,
       if (mainAxisAlignment != null) "mainAxisAlignment": mainAxisAlignment,
       if (crossAxisAlignment != null) "crossAxisAlignment": crossAxisAlignment,
@@ -130,12 +122,10 @@ Map<String, dynamic> imageW({
   double? width,
   double? height,
   String? assetName,
-  bool hide = false,
 }) {
   return {
     "type": "asset_image",
     "args": {
-      if (hide) "hide": "true",
       "name": assetName,
       if (height != null) "height": height,
       if (width != null) "width": width,
@@ -147,12 +137,10 @@ Map<String, dynamic> imageSvgW({
   double? width,
   double? height,
   String? assetName,
-  bool hide = false,
 }) {
   return {
     "type": "svg_image",
     "args": {
-      if (hide) "hide": "true",
       "name": assetName,
       if (height != null) "height": height,
       if (width != null) "width": width,
@@ -163,12 +151,10 @@ Map<String, dynamic> imageSvgW({
 Map<String, dynamic> expandedW({
   required Map child,
   int? flex,
-  bool hide = false,
 }) {
   return {
     "type": "expanded",
     "args": {
-      if (hide) "hide": "true",
       if (flex != null) "flex": flex,
       "child": child,
     }
@@ -177,12 +163,10 @@ Map<String, dynamic> expandedW({
 
 Map<String, dynamic> centerW({
   required Map child,
-  bool hide = false,
 }) {
   return {
     "type": "center",
     "args": {
-      if (hide) "hide": "true",
       "child": child,
     }
   };
@@ -192,12 +176,10 @@ Map<String, dynamic> sizedBoxW({
   Map? child,
   double? height,
   double? width,
-  bool hide = false,
 }) {
   return {
     "type": "sized_box",
     "args": {
-      if (hide) "hide": "true",
       if (height != null) "height": height,
       if (width != null) "width": width,
       if (child != null) "child": child,
@@ -225,12 +207,10 @@ Map<String, dynamic> qrW({
   String? borderColor = "#000000",
   double? borderWidth = 0.5,
   double? borderRadius = 0,
-  bool hide = false,
 }) {
   return {
     "type": "qr_code",
     "args": {
-      if (hide) "hide": "true",
       "data": data,
       "width": width,
       "height": height,
@@ -377,12 +357,10 @@ Map<String, dynamic> tableW({
   Map<String, dynamic>? tableWHeaderDecoration,
   Map<String, dynamic>? tableWFooterDecoration,
   Map<String, dynamic>? tableWFooterStyle,
-  bool hide = false,
 }) {
   return {
     "type": "table",
     "args": {
-      if (hide) "hide": "true",
       "headers": tableWHeadersListOfMap,
       "headerStyle": tableWHeaderStyle,
       "headerCellDecoration": tableWHeaderCellDecoration,
@@ -437,12 +415,10 @@ Map<String, dynamic> qrCodeW({
   double imgWidth = 30,
   double imgHeight = 30,
   double imgborderRadius = 0,
-  bool hide = false,
 }) {
   return {
     "type": "qr_code",
     "args": {
-      if (hide) "hide": "true",
       "data": data,
       "width": width,
       "height": height,
@@ -462,12 +438,10 @@ Map<String, dynamic> dashedLineW({
   double? dashSpace,
   double? height,
   String? color,
-  bool hide = false,
 }) {
   return {
     "type": "dashed_line",
     "args": {
-      if (hide) "hide": "true",
       "dashWidth": dashWidth,
       "dashSpace": dashSpace,
       "height": height,
@@ -478,12 +452,10 @@ Map<String, dynamic> dashedLineW({
 
 Map<String, dynamic> repateW({
   required Map<String, dynamic> child,
-  bool hide = false,
 }) {
   return {
     "type": "repeat",
     "args": {
-      if (hide) "hide": "true",
       "child": child,
     }
   };
