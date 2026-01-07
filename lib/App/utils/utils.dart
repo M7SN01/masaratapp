@@ -10,6 +10,8 @@ import 'package:pluto_grid/pluto_grid.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:latlong2/latlong.dart' as lat_lang;
 
+String appVersion = "";
+
 const Color primaryColor = Colors.deepPurpleAccent;
 const Color secondaryColor = Color(0XFFF5387C);
 const Color saveColor = Color(0XFF37beac);

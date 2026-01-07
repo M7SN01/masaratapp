@@ -319,6 +319,22 @@ class ActKshfController extends GetxController {
   Future<void> getKshfData() async {
     isPostingToApi = true;
     update();
+    String errorMsg = "";
+    if (acts.isEmpty) {
+      errorMsg = "ليس لديك صلاحيات على السندات او لم يتم انشاء سندات خاصة بالمستخدم ";
+    }
+    // else if (userController.cstCntrPrivList.isEmpty) {
+    //   errorMsg = "ليس لديك صلاحيات على مركز تكلفة ";
+    // } else if (userController.bankPrivList.isEmpty) {
+    //   errorMsg = "ليس لديك صلاحيات على بنك او حساب ";
+    // }
+
+    if (errorMsg != "") {
+      showMessage(color: secondaryColor, titleMsg: "No prmission !", titleFontSize: 18, msg: errorMsg, durationMilliseconds: 5000);
+      isPostingToApi = false;
+      update();
+      return;
+    }
 
     try {
       String date = "";

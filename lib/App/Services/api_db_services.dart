@@ -22,15 +22,47 @@ String? port; // = '881';
 */
 
 class Services {
+  Future<String?> getVersion() async {
+    // var url = '$protocol://$ip:$port/pos/api/values/CMD/1';
+    var url = 'https://mapi.m7sn.org/npos/api/values/VERSION/1';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: null,
+        headers: {
+          'CF-Access-Client-Id': 'f3a5373bc6f00987dedd44a923b4df61.access',
+          'CF-Access-Client-Secret': '68c84d0f95de61a5197e0b739b70c09617069a264178affef1dc8e6da72364db',
+        },
+      ).timeout(Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as String;
+        // return response.body;
+      } else {
+        showMessage(color: secondaryColor, titleMsg: response.statusCode.toString(), msg: response.body, titleFontSize: 18, durationMilliseconds: 4000);
+
+        return null;
+      }
+    } on http.ClientException {
+      showMessage(color: secondaryColor, titleMsg: "لايوجد اتصال بالانترنت", msg: 'Network error, please check connection.', titleFontSize: 18, durationMilliseconds: 4000);
+
+      return null;
+    } catch (e) {
+      showMessage(color: secondaryColor, titleMsg: "حدث خطا !", msg: e.toString(), titleFontSize: 18, durationMilliseconds: 4000);
+
+      return null;
+    }
+  }
+
   Future<List<dynamic>> createRep({
     required String sqlStatment,
     int timeOutSeconds = 20,
     // Function(String error)? errorCallback,
   }) async {
     // var url = '$protocol://$ip:$port/pos/api/values/CMD/1';
-    var url = 'https://mapi.m7sn.org/pos/api/values/CMD/1';
+    var url = 'https://mapi.m7sn.org/npos/api/values/CMD/1';
 
-    var sql = {"CMD": sqlStatment};
+    var sql = {"CMD": sqlStatment, "VERSION": "1.2.2"};
 
     final response = await http.post(
       Uri.parse(url),

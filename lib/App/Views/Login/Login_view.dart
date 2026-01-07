@@ -398,10 +398,12 @@ class _LoginState extends State<Login> {
                                     :
                                     //Login Button
                                     ElevatedButton(
-                                        onPressed: () async {
-                                          //  FocusManager.instance.primaryFocus?.unfocus();
-                                          await controller.login();
-                                        },
+                                        onPressed: controller.isUpdatedApp
+                                            ? () async {
+                                                //  FocusManager.instance.primaryFocus?.unfocus();
+                                                await controller.login();
+                                              }
+                                            : controller.checkAgain,
                                         style: ElevatedButton.styleFrom(
                                           // fixedSize: const Size(
                                           //   100,
@@ -416,16 +418,18 @@ class _LoginState extends State<Login> {
                                             ), // Set the rounded corner radius
                                           ),
                                         ),
-                                        child: Text(
-                                          'login'.tr,
-                                          style: const TextStyle(
-                                            color: Color(
-                                              0xFF59709b,
-                                            ),
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                                        child: controller.isUpdatedApp
+                                            ? Text(
+                                                'login'.tr,
+                                                style: const TextStyle(
+                                                  color: Color(
+                                                    0xFF59709b,
+                                                  ),
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              )
+                                            : Icon(Icons.sync_outlined),
                                       ),
 
                                 const SizedBox(
@@ -495,7 +499,7 @@ class _LoginState extends State<Login> {
                     //Avatar
                     Positioned(
                       width: 140,
-                      height: 140,
+                      height: 145,
                       //parent continer size is 350 so 350/2 give center -half avatar size  (350/2)-70  will make it center
                       left: controller.loginCardWidth / 2 - 70,
                       child: Container(
@@ -508,11 +512,20 @@ class _LoginState extends State<Login> {
                             10,
                           ),
                         ),
-                        child: const Hero(
-                          tag: "Logo",
-                          child: LogoWidget(
-                            withShimmer: false,
-                          ), // Use the shared widget
+                        child: AnimatedCard(
+                          x: 0,
+                          beginTop: -50,
+                          endTop: -20,
+                          scond: 3,
+                          cHight: 60,
+                          cWidth: 60,
+                          opacity: 0.3,
+                          chiled: const Hero(
+                            tag: "Logo",
+                            child: LogoWidget(
+                              withShimmer: false,
+                            ), // Use the shared widget
+                          ),
                         ),
                       ),
                     ),
@@ -595,6 +608,8 @@ class AnimatedCard extends StatefulWidget {
   final double endTop;
   final double cWidth;
   final double cHight;
+  final double opacity;
+  final Widget chiled;
   const AnimatedCard({
     super.key,
     required this.x,
@@ -603,6 +618,8 @@ class AnimatedCard extends StatefulWidget {
     required this.scond,
     required this.cWidth,
     required this.cHight,
+    this.opacity = 0.2,
+    this.chiled = const SizedBox(),
   });
 
   @override
@@ -632,6 +649,7 @@ class AnimatedCardState extends State<AnimatedCard> with SingleTickerProviderSta
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
+      // child: widget.chiled,
       builder: (context, child) {
         return Transform.translate(
           offset: Offset(
@@ -656,10 +674,10 @@ class AnimatedCardState extends State<AnimatedCard> with SingleTickerProviderSta
                   borderRadius: BorderRadius.circular(12),
                   gradient: LinearGradient(
                     colors: [
-                      Colors.white.withAlpha((0.2 * 255).round()),
-                      Colors.white.withAlpha((0.2 * 255).round()),
-                      Colors.white.withAlpha((0.2 * 255).round()),
-                      Colors.white.withAlpha((0.2 * 255).round()),
+                      Colors.white.withAlpha((widget.opacity * 255).round()),
+                      Colors.white.withAlpha((widget.opacity * 255).round()),
+                      Colors.white.withAlpha((widget.opacity * 255).round()),
+                      Colors.white.withAlpha((widget.opacity * 255).round()),
                     ],
                     // stops: [0.1, 0.3, 0.8, 1],
                     //  begin: Alignment.bottomLeft,
@@ -670,6 +688,7 @@ class AnimatedCardState extends State<AnimatedCard> with SingleTickerProviderSta
                     width: 1.0,
                   ),
                 ),
+                child: widget.chiled,
               ),
             ),
           ),

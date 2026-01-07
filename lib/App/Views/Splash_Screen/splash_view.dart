@@ -12,31 +12,39 @@ class LogoWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          margin: const EdgeInsets.only(bottom: 5),
-          height: 100,
-          width: 100,
-          child: Image.asset('assets/images/logo.ico'),
+          // margin: const EdgeInsets.only(bottom: 5),
+          height: withShimmer ? 200 : 140,
+          width: withShimmer ? 200 : 140,
+          child: Image.asset('assets/images/mrway.png'), //was mrway.png
         ),
         if (withShimmer)
           Shimmer.fromColors(
             period: const Duration(milliseconds: 1000), //was 2 sceondes
-            baseColor: const Color(0xffe9a43a),
+            baseColor: Colors.redAccent,
             highlightColor: Colors.grey[300]!,
             child: RichText(
-              text: const TextSpan(
-                text: 'Golden ',
+              text: TextSpan(
+                text: 'Mr',
                 style: TextStyle(
-                  color: Color(0xffe9a43a),
-                  fontSize: 20,
-                  //fontWeight: FontWeight.bold,
+                  // color: Colors.black,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
                 ),
                 children: <TextSpan>[
                   TextSpan(
-                    text: 'Soft',
+                    text: 'W',
                     style: TextStyle(
-                      color: Color(0xff261499),
-                      fontSize: 20,
-                      //   fontWeight: FontWeight.bold,
+                      // color: Colors.redAccent,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: 'ay',
+                    style: TextStyle(
+                      // color: Colors.black,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   //  TextSpan(text: ' world!'),
@@ -44,19 +52,36 @@ class LogoWidget extends StatelessWidget {
               ),
             ),
           )
-        else
-          RichText(
-            text: const TextSpan(
-              text: 'Golden ',
-              style: TextStyle(color: Color(0xffe9a43a), fontSize: 20),
-              children: <TextSpan>[
-                TextSpan(
-                  text: 'Soft',
-                  style: TextStyle(color: Color(0xff261499), fontSize: 20),
-                ),
-              ],
-            ),
-          ),
+        // else
+        //   RichText(
+        //     text: TextSpan(
+        //       text: 'Mr',
+        //       style: TextStyle(
+        //         color: Colors.black,
+        //         fontSize: 30,
+        //         fontWeight: FontWeight.bold,
+        //       ),
+        //       children: <TextSpan>[
+        //         TextSpan(
+        //           text: 'W',
+        //           style: TextStyle(
+        //             color: Colors.redAccent,
+        //             fontSize: 30,
+        //             fontWeight: FontWeight.bold,
+        //           ),
+        //         ),
+        //         TextSpan(
+        //           text: 'ay',
+        //           style: TextStyle(
+        //             color: Colors.black,
+        //             fontSize: 30,
+        //             fontWeight: FontWeight.bold,
+        //           ),
+        //         ),
+        //         //  TextSpan(text: ' world!'),
+        //       ],
+        //     ),
+        //   ),
       ],
     );
   }
@@ -73,7 +98,7 @@ class SplashScreen extends StatelessWidget {
         child: LogoWidget(), // Use the shared widget
       ),
 
-      splashIconSize: 140,
+      splashIconSize: 240,
       animationDuration: const Duration(seconds: 1),
 
       duration: 3000, //until open next page

@@ -78,6 +78,7 @@ class _VisitMapState extends State<VisitMap> {
                             ),
                           ),
                         ),
+                        SizedBox(width: 5),
                         Expanded(
                           child: GestureDetector(
                             onTap: controller.isPostingToApi
@@ -126,6 +127,14 @@ class _VisitMapState extends State<VisitMap> {
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  SizedBox(
+                    height: 40,
+                    child: Row(
+                      children: [
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
@@ -152,7 +161,7 @@ class _VisitMapState extends State<VisitMap> {
                                       width: 10,
                                     ),
                                     Text(
-                                      "TEST",
+                                      "عرض كل العملاء",
                                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                     ),
                                   ],

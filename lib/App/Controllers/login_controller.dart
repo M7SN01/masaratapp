@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 // import 'package:masaratapp/App/Views/CustomerKshf/cus_kshf.dart';
 // import '../Variable/global_variable.dart';
 import '../Views/Home/home.dart';
@@ -107,23 +108,57 @@ class LoginController extends GetxController {
     }
   }
 
+  Future checkVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    appVersion = info.version;
+    String? apiVersion = await dbServices.getVersion();
+    //
+    if (apiVersion == null) return;
+    //
+    if (appVersion == apiVersion) {
+      debugPrint("App Version :--------------- $appVersion -----------------"); // 1.2.2
+      debugPrint("API Version :----------------- $apiVersion -----------------");
+      isUpdatedApp = true;
+    } else {
+      debugPrint("API Version :-----------------\n $apiVersion \n-----------------");
+
+      showMessage(color: secondaryColor, titleMsg: "يجب تحديث التطبيق ", msg: apiVersion, titleFontSize: 18, durationMilliseconds: 4000);
+
+      isUpdatedApp = false;
+    }
+    update();
+
+    //    <add key="AndroidStoreUrl" value="https://play.google.com/store/apps/details?id=YOUR.PACKAGE" />
+    // <add key="IosStoreUrl" value="https://apps.apple.com/app/idYOUR_APP_ID" />
+  }
+
+  checkAgain() async {
+    isLogining = true;
+    update();
+    await checkVersion();
+    isLogining = false;
+    update();
+  }
+
+  bool isUpdatedApp = false;
   @override
   void onInit() async {
-    bool isConnected = await checkInternetConnection();
-    if (isConnected) {
-      isOfflineMode = false;
-    } else {
-      // isOfflineMode = true;
-      // await changeOfflineMode();
-      showMessage(
-        color: secondaryColor,
-        titleMsg: "لايوجد اتصال بالانترنت",
-        titleFontSize: 16,
-        msgFontSize: 12,
-        durationMilliseconds: 4000,
-        enableCopyButton: false,
-      );
-    }
+    // bool isConnected = await checkInternetConnection();
+    await checkVersion();
+    // if (isConnected) {
+    //   isOfflineMode = false;
+    // } else {
+    //   // isOfflineMode = true;
+    //   // await changeOfflineMode();
+    //   showMessage(
+    //     color: secondaryColor,
+    //     titleMsg: "لايوجد اتصال بالانترنت",
+    //     titleFontSize: 16,
+    //     msgFontSize: 12,
+    //     durationMilliseconds: 4000,
+    //     enableCopyButton: false,
+    //   );
+    // }
 
     await serverConnectionData();
 
@@ -177,6 +212,7 @@ class LoginController extends GetxController {
     update();
 
     bool isConnected = await checkInternetConnection();
+
     if (!isConnected && !isOfflineMode) {
       // isOfflineMode = true;
       // await changeOfflineMode();
@@ -201,7 +237,17 @@ class LoginController extends GetxController {
         isLogining = false;
         //update();
       } else {
-        var jsonData;
+        //
+        //----------------Version Check-----------------
+        // bool versionResult = await checkVersion();
+        // if (versionResult != true) {
+        //   isLogining = false;
+        //   update();
+        //   return;
+        // }
+        //----------------------------------------------
+        //
+        List<dynamic> jsonData;
         if (isOfflineMode) {
           //  jsonData = await sqldb.readData("Select U_ID,U_NAME,U_P from USER where U_ID='${userID.text}' and U_P='${password.text}'");
           jsonData = await sqldb.readData(

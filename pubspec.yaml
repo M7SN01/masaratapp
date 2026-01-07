@@ -4,7 +4,7 @@ description: "A new Flutter project."
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.1
+version: 1.2.2
 
 environment:
   sdk: ^3.6.2
@@ -53,6 +53,7 @@ dependencies:
   flutter_map_animations: ^0.9.0
   latlong2: ^0.9.1
   flutter_native_splash: ^2.4.4
+  package_info_plus: ^8.3.0
   # mobile_scanner: ^6.0.11
   # huawei_location: ^6.16.0+300
 
@@ -75,20 +76,20 @@ flutter_launcher_icons:
   android: "pos_launcher"
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/images/logo.png"
+  image_path: "assets/images/mrway.png" # was => logo.png
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/images/logo.png"
+    image_path: "assets/images/mrway.png"
     background_color: "#FFFFFF"
     theme_color: "#FFFFFF"
   windows:
     generate: true
-    image_path: "assets/images/logo.png"
+    image_path: "assets/images/mrway.png"
     icon_size: 48 # min:48, max:256, default: 48
   macos:
     generate: true
-    image_path: "assets/images/logo.png"
+    image_path: "assets/images/mrway.png"
 
 
 
