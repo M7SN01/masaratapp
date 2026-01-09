@@ -9,6 +9,8 @@ PODS:
     - FlutterMacOS
   - open_file_ios (0.0.1):
     - Flutter
+  - package_info_plus (0.4.5):
+    - Flutter
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -26,6 +28,7 @@ DEPENDENCIES:
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - open_file_ios (from `.symlinks/plugins/open_file_ios/ios`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - printing (from `.symlinks/plugins/printing/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
@@ -42,6 +45,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/geolocator_apple/darwin"
   open_file_ios:
     :path: ".symlinks/plugins/open_file_ios/ios"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   printing:
@@ -57,6 +62,7 @@ SPEC CHECKSUMS:
   flutter_native_splash: f71420956eb811e6d310720fee915f1d42852e7a
   geolocator_apple: 66b711889fd333205763b83c9dcf0a57a28c7afd
   open_file_ios: 461db5853723763573e140de3193656f91990d9e
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   printing: 233e1b73bd1f4a05615548e9b5a324c98588640b
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
