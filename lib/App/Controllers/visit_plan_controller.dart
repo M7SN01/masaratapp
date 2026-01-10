@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:intl/intl.dart';
-import 'package:masaratapp/App/Controllers/visit_map_controller.dart';
+import '../../../App/Controllers/visit_map_controller.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../Services/api_db_services.dart';

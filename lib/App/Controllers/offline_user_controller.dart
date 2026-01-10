@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:masaratapp/App/Controllers/user_controller.dart';
-import 'package:masaratapp/App/Services/api_db_services.dart';
-import 'package:masaratapp/App/Services/sqflite_services.dart';
+import '../../../App/Controllers/user_controller.dart';
+import '../../../App/Services/api_db_services.dart';
+import '../../../App/Services/sqflite_services.dart';
 import 'package:sqflite/sqflite.dart';
 // import 'package:sqflite/sqflite.dart';
 

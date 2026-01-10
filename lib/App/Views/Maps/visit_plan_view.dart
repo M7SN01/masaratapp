@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:masaratapp/App/utils/utils.dart';
+import '../../../App/utils/utils.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import '../../Controllers/visit_plan_controller.dart';
 

@@ -1,9 +1,9 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:masaratapp/App/Controllers/offline_user_controller.dart';
+import '../../../App/Controllers/offline_user_controller.dart';
 // import 'package:masaratapp/App/Views/zero/view.dart';
-import 'package:masaratapp/App/Widget/loding_dots.dart';
+import '../../../App/Widget/loding_dots.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../Bindings/offline_binding.dart';
 import '../../Controllers/login_controller.dart';

@@ -6,11 +6,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 // import 'package:intl/intl.dart';
 // import 'package:location/location.dart';
-import 'package:masaratapp/App/Controllers/login_controller.dart';
-import 'package:masaratapp/App/Controllers/user_controller.dart';
+import '../../../App/Controllers/login_controller.dart';
+import '../../../App/Controllers/user_controller.dart';
 import 'package:latlong2/latlong.dart' as lat_lang;
-import 'package:masaratapp/App/Services/api_db_services.dart';
-import 'package:masaratapp/App/Widget/widget.dart';
+import '../../../App/Services/api_db_services.dart';
+import '../../../App/Widget/widget.dart';
 // import 'package:permission_handler/permission_handler.dart' as permission_handler;
 
 import '../Models/user_model.dart';

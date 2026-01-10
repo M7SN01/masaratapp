@@ -9,7 +9,7 @@
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <!--  -->
     <application
-        android:label="masaratapp"
+        android:label="MrWay"
         android:name="${applicationName}"
         android:icon="@mipmap/pos_launcher">
         <!-- GOOGLE MAP API-->

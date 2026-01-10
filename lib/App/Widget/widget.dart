@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:masaratapp/App/utils/utils.dart';
+import '../../../App/utils/utils.dart';
 
 Widget dropDownList({
   required Function(String?) callback,

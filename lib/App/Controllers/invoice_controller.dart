@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:masaratapp/App/samples/slmaples.dart';
+import '../../../App/samples/slmaples.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../Controllers/user_controller.dart';

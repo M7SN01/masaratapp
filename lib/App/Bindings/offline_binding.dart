@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:masaratapp/App/Controllers/offline_user_controller.dart';
+import '../../../App/Controllers/offline_user_controller.dart';
 
 class OfflineBinding extends Bindings {
   @override

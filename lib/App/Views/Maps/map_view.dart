@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:get/get.dart';
-import 'package:masaratapp/App/Controllers/visit_map_controller.dart';
+import '../../../App/Controllers/visit_map_controller.dart';
 
 import '../../Widget/widget.dart';
 import '../../utils/utils.dart';

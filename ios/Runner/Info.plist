@@ -26,8 +26,16 @@
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
-		<key>NSLocationWhenInUseUsageDescription</key>
+		<!-- <key>NSLocationWhenInUseUsageDescription</key>
 		<string>We need your location to show it on the map.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>We use your location to show your position on the map and support location-based features while you use the app.</string> -->
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>نستخدم موقعك لتحديد موقع العميل وحفظه على الخريطة، وعرض مواقع العملاء المسجلين، وتمكينك من تسجيل زيارة العميل في نفس الموقع لاحقاً أثناء استخدامك للتطبيق.</string>
+
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>نستخدم موقعك لتحديد موقع العميل وحفظه على الخريطة، وعرض مواقع العملاء المسجلين، وتمكينك من تسجيل زيارة العميل في نفس الموقع لاحقاً أثناء استخدامك للتطبيق.</string>
+
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UILaunchStoryboardName</key>

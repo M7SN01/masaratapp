@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:masaratapp/App/Controllers/visit_plan_controller.dart';
+import '../../../App/Controllers/visit_plan_controller.dart';
 
 import '../Controllers/visit_map_controller.dart';
 

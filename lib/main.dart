@@ -4,7 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:masaratapp/App/Bindings/visit_map_binding.dart';
+import '../../../App/Bindings/visit_map_binding.dart';
 // import '../Views/Login/Login_view2.dart';
 
 // import 'App/Controllers/user_privileges_controller.dart';
