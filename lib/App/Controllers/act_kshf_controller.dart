@@ -360,7 +360,7 @@ class ActKshfController extends GetxController {
                   ,CUS_ID,GET_CUS_CLS_ID(CUS_ID) CUS_CLS_ID,GET_CUS_NAME_DB(CUS_ID) CUS_NAME
                   from cus_hd_cus_dt  $cond  
                 ) 
-                WHERE  CUS_CLS_ID IN (SELECT CS_CLS_ID FROM USER_CUS_GRP WHERE U_ID='$userId' AND CHK = 1)
+                WHERE   CHK_CUS_USR_PRV(CUS_ID,$userId)=1
                 ORDER BY DATE1
                   """;
       debugPrint(stmt);

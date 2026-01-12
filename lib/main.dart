@@ -4,11 +4,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:masaratapp/App/Views/Cus_Bal/customers_balance.dart';
 import '../../../App/Bindings/visit_map_binding.dart';
 // import '../Views/Login/Login_view2.dart';
 
 // import 'App/Controllers/user_privileges_controller.dart';
 import 'App/Bindings/act_kshf_binding.dart';
+import 'App/Bindings/cus_balance_binding.dart';
 import 'App/Bindings/cus_kshf_binding.dart';
 import 'App/Bindings/invoice_binding.dart';
 import 'App/Bindings/login_binding.dart';
@@ -54,7 +56,7 @@ class PosApp extends StatelessWidget {
 
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      // home: const SplashScreen(),
       locale: Locale('ar'),
       supportedLocales: const [Locale('en'), Locale('ar')],
       localizationsDelegates: const [
@@ -107,6 +109,11 @@ class PosApp extends StatelessWidget {
           name: '/CustomerKshf',
           page: () => const CustomerKshf(),
           binding: CustomerKshfBinding(),
+        ),
+        GetPage(
+          name: '/CustomerBalance',
+          page: () => const CustomerBalance(),
+          binding: CustomerBalanceBinding(),
         ),
         GetPage(
           name: '/ActKshf',

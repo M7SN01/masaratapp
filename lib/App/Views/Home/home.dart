@@ -186,6 +186,13 @@ class Home extends StatelessWidget {
                 ),
                 mainGraid(
                   icon: Icons.inventory_outlined,
+                  title: "ارصدة العملاء",
+                  onTap: () {
+                    Get.toNamed('/CustomerBalance');
+                  },
+                ),
+                mainGraid(
+                  icon: Icons.inventory_outlined,
                   title: "مراجعة حركات العملاء",
                   onTap: () {
                     Get.toNamed('/ActKshf');

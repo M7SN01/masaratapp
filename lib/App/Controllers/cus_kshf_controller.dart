@@ -13,6 +13,8 @@ import '../samples/slmaples.dart';
 import '../utils/utils.dart';
 
 class CusKshfController extends GetxController {
+  // bool isOpenFromCusBal = false;
+
   //مراجعةالحركات =>المدخلة من قبل المندوب فقط
   //كشف الحساب جميع حركات العميل في النظام
   final Services dbServices = Services();
@@ -151,6 +153,7 @@ class CusKshfController extends GetxController {
         enableColumnDrag: false,
         //
         renderer: (rendererContext) => openActDetail(
+          accountYear: rendererContext.row.cells['ACCOUNT_SCH']!.value.toString(),
           actType: rendererContext.row.cells['TYPE']!.value.toString(),
           field: rendererContext.row.cells[rendererContext.column.field]!.value.toString(),
         ),
@@ -299,6 +302,16 @@ class CusKshfController extends GetxController {
         // },
       ),
     ];
+
+    //to get injected cusId from customer Balance view
+    final args = Get.arguments;
+    if (args is Map && args['cusId'] is int) {
+      final cusId = args['cusId'] as int;
+      selecetdCustomer = cusData.firstWhereOrNull((e) => e.cusId == cusId);
+      if (selecetdCustomer != null) {
+        getKshfData();
+      }
+    }
 
     super.onInit();
   }
@@ -451,14 +464,11 @@ class CusKshfController extends GetxController {
 
         String cond = selecetdCustomer != null || date != "" ? " where 1=1  $date  ${selecetdCustomer != null ? " and cus_id=${selecetdCustomer!.cusId} " : ""}" : "";
         String stmt = """
-                SELECT * FROM ( 
-                  select TRHEL,ACT_NAME,ACT_ID,DATE1,DESCR
+                  select ACCOUNT_SCH,TRHEL,ACT_NAME,ACT_ID,DATE1,DESCR
                  ,round(MD,2) MD,round(DN,2)DN  
-                  ,CUS_ID,GET_CUS_CLS_ID(CUS_ID) CUS_CLS_ID,ACT_TP 
-                  from ACC_MULTI.CUS_HD_CUS_DT_TRANS  $cond  
-                ) 
-                WHERE  CUS_CLS_ID IN (SELECT CS_CLS_ID FROM USER_CUS_GRP WHERE U_ID='$userId' AND CHK = 1)
-                ORDER BY DATE1
+                  ,CUS_ID,CS_CLS_ID,ACT_TP 
+                  from ACC_MULTI.APP_CUS_HD_CUS_DT_TRANS  $cond    AND CHK_CUS_USR_PRV(CUS_ID,$userId)=1           
+                  ORDER BY DATE1
                   """;
 
         // debugPrint(stmt);
@@ -478,6 +488,7 @@ class CusKshfController extends GetxController {
           rows.add(
             PlutoRow(
               cells: {
+                "ACCOUNT_SCH": PlutoCell(value: checkNullString(element['ACCOUNT_SCH'].toString())),
                 "TRHEL": PlutoCell(value: checkNullString(element['TRHEL'].toString())),
                 'ACT_TYPE': PlutoCell(value: checkNullString(element['ACT_NAME'].toString())),
                 'TYPE': PlutoCell(value: checkNullString(element['ACT_TP'].toString())),
@@ -632,7 +643,7 @@ class CusKshfController extends GetxController {
     };
   }
 
-  Widget openActDetail({required actType, required field}) {
+  Widget openActDetail({required accountYear, required actType, required field}) {
     if (!['53', '57', '58', '59', '60', '61'].contains(actType)) {
       return Container(
         color: Colors.transparent,
@@ -650,9 +661,9 @@ class CusKshfController extends GetxController {
         // print("field : $field");
         //57,58,59,60,
         if (['58', '59', '60', '61'].contains(actType)) {
-          openInvoice(actType: actType, field: field);
+          openInvoice(accountYear: accountYear, actType: actType, field: field);
         } else if (['53', '57'].contains(actType)) {
-          openSanad(actType: actType, field: field);
+          openSanad(accountYear: accountYear, actType: actType, field: field);
         }
         //53,57
       },
@@ -668,7 +679,7 @@ class CusKshfController extends GetxController {
     );
   }
 
-  openSanad({required actType, required field}) async {
+  openSanad({required accountYear, required actType, required field}) async {
     // selectedSanadTypeId = item['ACC_TYPE'].toString();
     // selectedSanadType = item['ACT_NAME'].toString();
     // savedSanadId = item['ACC_HD_ID'].toString();
@@ -679,7 +690,7 @@ class CusKshfController extends GetxController {
     String stmt = """
                   SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,round(a.AMNT,2) AMNT , a.DSCR ,
                             TO_CHAR(b.DATE1,'yyyy-mm-dd')  DATE1,GET_USER_NAME_DB(b.USR_INS) USER_INS_NAME
-                            FROM ACC_DT a, ACC_HD b  
+                            FROM $accountYear.ACC_DT a, $accountYear.ACC_HD b  
                             WHERE b.ACC_TYPE=a.ACC_TYPE AND b.ACC_HD_ID=a.ACC_HD_ID  AND a.ACC_TYPE=$actType AND a.ACC_HD_ID=$field  
                             AND a.CUS_ID=${selecetdCustomer!.cusId}    
                   """;
@@ -706,11 +717,11 @@ class CusKshfController extends GetxController {
     );
   }
 
-  openInvoice({required actType, required field}) async {
+  openInvoice({required accountYear, required actType, required field}) async {
     int roundDigit = 2;
     String stmt = """ SELECT ST_TYPE,get_act_name(ST_TYPE) ACT_NAME,ST_ID,TO_CHAR(DATE1, 'YYYY-MM-DD') DATE1,USR_INS_DATE,DESCR,CUS_ID,CUS_NM1,CUS_MOBILE,TAX_NO,NVL(ROUND(DISCNT,$roundDigit),0)DISCNT,
                           ROUND(PUR_TTL,$roundDigit)PUR_TTL,ROUND(ADDED_VALUE,$roundDigit)ADDED_VALUE ,ROUND(VAT_PR,$roundDigit)VAT_PR 
-                          FROM ST_HD 
+                          FROM $accountYear.ST_HD 
                           WHERE ST_TYPE=$actType  AND ST_ID=$field  """;
     // debugPrint(stmt);
 
@@ -718,7 +729,7 @@ class CusKshfController extends GetxController {
     debugPrint(responseHd.length.toString());
 //--------------
     stmt = """ SELECT SRL,ITEM_ID,GET_ITEM_NAME_DB(ITEM_ID) ITEM_NAME,UNIT,QTY,ROUND(PRICE,$roundDigit)PRICE,ROUND(VAT_VAL,$roundDigit)VAT_VAL ,ROUND(PRICE_AFTR_VAT,$roundDigit)PRICE_AFTR_VAT
-                          FROM ST_DT
+                          FROM $accountYear.ST_DT
                           WHERE ST_TYPE=$actType  AND ST_ID=$field  """;
     // debugPrint(stmt);
 
