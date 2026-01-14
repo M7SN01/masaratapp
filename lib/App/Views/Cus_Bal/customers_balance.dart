@@ -259,7 +259,6 @@ class CustomerBalance extends StatelessWidget {
                     width: 100,
                     child: TextFormField(
                       controller: controller.amount,
-                      enabled: controller.selectedCompareId != null,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),

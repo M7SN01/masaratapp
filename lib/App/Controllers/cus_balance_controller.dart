@@ -1,18 +1,12 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import '../Controllers/user_controller.dart';
 import '../Models/user_model.dart';
-import '../Print/pdf_viewer.dart';
 import '../Services/api_db_services.dart';
 import '../Widget/widget.dart';
-import '../samples/slmaples.dart';
 import '../utils/utils.dart';
-import 'cus_kshf_controller.dart';
 
 class AmountCompare {
   int id;
@@ -298,29 +292,48 @@ class CusBalanceController extends GetxController {
       List<dynamic> response;
 
       String chkCompareCond(int cId) {
+        //  WHEN 'GT' THEN CASE WHEN NVL(r.BAL,0) >  p_amount THEN 1 ELSE 0 END
+        //     WHEN 'GE' THEN CASE WHEN NVL(r.BAL,0) >= p_amount THEN 1 ELSE 0 END
+        //     WHEN 'LT' THEN CASE WHEN NVL(r.BAL,0) <  p_amount THEN 1 ELSE 0 END
+        //     WHEN 'LE' THEN CASE WHEN NVL(r.BAL,0) <= p_amount THEN 1 ELSE 0 END
+        //     WHEN 'EQ' THEN CASE WHEN NVL(r.BAL,0) =  p_amount THEN 1 ELSE 0 END
+        //     WHEN 'NE' THEN CASE WHEN NVL(r.BAL,0) <> p_amount THEN 1 ELSE 0 END
         if (cId == 1) {
-          return " AND NVL(BAL,0) > ${amount.text}";
+          return "'GT'";
         } else if (cId == 2) {
-          return " AND NVL(BAL,0) < ${amount.text}";
+          return "'LT'";
         } else if (cId == 3) {
-          return " AND NVL(BAL,0) = ${amount.text}";
+          return "'EQ'";
         } else {
-          return " ";
+          return "";
         }
       }
 
+      // String stmt = """
+      //             SELECT * FROM (
+      //               SELECT CUS_ID,CUS_NAME,ADRS ,SLS_MAN_ID ,
+      //               ( SELECT ROUND(SUM(NVL(MD,0)-NVL(DN,0)),2)
+      //                 FROM CUS_HD_CUS_DT_TRANS  WHERE CUS_ID=b.CUS_ID
+      //                 AND DATE1 BETWEEN $frmDate AND $toDate
+      //               ) BAL ,
+      //               TEL,GET_CUS_CLS(CS_CLS_ID) CLASS_NAME ,MOBL from CUSTOMERS B WHERE 1=1
+      //               ${selecetdCustomer == null ? "" : " AND CUS_ID = ${selecetdCustomer!.cusId} "}
+      //               ${selectedCsClsId == null ? "" : " AND CS_CLS_ID=$selectedCsClsId "}
+      //               AND CHK_CUS_USR_PRV(b.CUS_ID,$userId)=1
+      //             ) WHERE 1=1 ${amount.text.isEmpty ? "" : chkCompareCond(selectedCompareId)}
+      //               """;
+
       String stmt = """
-                  SELECT * FROM (
-                    SELECT CUS_ID,CUS_NAME,ADRS ,SLS_MAN_ID ,
-                    ( SELECT ROUND(SUM(NVL(MD,0)-NVL(DN,0)),2) 
-                      FROM CUS_HD_CUS_DT_TRANS  WHERE CUS_ID=b.CUS_ID 
-                      AND DATE1 BETWEEN $frmDate AND $toDate             
-                    ) BAL ,
-                    TEL,GET_CUS_CLS(CS_CLS_ID) CLASS_NAME ,MOBL from CUSTOMERS B WHERE 1=1
-                    ${selecetdCustomer == null ? "" : " AND CUS_ID = ${selecetdCustomer!.cusId} "}
-                    ${selectedCsClsId == null ? "" : " AND CS_CLS_ID=$selectedCsClsId "}
-                    AND CHK_CUS_USR_PRV(b.CUS_ID,$userId)=1
-                  ) WHERE 1=1 ${amount.text.isEmpty ? "" : chkCompareCond(selectedCompareId)}
+                    SELECT *
+                    FROM TABLE(APP_ACCOUNT.FN_GET_CUSTOMERS_BAL(
+                    $frmDate,
+                    $toDate,          
+                      $userId,
+                      ${selecetdCustomer?.cusId ?? 'NULL'},
+                      ${selectedCsClsId ?? 'NULL'},
+                      ${amount.text.isEmpty ? 'NULL' : amount.text},
+                      ${amount.text.isEmpty ? 'NULL' : chkCompareCond(selectedCompareId)}
+                    ))
                     """;
 
       response = await dbServices.createRep(sqlStatment: stmt);

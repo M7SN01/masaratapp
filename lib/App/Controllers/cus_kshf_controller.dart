@@ -452,7 +452,7 @@ class CusKshfController extends GetxController {
         List<dynamic> response;
         //get the previousBalance of selected date
         if (date != "") {
-          response = await dbServices.createRep(sqlStatment: """ SELECT CUS_PRV_BAL(${selecetdCustomer!.cusId},null,
+          response = await dbServices.createRep(sqlStatment: """ SELECT APP_ACCOUNT.CUS_PRV_BAL(${selecetdCustomer!.cusId},null,
           ${fromDateController.text.isNotEmpty ? " TO_DATE('${fromDateController.text}', 'YYYY/MM/DD')" : " TO_DATE('${mnthDateController.text}-01', 'YYYY/MM/DD')"}
           ,2) CUS_PRV_BAL FROM DUAL""");
           //2 => جميع الحركات مرحل وغير مرحل
@@ -463,13 +463,14 @@ class CusKshfController extends GetxController {
         double previousBalance = selecetdCustomer!.previousBalance ?? 0;
 
         String cond = selecetdCustomer != null || date != "" ? " where 1=1  $date  ${selecetdCustomer != null ? " and cus_id=${selecetdCustomer!.cusId} " : ""}" : "";
-        String stmt = """
-                  select ACCOUNT_SCH,TRHEL,ACT_NAME,ACT_ID,DATE1,DESCR
-                 ,round(MD,2) MD,round(DN,2)DN  
-                  ,CUS_ID,CS_CLS_ID,ACT_TP 
-                  from ACC_MULTI.APP_CUS_HD_CUS_DT_TRANS  $cond    AND CHK_CUS_USR_PRV(CUS_ID,$userId)=1           
-                  ORDER BY DATE1
-                  """;
+        String stmt = "SELECT * FROM APP_ACCOUNT.CUS_HD_CUS_DT_TRANS_YRS $cond    AND CHK_CUS_USR_PRV(CUS_ID,$userId)=1  ";
+        //  """
+        //           select ACCOUNT_SCH,TRHEL,ACT_NAME,ACT_ID,DATE1,DESCR
+        //          ,round(MD,2) MD,round(DN,2)DN
+        //           ,CUS_ID,CS_CLS_ID,ACT_TP
+        //           from ACC_MULTI.APP_CUS_HD_CUS_DT_TRANS  $cond    AND CHK_CUS_USR_PRV(CUS_ID,$userId)=1
+        //           ORDER BY DATE1
+        //           """;
 
         // debugPrint(stmt);
 
@@ -626,7 +627,7 @@ class CusKshfController extends GetxController {
       "e_activity": userController.compData.eActivity,
       "t_amount": "المبلغ",
       "amount": response[0]['AMNT'].toString(),
-      "t_sanad_type": "${response[0]['ACT_NAME']}  ( ${response[0]['ACC_HD_ID']} )",
+      "t_sanad_type": "${response[0]['ACT_NAME']}  ( ${response[0]['ACC_HD_ID'].toStringAsFixed(0)} )",
       "t_date": "التاريخ",
       "date": response[0]['DATE1'].toString(),
       "a_t_recive_from": "استلما من المكرم",
@@ -687,16 +688,17 @@ class CusKshfController extends GetxController {
     // date.text = item['DATE1'].toString();
     // amount.text = item['AMNT'].toStringAsFixed(2);
     // description.text = item['DSCR'].toString();
-    String stmt = """
-                  SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,round(a.AMNT,2) AMNT , a.DSCR ,
-                            TO_CHAR(b.DATE1,'yyyy-mm-dd')  DATE1,GET_USER_NAME_DB(b.USR_INS) USER_INS_NAME
-                            FROM $accountYear.ACC_DT a, $accountYear.ACC_HD b  
-                            WHERE b.ACC_TYPE=a.ACC_TYPE AND b.ACC_HD_ID=a.ACC_HD_ID  AND a.ACC_TYPE=$actType AND a.ACC_HD_ID=$field  
-                            AND a.CUS_ID=${selecetdCustomer!.cusId}    
-                  """;
+    String stmt = "SELECT * FROM TABLE(APP_ACCOUNT.FN_KSHF_OPN_SND( '$accountYear',$actType,$field ,${selecetdCustomer!.cusId} ))";
+    //  """
+    //               SELECT a.CUS_ID,get_cus_name_DB(a.CUS_ID) CUS_NAME,a.ACC_TYPE,get_act_name(a.ACC_TYPE) ACT_NAME,a.ACC_HD_ID,round(a.AMNT,2) AMNT , a.DSCR ,
+    //                         TO_CHAR(b.DATE1,'yyyy-mm-dd')  DATE1,GET_USER_NAME_DB(b.USR_INS) USER_INS_NAME
+    //                         FROM $accountYear.ACC_DT a, $accountYear.ACC_HD b
+    //                         WHERE b.ACC_TYPE=a.ACC_TYPE AND b.ACC_HD_ID=a.ACC_HD_ID  AND a.ACC_TYPE=$actType AND a.ACC_HD_ID=$field
+    //                         AND a.CUS_ID=${selecetdCustomer!.cusId}
+    //               """;
     var response = await dbServices.createRep(sqlStatment: stmt);
 
-    debugPrint(response.length.toString());
+    // debugPrint(response.length.toString());
     try {
       response[0]['ACC_TYPE'];
     } catch (e) {
@@ -718,19 +720,22 @@ class CusKshfController extends GetxController {
   }
 
   openInvoice({required accountYear, required actType, required field}) async {
-    int roundDigit = 2;
-    String stmt = """ SELECT ST_TYPE,get_act_name(ST_TYPE) ACT_NAME,ST_ID,TO_CHAR(DATE1, 'YYYY-MM-DD') DATE1,USR_INS_DATE,DESCR,CUS_ID,CUS_NM1,CUS_MOBILE,TAX_NO,NVL(ROUND(DISCNT,$roundDigit),0)DISCNT,
-                          ROUND(PUR_TTL,$roundDigit)PUR_TTL,ROUND(ADDED_VALUE,$roundDigit)ADDED_VALUE ,ROUND(VAT_PR,$roundDigit)VAT_PR 
-                          FROM $accountYear.ST_HD 
-                          WHERE ST_TYPE=$actType  AND ST_ID=$field  """;
+    // int roundDigit = 2;
+    String stmt = """SELECT * FROM TABLE(APP_ACCOUNT.GET_ST_HD_SNGL_ACT('$accountYear', $actType, $field))""";
+
+    // """ SELECT ST_TYPE,get_act_name(ST_TYPE) ACT_NAME,ST_ID,TO_CHAR(DATE1, 'YYYY-MM-DD') DATE1,USR_INS_DATE,DESCR,CUS_ID,CUS_NM1,CUS_MOBILE,TAX_NO,NVL(ROUND(DISCNT,2),0)DISCNT,
+    //                       ROUND(PUR_TTL,2)PUR_TTL,ROUND(ADDED_VALUE,2)ADDED_VALUE ,ROUND(VAT_PR,2)VAT_PR
+    //                       FROM $accountYear.ST_HD
+    //                       WHERE ST_TYPE=$actType  AND ST_ID=$id  """;
     // debugPrint(stmt);
 
     var responseHd = await dbServices.createRep(sqlStatment: stmt);
     debugPrint(responseHd.length.toString());
 //--------------
-    stmt = """ SELECT SRL,ITEM_ID,GET_ITEM_NAME_DB(ITEM_ID) ITEM_NAME,UNIT,QTY,ROUND(PRICE,$roundDigit)PRICE,ROUND(VAT_VAL,$roundDigit)VAT_VAL ,ROUND(PRICE_AFTR_VAT,$roundDigit)PRICE_AFTR_VAT
-                          FROM $accountYear.ST_DT
-                          WHERE ST_TYPE=$actType  AND ST_ID=$field  """;
+    stmt = """SELECT * FROM TABLE(APP_ACCOUNT.GET_ST_DT_SNGL_ACT('$accountYear', $actType,$field))""";
+    // """ SELECT SRL,ITEM_ID,GET_ITEM_NAME_DB(ITEM_ID) ITEM_NAME,UNIT,QTY,ROUND(PRICE,2)PRICE,ROUND(VAT_VAL,2)VAT_VAL ,ROUND(PRICE_AFTR_VAT,2)PRICE_AFTR_VAT
+    //                       FROM $accountYear.ST_DT
+    //                       WHERE ST_TYPE=$actType  AND ST_ID=$field  """;
     // debugPrint(stmt);
 
     var responseDt = await dbServices.createRep(sqlStatment: stmt);
