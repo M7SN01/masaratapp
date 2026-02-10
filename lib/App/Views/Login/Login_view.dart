@@ -448,9 +448,10 @@ class _LoginState extends State<Login> {
                                         trackColor: const WidgetStatePropertyAll(Colors.transparent),
                                         thumbIcon: WidgetStatePropertyAll(Icon(controller.isOfflineMode ? Icons.wifi_off_outlined : Icons.wifi, color: Colors.white)),
                                         trackOutlineColor: WidgetStatePropertyAll(controller.isOfflineMode ? Color(0xFFfc4ba4) : Color(0xFF337ab7)),
-                                        onChanged: (value) async {
-                                          await controller.changeOfflineMode();
-                                        },
+                                        onChanged: null,
+                                        //  (value) async {
+                                        //   await controller.changeOfflineMode();
+                                        // },
                                       ),
                                       Text(
                                         "work_without_connection".tr,

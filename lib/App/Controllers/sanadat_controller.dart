@@ -184,6 +184,12 @@ class SanadatController extends GetxController {
       return;
     }
 
+    if (!userController.isInCompDatePeriod(currentDate: DateTime.parse(date.text))) {
+      isPostingToApi = false;
+      update();
+      return;
+    }
+
     // await Future.delayed(Duration(seconds: 4));
     try {
       // debugPrint("start posting-------------------------");

@@ -901,6 +901,12 @@ class InvoiceController extends GetxController {
     isPostingToApi = true;
     update();
     try {
+      if (!userController.isInCompDatePeriod(currentDate: DateTime.now())) {
+        isPostingToApi = false;
+        update();
+        return;
+      }
+
       double vat = double.parse(rows.fold(0.0, (sum, item) => sum + (item.cells['PRICE_AFTR_VAT']!.value - item.cells['PRICE']!.value)).toStringAsFixed(2));
       double total = double.parse(rows.fold(0.0, (sum, item) => sum + item.cells['TOTAL']!.value).toStringAsFixed(2));
 

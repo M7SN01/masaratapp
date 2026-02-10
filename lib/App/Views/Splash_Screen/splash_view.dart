@@ -11,7 +11,7 @@ class LogoWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
+        SizedBox(
           // margin: const EdgeInsets.only(bottom: 5),
           height: withShimmer ? 200 : 140,
           width: withShimmer ? 200 : 140,

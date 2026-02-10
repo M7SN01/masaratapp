@@ -209,6 +209,8 @@ class BankPrivModel {
 }
 
 class CompData {
+  final String firstDate;
+  final String lastDate;
   final String aCompName;
   final String eCompName;
   final String aActivity;
@@ -221,6 +223,8 @@ class CompData {
   final String commercialReg;
 
   CompData({
+    required this.firstDate,
+    required this.lastDate,
     required this.aCompName,
     required this.eCompName,
     required this.aActivity,

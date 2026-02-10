@@ -130,6 +130,8 @@ class SqlDb {
 
     batch.execute('''
     CREATE TABLE IF NOT EXISTS "COMP" (
+      "FRST_YR" TEXT,
+      "FNSH_YR" TEXT,
       "REP_A_COMP_NAME" TEXT,
       "REP_E_COMP_NAME" TEXT,
       "REP_A_NTUR_WORK" TEXT,
@@ -237,14 +239,14 @@ class SqlDb {
   }
 
   _onUpgrade(Database db, int oldversion, int newversion) async {
-    await db.execute('''
-    CREATE TABLE IF NOT EXISTS "server"(      
-      "protocol"  TEXT  ,
-      "ip"  TEXT  ,
-      "port"  TEXT ,
-      "topic"  TEXT
-    );
-    ''');
+    // await db.execute('''
+    // CREATE TABLE IF NOT EXISTS "server"(
+    //   "protocol"  TEXT  ,
+    //   "ip"  TEXT  ,
+    //   "port"  TEXT ,
+    //   "topic"  TEXT
+    // );
+    // ''');
 
     debugPrint("OnUpdate database and table     ========================");
   }

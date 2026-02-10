@@ -82,6 +82,7 @@ class CusKshfController extends GetxController {
         enableContextMenu: false,
         enableEditingMode: false,
         enableColumnDrag: false,
+        enableSorting: false,
       ),
       PlutoColumn(
         title: "اسم الحركة",
@@ -97,6 +98,7 @@ class CusKshfController extends GetxController {
         enableContextMenu: false,
         enableEditingMode: false,
         enableColumnDrag: false,
+        enableSorting: false,
         renderer: (rendererContext) {
           Color textColor = Colors.black;
 
@@ -151,6 +153,7 @@ class CusKshfController extends GetxController {
         enableContextMenu: false,
         enableEditingMode: false,
         enableColumnDrag: false,
+        enableSorting: false,
         //
         renderer: (rendererContext) => openActDetail(
           accountYear: rendererContext.row.cells['ACCOUNT_SCH']!.value.toString(),
@@ -189,6 +192,7 @@ class CusKshfController extends GetxController {
         enableContextMenu: false,
         enableEditingMode: false,
         enableColumnDrag: false,
+        enableSorting: false,
       ),
       PlutoColumn(
         title: "الوصف",
@@ -204,6 +208,7 @@ class CusKshfController extends GetxController {
         enableContextMenu: false,
         enableEditingMode: false,
         enableColumnDrag: false,
+        enableSorting: false,
       ),
       PlutoColumn(
         title: "مدين",
@@ -219,6 +224,7 @@ class CusKshfController extends GetxController {
         enableContextMenu: false,
         enableColumnDrag: false,
         enableEditingMode: false,
+        enableSorting: false,
         footerRenderer: (rendererContext) {
           return PlutoAggregateColumnFooter(
             rendererContext: rendererContext,
@@ -251,6 +257,7 @@ class CusKshfController extends GetxController {
         enableContextMenu: false,
         enableEditingMode: false,
         enableColumnDrag: false,
+        enableSorting: false,
         footerRenderer: (rendererContext) {
           return PlutoAggregateColumnFooter(
             rendererContext: rendererContext,
@@ -284,6 +291,7 @@ class CusKshfController extends GetxController {
         enableContextMenu: false,
         enableEditingMode: false,
         enableColumnDrag: false,
+        enableSorting: false,
         // renderer: (rendererContext) {
         //   final currentRow = rendererContext.row;
         //   final previousRow = rendererContext.stateManager.rows.isNotEmpty && rendererContext.rowIdx > 0 ? rendererContext.stateManager.rows[rendererContext.rowIdx - 1] : null;
@@ -361,10 +369,10 @@ class CusKshfController extends GetxController {
       "ACT_TYPE": "عدد الحركات",
       "ACT_NO": "${rows.length}",
       "DATE": "",
-      "DESC": "الرصيد الحالي",
-      "DN": "",
-      "MD": "",
-      "BAL": (ttlBAL).toStringAsFixed(2),
+      "DESC": "", // "الرصيد الحالي",
+      "DN": formatCurrency((ttlDN).toStringAsFixed(2)),
+      "MD": formatCurrency((ttlMD).toStringAsFixed(2)),
+      "BAL": formatCurrency((ttlBAL).toStringAsFixed(2)),
     });
     // ttlBAL = ttlMD - ttlDN;
     //repeat_element
@@ -452,9 +460,20 @@ class CusKshfController extends GetxController {
         List<dynamic> response;
         //get the previousBalance of selected date
         if (date != "") {
-          response = await dbServices.createRep(sqlStatment: """ SELECT APP_ACCOUNT.CUS_PRV_BAL(${selecetdCustomer!.cusId},null,
+          String stmt = """SELECT APP_ACCOUNT.CUS_PRV_BAL(${selecetdCustomer!.cusId} ,
           ${fromDateController.text.isNotEmpty ? " TO_DATE('${fromDateController.text}', 'YYYY/MM/DD')" : " TO_DATE('${mnthDateController.text}-01', 'YYYY/MM/DD')"}
-          ,2) CUS_PRV_BAL FROM DUAL""");
+          ) CUS_PRV_BAL FROM DUAL
+          """;
+
+          response = await dbServices.createRep(sqlStatment: stmt);
+/*
+ SUM(NVL(MD,0)-NVL(DN,0)) CUS_PRV_BAL FROM APP_ACCOUNT.CUS_HD_CUS_DT_TRANS_YRS 
+                    WHERE DATE1 < ${fromDateController.text.isNotEmpty ? " TO_DATE('${fromDateController.text}', 'YYYY/MM/DD')" : " TO_DATE('${mnthDateController.text}-01', 'YYYY/MM/DD')"}
+                    ${selecetdCustomer != null ? " and cus_id=${selecetdCustomer!.cusId} " : ""}
+*/
+          // """ SELECT APP_ACCOUNT.CUS_PRV_BAL(${selecetdCustomer!.cusId},null,
+          // ${fromDateController.text.isNotEmpty ? " TO_DATE('${fromDateController.text}', 'YYYY/MM/DD')" : " TO_DATE('${mnthDateController.text}-01', 'YYYY/MM/DD')"}
+          // ,2) CUS_PRV_BAL FROM DUAL"""
           //2 => جميع الحركات مرحل وغير مرحل
           if (response.isNotEmpty) {
             selecetdCustomer!.previousBalance = response[0]["CUS_PRV_BAL"];
@@ -462,8 +481,8 @@ class CusKshfController extends GetxController {
         }
         double previousBalance = selecetdCustomer!.previousBalance ?? 0;
 
-        String cond = selecetdCustomer != null || date != "" ? " where 1=1  $date  ${selecetdCustomer != null ? " and cus_id=${selecetdCustomer!.cusId} " : ""}" : "";
-        String stmt = "SELECT * FROM APP_ACCOUNT.CUS_HD_CUS_DT_TRANS_YRS $cond    AND CHK_CUS_USR_PRV(CUS_ID,$userId)=1  ";
+        String cond = " where 1=1  $date  ${selecetdCustomer != null ? " and cus_id=${selecetdCustomer!.cusId} " : ""}";
+        String stmt = "SELECT * FROM APP_ACCOUNT.CUS_HD_CUS_DT_TRANS_YRS $cond    AND CHK_CUS_USR_PRV(CUS_ID,$userId)=1  ORDER BY DATE1";
         //  """
         //           select ACCOUNT_SCH,TRHEL,ACT_NAME,ACT_ID,DATE1,DESCR
         //          ,round(MD,2) MD,round(DN,2)DN

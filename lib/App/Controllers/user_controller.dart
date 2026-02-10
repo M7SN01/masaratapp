@@ -366,7 +366,7 @@ class UserController extends GetxController {
 
   Future<void> _getCompData() async {
     statment = """
-      select  REP_A_COMP_NAME ,REP_E_COMP_NAME,REP_A_NTUR_WORK , REP_E_NTUR_WORK ,REP_A_ADRS ,REP_E_ADRS,REP_A_TEL,REP_A_FAX  
+      select  TO_CHAR(FRST_YR,'YYYY-MM-DD') FRST_YR ,TO_CHAR(FNSH_YR,'YYYY-MM-DD') FNSH_YR ,REP_A_COMP_NAME ,REP_E_COMP_NAME,REP_A_NTUR_WORK , REP_E_NTUR_WORK ,REP_A_ADRS ,REP_E_ADRS,REP_A_TEL,REP_A_FAX  
       ,TAX_NO ,COMMERCIAL_REG  from comp
       """;
     try {
@@ -376,6 +376,8 @@ class UserController extends GetxController {
 
       for (var element in response) {
         compData = CompData(
+          firstDate: element["FRST_YR"] ?? "",
+          lastDate: element["FNSH_YR"] ?? "",
           aCompName: element["REP_A_COMP_NAME"] ?? "",
           eCompName: element["REP_E_COMP_NAME"] ?? "",
           aActivity: element["REP_A_NTUR_WORK"] ?? "",
@@ -638,6 +640,30 @@ CUS_SLS_MAN
       ),
       barrierDismissible: false,
     );
+  }
+
+//--
+  bool isInCompDatePeriod({required DateTime currentDate}) {
+    DateTime? firstDate = DateTime.tryParse(compData.firstDate);
+    DateTime? lastDate = DateTime.tryParse(compData.lastDate);
+    //DateTime currentDate = DateTime.now(); // DateTime.parse(dateResponse[0]['CRNT_DATE']);
+    String formatedDate(DateTime date) {
+      return "${date.day.toString().padLeft(2, '0')}-" "${date.month.toString().padLeft(2, '0')}-" "${date.year.toString().padLeft(4, '0')}";
+    }
+
+    if (firstDate != null && lastDate != null) {
+      bool isWithinRange = (currentDate.isAtSameMomentAs(firstDate) || currentDate.isAfter(firstDate)) && (currentDate.isAtSameMomentAs(lastDate) || currentDate.isBefore(lastDate));
+      if (!isWithinRange) {
+        showMessage(color: secondaryColor, titleMsg: "التاريخ خارج نطاق السنة المالية", titleFontSize: 18, msg: "تاريخ الادخال : ${formatedDate(currentDate)} \n  بداية السنة : ${formatedDate(firstDate)} \n نهاية السنة  : ${formatedDate(lastDate)} ", durationMilliseconds: 5000);
+      }
+
+      debugPrint("Is current date in range: $isWithinRange");
+      return isWithinRange;
+    } else {
+      showMessage(color: secondaryColor, titleMsg: "خطا في تاريخ السنة المالية", titleFontSize: 18, msg: " من تاريخ :$firstDate \n الى تاريخ :$lastDate ", durationMilliseconds: 5000);
+
+      return false;
+    }
   }
 }
 

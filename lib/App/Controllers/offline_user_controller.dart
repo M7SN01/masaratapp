@@ -689,6 +689,8 @@ class OfflineUserController extends GetxController {
       return ReturnedResponse.error;
     } else {
       userController.compData = CompData(
+        firstDate: result[0]["FRST_YR"] ?? "",
+        lastDate: result[0]["FNSH_YR"] ?? "",
         aCompName: result[0]['REP_A_COMP_NAME'] ?? "",
         eCompName: result[0]['REP_E_COMP_NAME'] ?? "",
         aActivity: result[0]['REP_A_NTUR_WORK'] ?? "",

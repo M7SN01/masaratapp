@@ -411,7 +411,7 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
   }
 
   CircleMarker? circulerMarker;
-  setCurrentUserLocation() {
+  setCurrentUserLocation() async {
     // Position? position = await getCurrentLocation();
     if (userCurrentLocation != null) {
       double lat = userCurrentLocation!.latitude;
@@ -439,6 +439,9 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
         ),
       );
       update();
+    } else {
+      userCurrentLocation = await getCurrentLocation();
+      await setCurrentUserLocation();
     }
   }
 

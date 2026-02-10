@@ -5,11 +5,11 @@ import '../../../App/Controllers/offline_user_controller.dart';
 // import 'package:masaratapp/App/Views/zero/view.dart';
 import '../../../App/Widget/loding_dots.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../Bindings/offline_binding.dart';
+// import '../../Bindings/offline_binding.dart';
 import '../../Controllers/login_controller.dart';
 import '../../Controllers/user_controller.dart';
 import '../../utils/utils.dart';
-import '../Sync/sync.dart';
+// import '../Sync/sync.dart';
 
 class WelcomeSplashScreen extends StatelessWidget {
   final String userName;
@@ -199,13 +199,19 @@ class Home extends StatelessWidget {
                     // Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
                   },
                 ),
-                mainGraid(
-                  icon: Icons.sync_rounded,
-                  title: "المزامنة",
-                  onTap: () {
-                    Get.to(() => const OfflineSqflite(), binding: OfflineBinding());
-                  },
-                ),
+                // mainGraid(
+                //commited lines with this commit:
+                //in home.dart  await userController.syncLocalDataToserver();
+                //in login_view.dart
+                //  (value) async {
+                //   await controller.changeOfflineMode();
+                // },
+                //   icon: Icons.sync_rounded,
+                //   title: "المزامنة",
+                //   onTap: () {
+                //     Get.to(() => const OfflineSqflite(), binding: OfflineBinding());
+                //   },
+                // ),
               ],
 
               // mainGraid(
