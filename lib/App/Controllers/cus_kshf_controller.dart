@@ -6,11 +6,11 @@ import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import '../Controllers/user_controller.dart';
 import '../Models/user_model.dart';
-import '../Print/pdf_viewer.dart';
-import '../Services/api_db_services.dart';
-import '../Widget/widget.dart';
-import '../samples/slmaples.dart';
-import '../utils/utils.dart';
+import '../../Print/pdf_viewer.dart';
+import '../../Services/api_db_services.dart';
+import '../../Widget/widget.dart';
+import '../../samples/slmaples.dart';
+import '../../utils/utils.dart';
 
 class CusKshfController extends GetxController {
   // bool isOpenFromCusBal = false;

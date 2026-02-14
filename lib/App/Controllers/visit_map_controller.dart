@@ -9,13 +9,13 @@ import 'package:get/get.dart';
 import '../../../App/Controllers/login_controller.dart';
 import '../../../App/Controllers/user_controller.dart';
 import 'package:latlong2/latlong.dart' as lat_lang;
-import '../../../App/Services/api_db_services.dart';
-import '../../../App/Widget/widget.dart';
+import '../../Services/api_db_services.dart';
+import '../../Widget/widget.dart';
 // import 'package:permission_handler/permission_handler.dart' as permission_handler;
 
 import '../Models/user_model.dart';
 // import '../Views/Maps/saudi_bounds.dart';
-import '../utils/utils.dart';
+import '../../utils/utils.dart';
 
 typedef LatLang = lat_lang.LatLng;
 

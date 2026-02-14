@@ -4,7 +4,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:masaratapp/App/Views/Cus_Bal/customers_balance.dart';
+import 'package:masaratapp/App/Views/Admin/Views/SLS_BY_SLS_C/Binding/sls_cntr_binding.dart';
+import 'package:masaratapp/App/Views/Admin/Views/SLS_BY_SLS_C/sls_by_sls_cntr.dart';
+import 'package:masaratapp/App/Views/Home/Cus_Bal/customers_balance.dart';
 import '../../../App/Bindings/visit_map_binding.dart';
 // import '../Views/Login/Login_view2.dart';
 
@@ -15,18 +17,18 @@ import 'App/Bindings/cus_kshf_binding.dart';
 import 'App/Bindings/invoice_binding.dart';
 import 'App/Bindings/login_binding.dart';
 import 'App/Bindings/sanadat_binding.dart';
-import 'App/Locale/locale.dart';
-import 'App/Locale/locale_controller.dart';
+import 'Locale/locale.dart';
+import 'Locale/locale_controller.dart';
 
-import 'App/Views/Act_Kshf/act_kshf.dart';
-import 'App/Views/CustomerKshf/cus_kshf.dart';
+import 'App/Views/Home/Act_Kshf/act_kshf.dart';
+import 'App/Views/Home/CustomerKshf/cus_kshf.dart';
 import 'App/Views/Home/home.dart';
-import 'App/Views/Invoice/invoice.dart';
-import 'App/Views/Login/Login_view.dart';
-import 'App/Views/Maps/map_view.dart';
-import 'App/Views/Maps/visit_plan_view.dart';
-import 'App/Views/Sanadat/sanadat.dart';
-import 'App/Views/Splash_Screen/splash_view.dart';
+import 'App/Views/Home/Invoice/invoice.dart';
+import 'App/Views/Home/Login/Login_view.dart';
+import 'App/Views/Home/Maps/map_view.dart';
+import 'App/Views/Home/Maps/visit_plan_view.dart';
+import 'App/Views/Home/Sanadat/sanadat.dart';
+import 'App/Views/Home/Splash_Screen/splash_view.dart';
 
 /*
 error 
@@ -129,6 +131,11 @@ class PosApp extends StatelessWidget {
           name: '/VisitPlan',
           page: () => const VisitPlan(),
           binding: VisitPlanBinding(),
+        ),
+        GetPage(
+          name: '/SlsByslsCntr',
+          page: () => const SlsByslsCntr(),
+          binding: SlsBySlsCntrBinding(),
         ),
       ],
 

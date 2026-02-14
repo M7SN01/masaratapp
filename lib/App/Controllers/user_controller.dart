@@ -1,13 +1,14 @@
 // import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pluto_grid/pluto_grid.dart';
 import '../Controllers/login_controller.dart';
 import '../Models/user_model.dart';
-import '../Services/api_db_services.dart';
-import '../Services/sqflite_services.dart';
-import '../Widget/loding_dots.dart';
-import '../Widget/widget.dart';
-import '../utils/utils.dart';
+import '../../Services/api_db_services.dart';
+import '../../Services/sqflite_services.dart';
+import '../../Widget/loding_dots.dart';
+import '../../Widget/widget.dart';
+import '../../utils/utils.dart';
 // import '../Widget/widget.dart';
 // import '../utils/utils.dart';
 
@@ -47,6 +48,13 @@ class UserController extends GetxController {
   late CompData compData;
 
   List<int> customersInVisitPlan = [];
+
+  //
+
+  Map<String, dynamic> appDefault = {};
+  List<String> getAppDefault({required String repID, required defType}) {
+    return appDefault[repID] != null && appDefault[repID][defType] != null ? appDefault[repID][defType].split(',') : [];
+  }
 
   //add loading present increased after each async function ******************
 

@@ -3,19 +3,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../App/samples/slmaples.dart';
+import '../../samples/slmaples.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../Controllers/user_controller.dart';
 import '../Models/user_model.dart';
 // import '../Print/direct_print.dart';
 // import '../Print/helpers/table_to_data_list.dart';
-import '../Print/direct_print.dart';
-import '../Print/pdf_viewer.dart';
-import '../Services/api_db_services.dart';
-import '../Widget/themed_rich_text.dart';
-import '../Widget/widget.dart';
-import '../utils/utils.dart';
+import '../../Print/direct_print.dart';
+import '../../Print/pdf_viewer.dart';
+import '../../Services/api_db_services.dart';
+import '../../Widget/themed_rich_text.dart';
+import '../../Widget/widget.dart';
+import '../../utils/utils.dart';
 
 class InvoiceController extends GetxController {
   late UserController userController;

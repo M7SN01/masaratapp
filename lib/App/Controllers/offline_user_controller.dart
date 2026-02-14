@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../App/Controllers/user_controller.dart';
-import '../../../App/Services/api_db_services.dart';
-import '../../../App/Services/sqflite_services.dart';
+import '../../Services/api_db_services.dart';
+import '../../Services/sqflite_services.dart';
 import 'package:sqflite/sqflite.dart';
 // import 'package:sqflite/sqflite.dart';
 
 import '../Models/user_model.dart';
-import '../Widget/widget.dart';
-import '../utils/utils.dart';
+import '../../Widget/widget.dart';
+import '../../utils/utils.dart';
 
 // import 'login_controller.dart';
 enum SyncState {

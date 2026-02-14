@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../App/Controllers/offline_user_controller.dart';
 // import 'package:masaratapp/App/Views/zero/view.dart';
-import '../../../App/Widget/loding_dots.dart';
+import '../../../Widget/loding_dots.dart';
 import 'package:shimmer/shimmer.dart';
 // import '../../Bindings/offline_binding.dart';
 import '../../Controllers/login_controller.dart';
 import '../../Controllers/user_controller.dart';
-import '../../utils/utils.dart';
+import '../../../utils/utils.dart';
 // import '../Sync/sync.dart';
 
 class WelcomeSplashScreen extends StatelessWidget {
@@ -196,6 +196,15 @@ class Home extends StatelessWidget {
                   title: "مراجعة حركات العملاء",
                   onTap: () {
                     Get.toNamed('/ActKshf');
+                    // Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
+                  },
+                ),
+
+                mainGraid(
+                  icon: Icons.inventory_outlined,
+                  title: "تقارير ادارية",
+                  onTap: () {
+                    Get.toNamed('/SlsByslsCntr');
                     // Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
                   },
                 ),

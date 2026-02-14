@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import '../Controllers/user_controller.dart';
 import '../Models/user_model.dart';
-import '../Services/api_db_services.dart';
-import '../Widget/widget.dart';
-import '../utils/utils.dart';
+import '../../Services/api_db_services.dart';
+import '../../Widget/widget.dart';
+import '../../utils/utils.dart';
 
 class AmountCompare {
   int id;
