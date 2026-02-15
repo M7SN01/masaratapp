@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:masaratapp/App/Controllers/user_controller.dart';
@@ -17,15 +17,16 @@ class TableController extends GetxController {
   String uName = "";
   bool postingQuery = false;
   TextEditingController pdfName = TextEditingController();
+  TextEditingController addedColumnNameController = TextEditingController();
   Map<String, dynamic> appDefault = {};
 
   bool isFullScreenMode = false;
-  late PlutoGridStateManager stateManager;
+  // late PlutoGridStateManager stateManager;
   //
 
   bool isLoadingPdf = false;
   bool isLoadingExcel = false;
-  bool isCanAddColumn = false;
+  bool isCanAddColumn = true;
 
   void setLoadingPdf(bool loading) {
     isLoadingPdf = loading;
@@ -237,14 +238,12 @@ class TableController extends GetxController {
       showMessage(color: secondaryColor, titleMsg: "لايوجد بيانات لطباعتها !", durationMilliseconds: 1000);
     } else {
       setLoadingExcel(true);
-      stateManager.updateVisibilityLayout(notify: true);
-      // stateManager.updateVisibilityLayout(notify: true);
-      stateManager.notifyListeners();
+
       List<String> headers = [];
       List<String> headersField = [];
       //-----------------------------------------EXCEL Defult Setting---------------------------------------
 
-      List<PlutoColumnToCopy> tempColumn = stateManager.columns.map((col) => PlutoColumnToCopy(title: col.title, field: col.field, hide: col.hide)).toList();
+      List<PlutoColumnToCopy> tempColumn = columns.map((col) => PlutoColumnToCopy(title: col.title, field: col.field, hide: col.hide)).toList();
       // if (defultExcel != []) {
       //   for (var columm in tempColumn) {
       //     if (defultExcel.contains(columm.field) || columm.field == "AddedColumn") {
@@ -343,13 +342,12 @@ class TableController extends GetxController {
     }
   }
 
-  void handleAddColumns() {
+  void handleAddColumns(PlutoGridStateManager stateManager) {
     // if (!isAddedColumn) return;
 
-    TextEditingController txt = TextEditingController();
     int columnIndx = 0;
     final PlutoColumn addedColumn = PlutoColumn(
-      title: "عمود اضافي",
+      title: addedColumnNameController.text == "" ? "عمود اضافي" : addedColumnNameController.text,
       field: 'AddedColumn',
       textAlign: PlutoColumnTextAlign.center,
       titleTextAlign: PlutoColumnTextAlign.center,
@@ -367,9 +365,9 @@ class TableController extends GetxController {
             child: Container(
               color: Colors.transparent,
               height: 50,
-              child: const Center(
+              child: Center(
                   child: Text(
-                "عمود اضافي",
+                addedColumnNameController.text.trim().isNotEmpty ? addedColumnNameController.text : "عمود اضافي",
                 style: TextStyle(color: Colors.white),
               )),
             ),
@@ -391,13 +389,13 @@ class TableController extends GetxController {
                         padding: const EdgeInsets.all(2),
                         child: TextFormField(
                           textAlignVertical: const TextAlignVertical(y: -0.8),
-                          controller: txt,
+                          controller: addedColumnNameController,
                           decoration: const InputDecoration(
                             labelText: "اسم العمود",
                             border: OutlineInputBorder(),
                           ),
                           onChanged: (value) {
-                            txt.text = value;
+                            addedColumnNameController.text = value;
                             stateManager.columns[columnIndx].title = value;
                           },
                         ),
@@ -416,16 +414,14 @@ class TableController extends GetxController {
     );
 
     isCanAddColumn = false;
-    update();
   }
 
-  void handleRemoveCurrentColumnButton() {
+  void handleRemoveCurrentColumnButton(PlutoGridStateManager stateManager) {
     // final currentColumn = stateManager.currentColumn;
     // stateManager.columns.removeWhere((element) => element.field == "AddedColumn");
     stateManager.removeColumns(stateManager.columns.where((element) => element.field == "AddedColumn").toList());
 
     isCanAddColumn = true;
-    update();
   }
 
 //

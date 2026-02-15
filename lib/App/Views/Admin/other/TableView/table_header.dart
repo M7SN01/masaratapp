@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:masaratapp/App/Views/Admin/Controllers/table_controller.dart';
+import 'package:pluto_grid/pluto_grid.dart';
 import '../../../../../Widget/loding_dots.dart';
 import '../../../../../utils/utils.dart';
 import 'Table.dart';
@@ -160,7 +161,7 @@ class TableSetting extends StatelessWidget {
   }
 }
 
-Widget tableHeader({required TableOptions tableOptions}) {
+Widget tableHeader({required TableOptions tableOptions, required PlutoGridStateManager stateManager}) {
   return GetBuilder<TableController>(
     init: TableController(),
     builder: (controller) => Column(
@@ -176,25 +177,41 @@ Widget tableHeader({required TableOptions tableOptions}) {
                 color: Colors.white,
               ),
               onPressed: () {
-                controller.stateManager.showSetColumnsPopup(Get.context!);
+                stateManager.showSetColumnsPopup(Get.context!);
               },
             ),
 
             //Add column
-            controller.isCanAddColumn
+            !stateManager.columns.any((c) => c.field == "AddedColumn")
                 ? IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.add,
-                      color: Colors.white,
+                      color: tableOptions.isFullScreenMode ? null : Colors.white,
                     ),
-                    onPressed: controller.handleAddColumns,
+                    onPressed: tableOptions.isFullScreenMode
+                        ? null
+                        : () {
+                            controller.handleAddColumns(stateManager);
+                            tableOptions.tableColumns = stateManager.columns.toList();
+                            tableOptions.tableRows = stateManager.rows.toList();
+                            controller.update();
+                          },
                   )
                 : IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.remove,
-                      color: Colors.white,
+                      color: tableOptions.isFullScreenMode ? null : Colors.white,
                     ),
-                    onPressed: controller.handleRemoveCurrentColumnButton,
+                    onPressed: tableOptions.isFullScreenMode
+                        ? null
+                        : () {
+                            controller.handleRemoveCurrentColumnButton(stateManager);
+                            tableOptions.tableColumns = stateManager.columns.toList();
+                            tableOptions.tableRows = stateManager.rows.toList();
+                            stateManager.updateVisibilityLayout(notify: true);
+                            stateManager.notifyListeners();
+                            controller.update();
+                          },
                   ),
 
             //PDF
@@ -383,17 +400,57 @@ Widget tableHeader({required TableOptions tableOptions}) {
             //fullScreen
             IconButton(
               onPressed: () {
+                // tableOptions.tableColumns = stateManager.columns.toList();
                 if (tableOptions.isFullScreenMode) {
-                  tableOptions.isFullScreenMode = false;
-                  controller.update();
+                  //   PlutoColumn? addedColumn = tableOptions.tableColumns.firstWhereOrNull((col) => col.field == "AddedColumn");
+                  //   if (addedColumn != null) {
+                  //     stateManager.insertColumns(0, [addedColumn]);
+                  //   }
+
+                  //   tableOptions = tableOptions.copyWith(
+                  //     isFullScreenMode: false,
+                  //     fullScreenWithAddedCouumon: false,
+                  //     tableColumns: stateManager.columns,
+                  //   );
+                  //   controller.update();
                   Get.back();
                 } else {
-                  tableOptions.isFullScreenMode = true;
+                  // PlutoColumn? addedColumn = stateManager.columns.firstWhereOrNull((col) => col.field == "AddedColumn");
+                  // if (addedColumn != null) {
+                  //   tableOptions.tableColumns.insert(0, addedColumn);
+                  // }
+
+                  // tableOptions = tableOptions.copyWith(
+                  //   isFullScreenMode: true,
+                  //   tableColumns: tableOptions.tableColumns,
+                  // );
 
                   Get.to(
                     () => ShowTableFullSreccn(
-                      title: Text(tableOptions.fullScreenTitle ?? ""),
-                      child: tableView(tableOPtions: tableOptions),
+                      title: tableOptions.fullScreenTitle == null
+                          ? null
+                          : AppBar(
+                              title: Text(tableOptions.fullScreenTitle ?? ""),
+                              leading: IconButton(
+                                  onPressed: () {
+                                    // tableOptions.isFullScreenMode = false;
+                                    // tableOptions = tableOptions.copyWith(
+                                    //   isFullScreenMode: false,
+                                    //   fullScreenWithAddedCouumon: false,
+                                    // );
+
+                                    // controller.update();
+                                    Get.back();
+                                  },
+                                  icon: Icon(Icons.arrow_back)),
+                              // automaticallyImplyLeading: false, // removes appbar back button
+                            ),
+                      child: tableView(
+                        tableOPtions: tableOptions.copyWith(
+                          isFullScreenMode: true,
+                          tableColumns: stateManager.columns.toList(),
+                        ),
+                      ),
                     ),
                   );
                 }

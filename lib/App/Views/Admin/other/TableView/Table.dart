@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:masaratapp/App/Views/Admin/Controllers/table_controller.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 // import 'package:manar/Views/VAR_REP/kshf_acc_grp/View/full_view.dart';
@@ -13,7 +12,6 @@ import '../../../../../Widget/loding_dots.dart';
 import '../../../../../utils/utils.dart';
 // import '../improvedTable/config/pluto_config.dart';
 import 'table_header.dart';
-import 'package:pdf/widgets.dart' as pw;
 
 import 'config/pluto_config.dart';
 import 'options/table_options.dart';
@@ -255,6 +253,43 @@ String formatTime(String time) {
 }
 
 */
+
+double getSumOfAllCellsByFiled(List<PlutoRow> rows, String filed) {
+  double totalSum = 0;
+
+  // Iterate over each PlutoRow
+  for (var row in rows) {
+    var cellValue = row.cells[filed]!.value;
+    // If cellValue is not null, add it to totalSum
+    if (cellValue != null && cellValue != "") {
+      totalSum += double.parse(cellValue.toString());
+    }
+  }
+
+  return totalSum;
+}
+
+List<PlutoColumnGroup> createColumnGroup(List<String> ls, List<PlutoRow> rows, {String title = ""}) {
+  List<PlutoColumnGroup> totals = [];
+  for (var element in ls) {
+    totals.add(PlutoColumnGroup(
+      title: "",
+      fields: [element],
+      backgroundColor: primaryColor,
+      titleTextAlign: PlutoColumnTextAlign.right,
+      titleSpan: WidgetSpan(
+        child: Text(
+          formatCurrency(getSumOfAllCellsByFiled(rows, element).toString()),
+          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
+        ),
+      ),
+    ));
+  }
+  return totals;
+}
+
 Widget tableView({
   // required BuildContext context,
   // required String key,
@@ -281,146 +316,155 @@ Widget tableView({
   // bool fullScreenWithAddedCouumon = false,
   required TableOptions tableOPtions,
 }) {
-  final tblCntrol = Get.find<TableController>();
+  // final tblCntrol = Get.find<TableController>();
+
+  // List<PlutoColumn> getColumnsWithOutAddedColumn() {
+  //   if (!tableOPtions.fullScreenWithAddedCouumon && tableOPtions.isFullScreenMode) {
+  //     return tableOPtions.tableColumns.where((element) => element.field != "AddedColumn").toList();
+  //   }
+
+  //   return tableOPtions.tableColumns;
+  // }
+  // if (tableOPtions.isLoadingData && tableOPtions.tableRows.isEmpty) {
+  //   Get.delete<TableController>();
+  // }
+
   List<PlutoColumnGroup>? getColumnGroup() {
     if (tableOPtions.tatalTopTitle.isNotEmpty) {
-      return tblCntrol.createColumnGroup(tableOPtions.tatalTopTitle, tableOPtions.tableRows);
+      return createColumnGroup(tableOPtions.tatalTopTitle, tableOPtions.tableRows);
     } else {
       return null;
     }
   }
 
-  List<PlutoColumn> getColumnsWithOutAddedColumn() {
-    if (!tableOPtions.fullScreenWithAddedCouumon) {
-      tableOPtions.tableColumns.removeWhere((element) {
-        element.readOnly = true;
-        return element.field == "AddedColumn";
-      });
-    }
-
-    return tableOPtions.tableColumns;
-  }
-
   return tableOPtions.tableRows.isNotEmpty
-      ? GetBuilder<TableController>(
-          builder: (controller) => PlutoGrid(
-            // key: Key(repID),
-            // mode: PlutoGridMode.readOnly,
-            columnGroups: getColumnGroup(),
-            // rowColorCallback: groupRowByColumnName != null
-            //     ? (rowColorContext) {
-            //         if (rowColorContext.row.type.isGroup) {
-            //           return const Color(0XFFf2de00);
-            //         } else {
-            //           return Colors.transparent;
-            //         }
-            //       }
-            //     : null,
-            columns: getColumnsWithOutAddedColumn(), //tableColumn, //
-            rows: tableOPtions.tableRows,
-            onLoaded: (PlutoGridOnLoadedEvent event) {
-              //show Filter row
-              // event.stateManager.setShowColumnFilter(true);
-              // event.stateManager.setColumnSizeConfig(PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.scale));
-              // event.stateManager.setSelectingMode(PlutoGridSelectingMode.none, notify: true);
-              // event.stateManager.setColumnSizeConfig(PlutoGridColumnSizeConfig());
+      ? PlutoGrid(
+          // key: Key(repID),
+          // mode: PlutoGridMode.readOnly,
+          columnGroups: getColumnGroup(),
+          // rowColorCallback: groupRowByColumnName != null
+          //     ? (rowColorContext) {
+          //         if (rowColorContext.row.type.isGroup) {
+          //           return const Color(0XFFf2de00);
+          //         } else {
+          //           return Colors.transparent;
+          //         }
+          //       }
+          //     : null,
+          columns: tableOPtions.tableColumns, //tableColumn, //
+          rows: tableOPtions.tableRows,
+          onLoaded: (PlutoGridOnLoadedEvent event) {
+            //show Filter row
+            // event.stateManager.setShowColumnFilter(true);
+            // event.stateManager.setColumnSizeConfig(PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.scale));
+            // event.stateManager.setSelectingMode(PlutoGridSelectingMode.none, notify: true);
+            // event.stateManager.setColumnSizeConfig(PlutoGridColumnSizeConfig());
 
-              controller.stateManager = event.stateManager;
-              tblCntrol.update();
-              //
-              if (tableOPtions.showColumnFilter) {
-                event.stateManager.setShowColumnFilter(true);
-              }
+            //
+            if (tableOPtions.showColumnFilter) {
+              event.stateManager.setShowColumnFilter(true);
+            }
 
-              if (tableOPtions.groupRowByColumnName != null) {
-                event.stateManager.setRowGroup(
-                  PlutoRowGroupByColumnDelegate(
-                    columns: [
-                      event.stateManager.columns[tableOPtions.tableColumns.indexWhere((element) => element.field == tableOPtions.groupRowByColumnName)],
-                    ],
-                    showFirstExpandableIcon: false,
-                  ),
-                );
-              }
-            },
-            onChanged: (PlutoGridOnChangedEvent event) {
-              // print(event);
-            },
-            onRowDoubleTap: (event) {
-              // print(event.cell.value);
-              Get.dialog(
-                // context: context,
-                // user must tap button!
+            if (tableOPtions.groupRowByColumnName != null) {
+              // final groupColumnIndex = event.stateManager.columns.indexWhere(
+              //   (element) => element.field == tableOPtions.groupRowByColumnName,
+              // );
 
-                AlertDialog(
-                  title: Column(children: [
-                    Row(
-                      children: <Widget>[
-                        IconButton(
-                          onPressed: () {
-                            Clipboard.setData(ClipboardData(text: event.cell.column.type.isText ? event.cell.value.toString() : formatCurrency(event.cell.value.toString())));
-                          },
-                          icon: const Icon(Icons.copy),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                            child: Text(
-                          event.cell.column.type.isText ? event.cell.value.toString() : formatCurrency(event.cell.value.toString()),
-                          softWrap: true,
-                          overflow: TextOverflow.visible,
-                        )),
-                      ],
-                    ),
-                  ]),
-                ),
-              );
-            },
+              // if (groupColumnIndex == -1) {
+              //   return;
+              // }
 
-            configuration: PlutoConfig.config,
-            createFooter: tableOPtions.pagetion
-                ? (stateManager) {
-                    stateManager.setPageSize(tableOPtions.pageSize, notify: true);
-                    return PlutoPagination(stateManager);
-                  }
-                : null,
-
-            createHeader: (stateManager) {
-              return Container(
-                decoration: BoxDecoration(color: primaryColor, border: const BorderDirectional(bottom: BorderSide(width: 1, color: Colors.white))),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    tableOPtions.title ?? SizedBox(),
-                    //
-                    if (tableOPtions.showTableHeader)
-                      tableHeader(tableOptions: tableOPtions
-                          // stateManager: stateManager,
-                          // // context: context,
-                          // tableRows: tableRows,
-                          // pdfTitle: pdfTitle,
-                          // fullScreenTitle: fullScreenTitle,
-                          // // key: key,
-                          // isLoadingData: isLoadingData,
-                          // tableColumn: tableColumn,
-                          // pageSize: pageSize,
-                          // groupRowByColumnName: groupRowByColumnName,
-                          // pagetion: pagetion,
-                          // tatal: tatal,
-                          // repID: repID,
-                          // defultPdf: defultPdf,
-                          // defultExcel: defultExcel,
-                          // showColumnFilter: showColumnFilter,
-                          // showPdfSumLastRow: showPdfSumLastRow,
-                          // pdfHeader: pdfHeader,
-                          // pdfFooter: pdfFooter,
-                          )
+              event.stateManager.setRowGroup(
+                PlutoRowGroupByColumnDelegate(
+                  columns: [
+                    event.stateManager.columns[tableOPtions.tableColumns.indexWhere((element) => element.field == tableOPtions.groupRowByColumnName)],
                   ],
+                  showFirstExpandableIcon: false,
                 ),
               );
-            },
+            }
+          },
+          onChanged: (PlutoGridOnChangedEvent event) {
+            // print(event);
+          },
+          onRowDoubleTap: (event) {
+            // print(event.cell.value);
+            Get.dialog(
+              // context: context,
+              // user must tap button!
 
-            columnMenuDelegate: _UserColumnMenu(),
-          ),
+              AlertDialog(
+                title: Column(children: [
+                  Row(
+                    children: <Widget>[
+                      IconButton(
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: event.cell.column.type.isText ? event.cell.value.toString() : formatCurrency(event.cell.value.toString())));
+                        },
+                        icon: const Icon(Icons.copy),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                          child: Text(
+                        event.cell.column.type.isText ? event.cell.value.toString() : formatCurrency(event.cell.value.toString()),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                      )),
+                    ],
+                  ),
+                ]),
+              ),
+            );
+          },
+
+          configuration: PlutoConfig.config,
+          createFooter: tableOPtions.pagetion
+              ? (stateManager) {
+                  stateManager.setPageSize(tableOPtions.pageSize, notify: true);
+                  return PlutoPagination(stateManager);
+                }
+              : null,
+
+          createHeader: (stateManager) {
+            return Container(
+              decoration: BoxDecoration(color: primaryColor, border: const BorderDirectional(bottom: BorderSide(width: 1, color: Colors.white))),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  tableOPtions.title ?? SizedBox(),
+                  //
+                  if (tableOPtions.showTableHeader)
+                    tableHeader(
+                      tableOptions: tableOPtions.copyWith(
+                        isFullScreenMode: tableOPtions.isFullScreenMode,
+                      ),
+                      // tableOptions: tableOPtions,
+                      stateManager: stateManager,
+                      // // context: context,
+                      // tableRows: tableRows,
+                      // pdfTitle: pdfTitle,
+                      // fullScreenTitle: fullScreenTitle,
+                      // // key: key,
+                      // isLoadingData: isLoadingData,
+                      // tableColumn: tableColumn,
+                      // pageSize: pageSize,
+                      // groupRowByColumnName: groupRowByColumnName,
+                      // pagetion: pagetion,
+                      // tatal: tatal,
+                      // repID: repID,
+                      // defultPdf: defultPdf,
+                      // defultExcel: defultExcel,
+                      // showColumnFilter: showColumnFilter,
+                      // showPdfSumLastRow: showPdfSumLastRow,
+                      // pdfHeader: pdfHeader,
+                      // pdfFooter: pdfFooter,
+                    )
+                ],
+              ),
+            );
+          },
+
+          columnMenuDelegate: _UserColumnMenu(),
         )
       : Center(
           child: tableOPtions.isLoadingData
@@ -544,16 +588,19 @@ enum _UserColumnMenuItem {
 
 class ShowTableFullSreccn extends StatelessWidget {
   final Widget child;
-  final Text? title;
+  final AppBar? title;
   const ShowTableFullSreccn({super.key, required this.child, this.title});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: title ?? title,
+      backgroundColor: primaryColor,
+      appBar: title,
+      body: SafeArea(
+        bottom: true,
+        top: true,
+        child: child,
       ),
-      body: child,
     );
   }
 }

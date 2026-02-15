@@ -1,19 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:masaratapp/App/Views/Admin/other/TableView/Table.dart';
-// import 'package:intl/intl.dart';
-// import 'package:pluto_grid/pluto_grid.dart';
-
 import '../../../../../Widget/pick_date.dart';
 import '../../../../../Widget/search_chk_box.dart';
-// import '../../../../../Widget/widget.dart';
 import '../../../../../Widget/widget.dart';
 import '../../../../../utils/utils.dart';
-
-import 'View/full_view.dart';
-
-import 'View/months_view.dart';
-
 import 'controller/sls_cntr_controller.dart';
 
 class SlsByslsCntr extends StatelessWidget {
@@ -21,12 +12,14 @@ class SlsByslsCntr extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("مبيعات عام"),
-        centerTitle: true,
+    return GetBuilder<SlsCenterController>(
+      builder: (controller) => Scaffold(
+        appBar: AppBar(
+          title: Text("مبيعات عام"),
+          centerTitle: true,
+        ),
+        body: _body(),
       ),
-      body: _body(),
     );
   }
 }
@@ -54,6 +47,7 @@ Widget _body() {
           Expanded(
             child: controller.showMonthRep
                 ? tableView(tableOPtions: controller.fullViewTableOptions)
+                // ? tableView(tableOPtions: controller.fullViewTableOptions,tableColumns: controller.monthColumns,tableRows: controller.monthRows,)
                 //  MonthView(
                 //     loadingData: controller.loadingData,
                 //     monthRows: controller.monthRows,
@@ -109,6 +103,23 @@ Widget _body() {
                               tableView(tableOPtions: controller.slsViewTableOptions),
                               tableView(tableOPtions: controller.costViewTableOptions),
                               tableView(tableOPtions: controller.gainViewTableOptions),
+
+// tableView(
+//                                 tableOPtions: controller.slsViewTableOptions,
+//                                 tableColumns: controller.getRepColumns(),
+//                                 tableRows: controller.slsRows,
+//                               ),
+//                               tableView(
+//                                 tableOPtions: controller.costViewTableOptions,
+//                                 tableColumns: controller.getRepColumns(),
+//                                 tableRows: controller.costRows,
+//                               ),
+//                               tableView(
+//                                 tableOPtions: controller.gainViewTableOptions,
+//                                 tableColumns: controller.getRepColumns(),
+//                                 tableRows: controller.gainRows,
+//                               ),
+
                               // ReportTableView(
                               //   loading: controller.loadingData,
                               //   rows: controller.slsRows,

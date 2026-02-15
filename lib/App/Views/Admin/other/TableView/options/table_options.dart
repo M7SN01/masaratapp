@@ -23,7 +23,7 @@ class TableOptions {
   /*final*/ bool showPdfSumLastRow;
   // pw.Widget? pdfHeader;
   // pw.Widget? pdfFooter;
-  /*final*/ bool fullScreenWithAddedCouumon;
+  // /*final*/ bool fullScreenWithAddedCouumon;
   bool isFullScreenMode;
 
   //
@@ -34,7 +34,7 @@ class TableOptions {
     required this.tableRows,
     required this.tableColumns,
     this.pdfTitle = "",
-    this.fullScreenTitle = "",
+    this.fullScreenTitle,
     this.pagetion = false,
     this.showColumnFilter = false,
     this.showTableHeader = true,
@@ -43,9 +43,51 @@ class TableOptions {
     this.groupRowByColumnName,
     this.pageSize = 100,
     this.showPdfSumLastRow = true,
-    this.fullScreenWithAddedCouumon = false,
+    // this.fullScreenWithAddedCouumon = false,
     this.defultPdf = const [],
     this.defultExcel = const [],
     this.isFullScreenMode = false,
   });
+
+  TableOptions copyWith({
+    bool? isLoadingData,
+    String? repID,
+    List<PlutoRow>? tableRows,
+    List<PlutoColumn>? tableColumns,
+    String? pdfTitle,
+    String? fullScreenTitle,
+    List<String>? tatalTopTitle,
+    String? groupRowByColumnName,
+    int? pageSize,
+    bool? pagetion,
+    bool? showColumnFilter,
+    bool? showTableHeader,
+    Widget? title,
+    List<String>? defultPdf,
+    List<String>? defultExcel,
+    bool? showPdfSumLastRow,
+    // bool? fullScreenWithAddedCouumon,
+    bool? isFullScreenMode,
+  }) {
+    return TableOptions(
+      isLoadingData: isLoadingData ?? this.isLoadingData,
+      repID: repID ?? this.repID,
+      tableRows: tableRows != null ? List<PlutoRow>.from(tableRows) : List<PlutoRow>.from(this.tableRows),
+      tableColumns: tableColumns != null ? List<PlutoColumn>.from(tableColumns) : List<PlutoColumn>.from(this.tableColumns),
+      pdfTitle: pdfTitle ?? this.pdfTitle,
+      fullScreenTitle: fullScreenTitle ?? this.fullScreenTitle,
+      tatalTopTitle: tatalTopTitle ?? List<String>.from(this.tatalTopTitle),
+      groupRowByColumnName: groupRowByColumnName ?? this.groupRowByColumnName,
+      pageSize: pageSize ?? this.pageSize,
+      pagetion: pagetion ?? this.pagetion,
+      showColumnFilter: showColumnFilter ?? this.showColumnFilter,
+      showTableHeader: showTableHeader ?? this.showTableHeader,
+      title: title ?? this.title,
+      defultPdf: defultPdf ?? List<String>.from(this.defultPdf),
+      defultExcel: defultExcel ?? List<String>.from(this.defultExcel),
+      showPdfSumLastRow: showPdfSumLastRow ?? this.showPdfSumLastRow,
+      // fullScreenWithAddedCouumon: fullScreenWithAddedCouumon ?? this.fullScreenWithAddedCouumon,
+      isFullScreenMode: isFullScreenMode ?? this.isFullScreenMode,
+    );
+  }
 }
