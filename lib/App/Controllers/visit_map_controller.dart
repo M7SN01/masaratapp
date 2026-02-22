@@ -75,7 +75,7 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
       if (userCurrentLocation == null) {
         Get.back(); //close this page untill give location privileges
       } else {
-        await setCurrentUserLocation();
+        // await setCurrentUserLocation();
 
         debugPrint("End -----------------------");
       }
@@ -173,7 +173,9 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
   Map<Key, String> cusIds = {};
   int totalCusCount = 0;
 
+  bool isBuildingMarkers = false;
   buildMarkerAndPolygon() {
+    if (isBuildingMarkers) return;
     isExpandedMapKey = false;
     totalCusCount = 0;
 
@@ -184,161 +186,176 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
     cusIds.clear();
     cusName.clear();
     infoWindow.clear();
-    update();
+    isBuildingMarkers = true;
+    // update();
 
-    List<String> ids = [];
-    Map<String, List<LatLang>> polygonsPoints = {};
+    try {
+      List<String> ids = [];
+      Map<String, List<LatLang>> polygonsPoints = {};
 
-    //making every sls_man_id with list of all his customers points on the map
-    for (var element in cusData) {
-      if (element.slsManId == null || element.slsManId == 0) continue;
-      if (element.latitude == null || element.longitude == null || (element.latitude == 0 && element.longitude == 0)) continue;
+      //making every sls_man_id with list of all his customers points on the map
+      for (var element in cusData) {
+        if (element.slsManId == null || element.slsManId == 0) continue;
+        if (element.latitude == null || element.longitude == null || (element.latitude == 0 && element.longitude == 0)) continue;
 
-      final id = element.slsManId.toString();
+        final id = element.slsManId.toString();
 
-      // Initialize the list of LatLng if it doesn't exist for the current SLS_MAN_ID and add to ids list
-      final list = polygonsPoints.putIfAbsent(id, () {
-        ids.add(id); // Only added the FIRST time when go in putIfAbsent
-        return <LatLang>[];
-      });
+        // Initialize the list of LatLng if it doesn't exist for the current SLS_MAN_ID and add to ids list
+        final list = polygonsPoints.putIfAbsent(id, () {
+          ids.add(id); // Only added the FIRST time when go in putIfAbsent
+          return <LatLang>[];
+        });
 
-      // Add the LatLng point to the list for the current SLS_MAN_ID
-      list.add(LatLang(element.latitude!, element.longitude!));
-    }
-    print(ids);
-    final List<Color> colors = [
-      // Colors.red, any cus without SLS_MAN_ID
-      Colors.blue,
-      Colors.orange,
-      Colors.purple,
-      Colors.teal,
-      // Colors.red,
-      Colors.indigo,
-      Colors.cyan,
-      Colors.amber,
-      Colors.deepOrange,
-      Colors.deepPurple,
-      Colors.lime,
-      Colors.lightBlue,
-      Colors.lightGreen,
-      Colors.brown,
-      Colors.grey,
-      Colors.blueGrey,
-      Colors.black,
-      Colors.white,
-      Colors.green,
-      Colors.yellow,
+        // Add the LatLng point to the list for the current SLS_MAN_ID in polygonsPoints
+        list.add(LatLang(element.latitude!, element.longitude!));
+      }
 
-      // Colors.blueAccent,
-      // Colors.lightBlueAccent,
-      // Colors.greenAccent,
-      // Colors.tealAccent,
-      // Colors.yellowAccent,
-      // Colors.amberAccent,
-      // Colors.orangeAccent,
-      // Colors.deepOrangeAccent,
-      // Colors.redAccent,
-      // Colors.pinkAccent,
-      // Colors.purpleAccent,
-      // Colors.deepPurpleAccent,
-      // Colors.indigoAccent,
-      // Colors.lightGreenAccent,
-      // Colors.limeAccent,
-    ];
+      final List<Color> colors = [
+        // Colors.red, any cus without SLS_MAN_ID
+        Colors.blue,
+        Colors.orange,
+        Colors.purple,
+        Colors.teal,
+        // Colors.red,
+        Colors.indigo,
+        Colors.cyan,
+        Colors.amber,
+        // Colors.deepOrange,
+        Colors.deepPurple,
+        Colors.lime,
+        Colors.lightBlue,
+        Colors.lightGreen,
+        Colors.brown,
+        Colors.grey,
+        Colors.blueGrey,
+        Colors.black,
+        Colors.white,
+        Colors.green,
+        Colors.yellow,
 
-    Map<String, Color> markerColor = {};
-    //single color for every sls_man id
-    for (int i = 0; i < ids.length; i++) {
-      markerColor[ids[i]] = colors[i % colors.length];
-    }
+        // Colors.blueAccent,
+        // Colors.lightBlueAccent,
+        // Colors.greenAccent,
+        // Colors.tealAccent,
+        // Colors.yellowAccent,
+        // Colors.amberAccent,
+        // Colors.orangeAccent,
+        // Colors.deepOrangeAccent,
+        // Colors.redAccent,
+        // Colors.pinkAccent,
+        // Colors.purpleAccent,
+        // Colors.deepPurpleAccent,
+        // Colors.indigoAccent,
+        // Colors.lightGreenAccent,
+        // Colors.limeAccent,
+      ];
 
-    for (var element in cusData) {
-      final lat = element.latitude;
-      final lng = element.longitude;
-      final cusId = element.cusId;
+      Map<String, Color> markerColor = {};
+      //single color for every sls_man id
+      for (int i = 0; i < ids.length; i++) {
+        markerColor[ids[i]] = colors[i % colors.length];
+      }
 
-      // Skip invalid coordinates only
-      if (lat == null || lng == null || (lat == 0 && lng == 0)) continue;
-      // debugPrint("$cusId     --   $lat      ---  $lng");
-      final color = (element.slsManId == null)
-          ? Colors.red // customers without salesman
-          : markerColor[element.slsManId.toString()] ?? Colors.red;
+      for (var element in cusData) {
+        final lat = element.latitude;
+        final lng = element.longitude;
+        final cusId = element.cusId;
 
-      //marker
-      defultmarker.add(
-        Marker(
-          key: ValueKey(cusId),
-          point: LatLang(lat, lng),
-          child: Icon(
-            Icons.location_pin,
-            size: 30,
-            color: color,
+        // Skip invalid coordinates only
+        if (lat == null || lng == null || (lat == 0 && lng == 0)) continue;
+        // debugPrint("$cusId     --   $lat      ---  $lng");
+        final color = (element.slsManId == null)
+            ? Colors.red // customers without salesman
+            : markerColor[element.slsManId.toString()] ?? Colors.red;
+
+        //marker
+        defultmarker.add(
+          Marker(
+            key: ValueKey(cusId),
+            point: LatLang(lat, lng),
+            child: IconButton(
+              icon: Icon(Icons.location_pin, size: 30),
+              onPressed: () {
+                print(element.slsManId);
+              },
+              color: color,
+            ),
           ),
+        );
+
+        //fill sls man and customer count card
+        final slsKey = element.slsManId?.toString() ?? 'NO_SLS';
+
+        final key = ValueKey(cusId);
+
+        // accIdInfo[Key(element["BP_MST_ID"].toString() + element["SLS_MAN_ID"].toString())] = element["ACC_ID"].toString();
+        cusIds[key] = element.cusId.toString();
+        cusName[key] = element.cusName;
+        infoWindow[key] = cusInfoWindo(element);
+
+        cusCount.update(
+          slsKey,
+          (data) {
+            final current = data['cus_count'] as int? ?? 0;
+            return {
+              ...data,
+              'cus_count': current + 1,
+            };
+          },
+          ifAbsent: () => {
+            'name': element.slsManName,
+            'color': markerColor[element.slsManId?.toString()] ?? Colors.red,
+            'cus_count': 1,
+          },
+        );
+
+        // if (cus_count.containsKey(element.slsManId.toString())) {
+        //   cus_count[element.slsManId.toString()]!["cus_count"] = (cus_count[element.slsManId.toString()]!["cus_count"]) + 1;
+        // } else {
+        //   cus_count[element.slsManId.toString()] = {
+        //     "name": element.cusName.toString(),
+        //     "color": markerColor[element.slsManId.toString()],
+        //     "cus_count": 1,
+        //   };
+        // }
+      }
+
+      //Build polygons
+      for (final entry in polygonsPoints.entries) {
+        final id = entry.key;
+        final points = getConvexHull(entry.value);
+        final color = markerColor[id] ?? Colors.red;
+
+        if (points.isEmpty) continue;
+
+        polygons.add(
+          Polygon(
+            points: points,
+            // points: optimizeRoute(polygonsPoints[element["SLS_MAN_ID"].toString()] ?? []),
+            color: color.withValues(alpha: 0.2),
+            pattern: const StrokePattern.solid(), borderStrokeWidth: 0.2,
+
+            // isFilled: true,
+            // label: element["FULL_NAME"].toString(),
+            // labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+            borderColor: color,
+          ),
+        );
+      }
+
+      totalCusCount = cusCount.values.map((data) => data["cus_count"] as int).fold(0, (sum, count) => sum + count);
+      //
+      animatedMapController.animatedFitCamera(
+        cameraFit: CameraFit.coordinates(
+          coordinates: defultmarker.map((e) => e.point).toList(),
+          forceIntegerZoomLevel: true, //to fit both two marker in the map
+          // maxZoom: 19,
         ),
       );
-
-      //fill sls man and customer count card
-      final slsKey = element.slsManId?.toString() ?? 'NO_SLS';
-
-      final key = ValueKey(cusId);
-
-      // accIdInfo[Key(element["BP_MST_ID"].toString() + element["SLS_MAN_ID"].toString())] = element["ACC_ID"].toString();
-      cusIds[key] = element.cusId.toString();
-      cusName[key] = element.cusName;
-      infoWindow[key] = cusInfoWindo(element);
-
-      cusCount.update(
-        slsKey,
-        (data) {
-          final current = data['cus_count'] as int? ?? 0;
-          return {
-            ...data,
-            'cus_count': current + 1,
-          };
-        },
-        ifAbsent: () => {
-          'name': element.slsManId.toString(),
-          'color': markerColor[element.slsManId?.toString()] ?? Colors.red,
-          'cus_count': 1,
-        },
-      );
-      // if (cus_count.containsKey(element.slsManId.toString())) {
-      //   cus_count[element.slsManId.toString()]!["cus_count"] = (cus_count[element.slsManId.toString()]!["cus_count"]) + 1;
-      // } else {
-      //   cus_count[element.slsManId.toString()] = {
-      //     "name": element.cusName.toString(),
-      //     "color": markerColor[element.slsManId.toString()],
-      //     "cus_count": 1,
-      //   };
-      // }
+    } finally {
+      isBuildingMarkers = false;
+      update();
     }
-
-    //Build polygons
-    for (final entry in polygonsPoints.entries) {
-      final id = entry.key;
-      final points = getConvexHull(entry.value);
-      final color = markerColor[id] ?? Colors.red;
-
-      if (points.isEmpty) continue;
-
-      polygons.add(
-        Polygon(
-          points: points,
-          // points: optimizeRoute(polygonsPoints[element["SLS_MAN_ID"].toString()] ?? []),
-          color: color.withValues(alpha: 0.2),
-          pattern: const StrokePattern.solid(), borderStrokeWidth: 0.2,
-
-          // isFilled: true,
-          // label: element["FULL_NAME"].toString(),
-          // labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-          borderColor: color,
-        ),
-      );
-    }
-
-    totalCusCount = cusCount.values.map((data) => data["cus_count"] as int).fold(0, (sum, count) => sum + count);
-    //
-    update();
   }
 
   //

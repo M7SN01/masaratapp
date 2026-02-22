@@ -119,7 +119,7 @@ class UserController extends GetxController {
 
   Future<void> _getCusData() async {
     statment = """
-      SELECT *  FROM CUSTOMERS WHERE CS_CLS_ID IN
+      SELECT A.* , GET_SLS_MAN_NAME_DB(A.SLS_MAN_ID) SLS_MAN_NAME   FROM CUSTOMERS A WHERE A.CS_CLS_ID IN
       (SELECT CS_CLS_ID FROM USER_CUS_GRP WHERE U_ID='$uId' AND CHK = 1 
       )
       """;
@@ -140,6 +140,7 @@ class UserController extends GetxController {
             taxNo: element["TAX_NO"] ?? "",
             stoped: element["STOPED"] ?? 0,
             slsManId: element["SLS_MAN_ID"],
+            slsManName: element["SLS_MAN_NAME"],
             latitude: element["LATITUDE"],
             longitude: element["LONGITUDE"],
             visitCnt: element["VISIT_CNT"] ?? 0,

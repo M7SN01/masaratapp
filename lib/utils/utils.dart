@@ -205,9 +205,8 @@ List<LatLang> getConvexHull(List<LatLang> points) {
     }
     upper.add(point);
   }
-
-  lower.removeLast();
-  upper.removeLast();
+  if (lower.isNotEmpty) lower.removeLast();
+  if (upper.isNotEmpty) upper.removeLast();
   lower.addAll(upper);
   return lower;
 }

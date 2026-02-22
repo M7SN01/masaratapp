@@ -86,6 +86,7 @@ class CusDataModel {
   final String? adrs;
   final String? taxNo;
   final int? slsManId;
+  final String? slsManName;
   final int? stoped;
   final double? latitude;
   final double? longitude;
@@ -102,6 +103,7 @@ class CusDataModel {
     this.adrs,
     this.taxNo,
     this.slsManId,
+    this.slsManName,
     this.stoped,
     this.latitude,
     this.longitude,
