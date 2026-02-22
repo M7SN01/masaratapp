@@ -546,14 +546,14 @@ class CusKshfController extends GetxController {
 
     for (var row in responseDt) {
       tmp.add({
-        "srl": row['SRL'].toString(),
-        "item_id": row['ITEM_ID'].toString(),
+        "srl": formatIfWasNumber(row['SRL']),
+        "item_id": formatIfWasNumber(row['ITEM_ID']),
         "item_name": row['ITEM_NAME'].toString(),
         "unit": row['UNIT'].toString(),
-        "item_qty": row['QTY'].toString(),
-        "item_price": row['PRICE'].toString(),
-        "item_vat": row['VAT_VAL'].toString(),
-        "item_total": row['PRICE_AFTR_VAT'].toString(),
+        "item_qty": formatIfWasNumber(row['QTY']),
+        "item_price": formatIfWasNumber(row['PRICE']),
+        "item_vat": formatIfWasNumber(row['VAT_VAL']),
+        "item_total": formatIfWasNumber(row['PRICE_AFTR_VAT']),
       });
       ttlQty += row['QTY'];
       ttlPrice += row['PRICE'] * row['QTY'];
@@ -573,7 +573,7 @@ class CusKshfController extends GetxController {
       "t_inv_type": "نوع الفاتورة",
       "inv_type": responseHd[0]['ACT_NAME'].toString(),
       "t_inv_no": "رقم الفاتورة",
-      "inv_no": responseHd[0]['ST_ID'].toString(),
+      "inv_no": formatIfWasNumber(responseHd[0]['ST_ID']),
       "t_inv_date": "التاريخ",
       "inv_date": responseHd[0]['DATE1'].toString(),
       "t_cus_no": "عميل رقم",
@@ -601,9 +601,9 @@ class CusKshfController extends GetxController {
       "repeat_element": tmp,
       //
       "t_ttl_qty": "اجمالي الكمية",
-      "ttl_qty": ttlQty.toString(),
+      "ttl_qty": formatIfWasNumber(ttlQty),
       "t_ttl_price": "الاجمالي",
-      "ttl_price": ttlPrice.toStringAsFixed(2),
+      "ttl_price": formatIfWasNumber(ttlPrice),
       if (discount != 0) ...{
         "t_ttl_dis": "الخصم",
         "ttl_dis": discount.toString(), // responseHd[0]['DISCNT'].toString(),

@@ -8,9 +8,9 @@ import 'Table.dart';
 import 'options/table_options.dart';
 
 class TableSetting extends StatelessWidget {
-  // final PlutoGridStateManager stateManager;
+  final PlutoGridStateManager stateManager;
   final TableOptions tableOptions;
-  const TableSetting({super.key, required this.tableOptions});
+  const TableSetting({super.key, required this.tableOptions, required this.stateManager});
 
   @override
   Widget build(BuildContext context) {
@@ -45,15 +45,20 @@ class TableSetting extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           if (controller.postingQuery)
-            const TextLodingDot()
+            const TextLodingDot(
+              text: "جاري حفظ الاعدادات",
+            )
           else ...[
             Row(
               children: [
                 Expanded(
                   child: TextButton(
                     onPressed: () async {
-                      await controller.postColName(col: "SHOW_DEFAULT", repID: tableOptions.repID, postColumns: tableOptions.tableColumns);
-                      await controller.postColSize(repID: tableOptions.repID, postColumns: tableOptions.tableColumns);
+                      tableOptions.tableColumns = stateManager.columns;
+                      await controller.postColName(col: "SHOW_DEFAULT", tableOptions: tableOptions);
+                      // await tableOptions.onUpdateSetting?.call(controller.appDefault);
+                      await controller.postColSize(repID: tableOptions.repID, tableOptions: tableOptions);
+                      // await tableOptions.onUpdateSetting?.call(controller.appDefault);
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: primaryColor, // Background color
@@ -79,7 +84,9 @@ class TableSetting extends StatelessWidget {
                 Expanded(
                   child: TextButton(
                     onPressed: () async {
-                      await controller.postColName(col: "PDF_DEFAULT", repID: tableOptions.repID, postColumns: tableOptions.tableColumns);
+                      tableOptions.tableColumns = stateManager.columns;
+                      await controller.postColName(col: "PDF_DEFAULT", tableOptions: tableOptions);
+                      // await tableOptions.onUpdateSetting?.call(controller.appDefault);
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: primaryColor, // Background color
@@ -103,8 +110,10 @@ class TableSetting extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextButton(
-                    onPressed: () {
-                      controller.postColName(col: "EXCEL_DEFAULT", repID: tableOptions.repID, postColumns: tableOptions.tableColumns);
+                    onPressed: () async {
+                      tableOptions.tableColumns = stateManager.columns;
+                      await controller.postColName(col: "EXCEL_DEFAULT", tableOptions: tableOptions);
+                      // await tableOptions.onUpdateSetting?.call(controller.appDefault);
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: primaryColor, // Background color
@@ -485,6 +494,7 @@ Widget tableHeader({required TableOptions tableOptions, required PlutoGridStateM
                         padding: const EdgeInsets.all(10),
                         child: TableSetting(
                           tableOptions: tableOptions,
+                          stateManager: stateManager,
                         ),
                       ),
                     ),

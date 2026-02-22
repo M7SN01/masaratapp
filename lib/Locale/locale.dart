@@ -33,9 +33,14 @@ class AppLocale implements Translations {
           'total_price_after_tax': 'إجمالي السعر بعد الضريبة',
           'payment': 'الدفع',
           'barcode': 'باركود',
+          "SLS_CNTR_NAME_COL": "مركز البيع",
+          "INV_TTL_COL": "اجمالي المبيعات",
+          "TTL_CST_COL": "اجمالي التكلفة",
+          "GP_COL": "الربح",
           //
           //
           //
+          /*
           "MRKR_GAIN": "ربح المبيعات",
           "MRKR_TTL_PAY": "اجمالي السداد",
           "MRKR_LAST_PAY_DATE": "تاريخ آخر سداد",
@@ -321,7 +326,7 @@ class AppLocale implements Translations {
           "CHS_SLS_CNTR": "اختر مركز بيع",
           "SLS_CNTR_NAME_COL": "مركز البيع",
           "SLS_CNTR_GRP": "مجموعة م.",
-          "INV_TTL_COL": "اجمالي الفاتورة",
+          "INV_TTL_COL": "اجمالي المبيعات",
           "TTL_CST_COL": "اجمالي التكلفة",
           "GP_COL": "الربح",
           "SLS_MAN": "البائعين",
@@ -353,6 +358,7 @@ class AppLocale implements Translations {
           "SMALL_OR_EQUAL": "اصغر او يساوي",
           "BOUNS_REP": "البونص العام",
           "BOUNS": "بونص",
+          */
         },
         'en': {
           "set_connection": "connection setup",
@@ -384,9 +390,14 @@ class AppLocale implements Translations {
           'total_price_after_tax': 'Total After Tax',
           'payment': 'Payment',
           'barcode': 'Barcode',
+          "SLS_CNTR_NAME_COL": "Sales Center",
+          "INV_TTL_COL": "Sales total",
+          "TTL_CST_COL": "cost total",
+          "GP_COL": "gain",
           //
           //
           //
+          /*
           "MRKR_GAIN": "sales gain",
           "MRKR_TTL_PAY": "total payment",
           "MRKR_LAST_PAY_DATE": "last payment date",
@@ -704,6 +715,7 @@ class AppLocale implements Translations {
           "SMALL_OR_EQUAL": "",
           "BOUNS_REP": "Bouns",
           "BOUNS": "Bouns",
+          */
         },
       };
 }

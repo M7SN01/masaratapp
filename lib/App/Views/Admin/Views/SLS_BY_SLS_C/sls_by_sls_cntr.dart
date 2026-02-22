@@ -47,14 +47,6 @@ Widget _body() {
           Expanded(
             child: controller.showMonthRep
                 ? tableView(tableOPtions: controller.fullViewTableOptions)
-                // ? tableView(tableOPtions: controller.fullViewTableOptions,tableColumns: controller.monthColumns,tableRows: controller.monthRows,)
-                //  MonthView(
-                //     loadingData: controller.loadingData,
-                //     monthRows: controller.monthRows,
-                //     columns: controller.monthColumns,
-                //     repID: controller.fullRepId,
-                //     // defaultTableSetting: defaultTableSetting,
-                //   )
                 : DefaultTabController(
                     length: 3,
                     initialIndex: controller.currentTab,
@@ -70,32 +62,11 @@ Widget _body() {
                             // print(value);
                           },
                           tabs: [
-                            Tab(
-                              // icon: Icon(
-                              //   Icons.tab,
-                              //   size: 20,
-                              // ),
-                              text: "مبيعات",
-                            ),
-                            Tab(
-                              // icon: Icon(
-                              //   Icons.tab,
-                              //   size: 20,
-                              // ),
-                              text: "تكلفة",
-                            ),
-                            Tab(
-                              // icon: Icon(
-                              //   Icons.tab,
-                              //   size: 20,
-                              // ),
-                              text: "ربح",
-                            ),
+                            Tab(text: "مبيعات"),
+                            Tab(text: "تكلفة"),
+                            Tab(text: "ربح"),
                           ],
                         ),
-                        // const SizedBox(
-                        //   height: 5,
-                        // ),
                         Expanded(
                           child: TabBarView(
                             physics: const NeverScrollableScrollPhysics(),
@@ -103,47 +74,6 @@ Widget _body() {
                               tableView(tableOPtions: controller.slsViewTableOptions),
                               tableView(tableOPtions: controller.costViewTableOptions),
                               tableView(tableOPtions: controller.gainViewTableOptions),
-
-// tableView(
-//                                 tableOPtions: controller.slsViewTableOptions,
-//                                 tableColumns: controller.getRepColumns(),
-//                                 tableRows: controller.slsRows,
-//                               ),
-//                               tableView(
-//                                 tableOPtions: controller.costViewTableOptions,
-//                                 tableColumns: controller.getRepColumns(),
-//                                 tableRows: controller.costRows,
-//                               ),
-//                               tableView(
-//                                 tableOPtions: controller.gainViewTableOptions,
-//                                 tableColumns: controller.getRepColumns(),
-//                                 tableRows: controller.gainRows,
-//                               ),
-
-                              // ReportTableView(
-                              //   loading: controller.loadingData,
-                              //   rows: controller.slsRows,
-                              //   from: controller.fromDateController.text,
-                              //   to: controller.toDateController.text,
-                              //   repID: controller.slsRepId,
-                              //   title: "مبيعات مراكز البيع",
-                              // ),
-                              // ReportTableView(
-                              //   loading: controller.loadingData,
-                              //   rows: controller.costRows,
-                              //   from: controller.fromDateController.text,
-                              //   to: controller.toDateController.text,
-                              //   repID: controller.costRepId,
-                              //   title: "تكلفة مراكز البيع",
-                              // ),
-                              // ReportTableView(
-                              //   loading: controller.loadingData,
-                              //   rows: controller.gainRows,
-                              //   from: controller.fromDateController.text,
-                              //   to: controller.toDateController.text,
-                              //   repID: controller.gainRepId,
-                              //   title: "ربح مراكز البيع",
-                              // ),
                             ],
                           ),
                         ),

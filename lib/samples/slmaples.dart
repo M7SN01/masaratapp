@@ -1859,6 +1859,7 @@ class PrintSamples {
               tableWHeadersListOfMap(name: "{{h_srl}}"),
               tableWHeadersListOfMap(name: "{{h_ACT_TYPE}}"),
               tableWHeadersListOfMap(name: "{{h_ACT_NO}}"),
+              tableWHeadersListOfMap(name: "{{h_CUS_NAME}}"),
               tableWHeadersListOfMap(name: "{{h_DATE}}"),
               tableWHeadersListOfMap(name: "{{h_DESC}}", isFlex: true),
               tableWHeadersListOfMap(name: "{{h_TTL}}"),

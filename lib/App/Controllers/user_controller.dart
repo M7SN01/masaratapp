@@ -1,7 +1,7 @@
 // import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pluto_grid/pluto_grid.dart';
+// import 'package:pluto_grid/pluto_grid.dart';
 import '../Controllers/login_controller.dart';
 import '../Models/user_model.dart';
 import '../../Services/api_db_services.dart';
@@ -25,6 +25,7 @@ class UserController extends GetxController {
   String uId = "";
   String uName = "";
   String uPass = "";
+  bool uIsAdmin = false;
   String hasMoreThanRequiredPrivileges = "";
   String hasNoPrivileges = "";
   String appLog = "";
@@ -433,12 +434,36 @@ CUS_SLS_MAN
     }
   }
 
+  Future<void> _getAppDefault() async {
+    statment = " SELECT * FROM APP_ACCOUNT.APP_DEFAULT  where USER_ID='$uId' ";
+
+    try {
+      var response = await dbServices.createRep(
+        sqlStatment: statment,
+      );
+      appDefault.clear();
+      for (var element in response) {
+        // print("object");
+
+        appDefault[element["REP_ID"]] = {
+          "SHOW_DEFAULT": element["SHOW_DEFAULT"] ?? "",
+          "PDF_DEFAULT": element["PDF_DEFAULT"] ?? "",
+          "EXCEL_DEFAULT": element["EXCEL_DEFAULT"] ?? "",
+          "SIZE_DEFAULT": element["SIZE_DEFAULT"] ?? "",
+        };
+      }
+    } catch (e) {
+      errorLog += "$statment \n ERROR: => getAppDefault {{=($e)=}}  \n";
+    }
+  }
+
   Future<void> getAllPrivileges() async {
     //initializing
     LoginController loginController = Get.find<LoginController>();
     uId = loginController.logedInuserId ?? "";
     uName = loginController.logedInuserName ?? "";
     uPass = loginController.logedInPassword ?? "";
+    uIsAdmin = loginController.logedInIsAdmin;
     isOfflineMode = loginController.isOfflineMode;
     debugPrint("XXXXXXXXXXXX   $uId   XXXXXXXXXXXX");
     //******************************************************* */
@@ -491,6 +516,11 @@ CUS_SLS_MAN
     appLog += "START -------- GET_CUSTOMERS_ID_IN_PLAN--------\n";
     debugPrint("START -------- GET_CUSTOMERS_ID_IN_PLAN--------");
     await _getCusVisitPlan();
+    //
+    //
+    appLog += "START -------- GET_APP_DEFAULT_DATA--------\n";
+    debugPrint("START -------- GET_APP_DEFAULT_DATA--------");
+    await _getAppDefault();
     // debugPrint("END ************************************ \n $errorLog");
     // debugPrint("************************************\n************************************\n************************************\n $appLog");
   }

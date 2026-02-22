@@ -169,6 +169,15 @@ String formatCurrency(String amountStr) {
   }
 }
 
+String formatIfWasNumber(value) {
+  if (value is String) return value;
+  if (value % 1 == 0) {
+    return value.toInt().toString();
+  } else {
+    return value.toString();
+  }
+}
+
 String checkNullString(String val) {
   return val == "null" ? "" : val;
 }

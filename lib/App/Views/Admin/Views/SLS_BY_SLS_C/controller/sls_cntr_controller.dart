@@ -206,6 +206,30 @@ ORDER BY
               group by   A.SLS_CNTR_ID,B.SLS_CNTR_NAME
               """;
 
+      /*
+
+SELECT A.SLS_CNTR_ID,B.SLS_CNTR_NAME , round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL,round(SUM(A.GAIN),4) GP ,GET_CUS_CLS( GET_CUS_CLS_ID(A.CUS_ID))
+              FROM SLS_V A,SLS_CENTER B  
+              WHERE   A.SLS_CNTR_ID = B.SLS_CNTR_ID  AND A.CUS_ID IS NOT NULL  
+              group by   A.SLS_CNTR_ID,B.SLS_CNTR_NAME,GET_CUS_CLS_ID(A.CUS_ID);
+              */
+
+      /*
+
+select A.* ,
+( SELECT ROUND(SUM(NVL(t.MD,0) - NVL(t.DN,0)), 2) FROM CUS_HD_CUS_DT_TRANS t  WHERE t.CS_CLS_ID = A.CLS_ID ) AS MDUNIH,
+( SELECT ROUND(SUM(NVL(T.AMNT_MD,0)), 2) FROM ACC_HD_ACC_DT T  WHERE T.BANK_ID = A.SLS_MAN_BANK_ID  
+AND T.DATE1 BETWEEN TO_DATE('12/01/2025 00:00:00', 'MM/DD/YYYY HH24:MI:SS') AND TO_DATE('12/31/2025 00:00:00', 'MM/DD/YYYY HH24:MI:SS')) AS T7SIL
+from (
+SELECT A.SLS_CNTR_ID,a.sls_man_id , a.sls_man_name,  (SELECT B.BANK_ID FROM USER1 B WHERE B.SLS_MAN_ID=A.SLS_MAN_ID) SLS_MAN_BANK_ID,
+round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM(A.GAIN),4) GP , GET_CUS_CLS_ID(A.CUS_ID) CLS_ID
+              FROM SLS_V A
+              WHERE   A.CUS_ID IS NOT NULL  AND A.0SLS_MAN_ID IS NOT NULL
+               AND A.DATE1 BETWEEN TO_DATE('12/01/2025 00:00:00', 'MM/DD/YYYY HH24:MI:SS') AND TO_DATE('12/31/2025 00:00:00', 'MM/DD/YYYY HH24:MI:SS')
+              group by   A.SLS_CNTR_ID,a.sls_man_id , a.sls_man_name, GET_CUS_CLS_ID(A.CUS_ID)
+              ) A order by  3 desc ;
+              */
+
       // print(monthstmt);
       monthRows = await getMonthData(sqlStatment: monthstmt, errorCallback: (error) => errorCallBack("$error (month stmt) "));
 
@@ -233,14 +257,24 @@ ORDER BY
   //
 
   get fullViewTableOptions => TableOptions(
+        isAdmin: userController.uIsAdmin,
         isLoadingData: loadingData,
         repID: fullRepId,
         tableRows: monthRows,
         tableColumns: getColumnsByMonthRep,
-
+        appDefault: userController.appDefault,
+        // defultColShow: userController.getAppDefault(repID: fullRepId, defType: 'SHOW_DEFAULT'),
+        // defultColSize: userController.getAppDefault(repID: fullRepId, defType: 'SIZE_DEFAULT'),
+        // defultPdf: userController.getAppDefault(repID: fullRepId, defType: 'PDF_DEFAULT'),
+        // defultExcel: userController.getAppDefault(repID: fullRepId, defType: 'EXCEL_DEFAULT'),
         pdfTitle: "اجماليات مراكز البيع",
         // fullScreenTitle: "اجماليات مراكز البيع",
-        tatalTopTitle: ['INV_TTL', 'TTL_CST', 'GP'],
+        columnGroups: ['INV_TTL', 'TTL_CST', 'GP'],
+        onUpdateSetting: (p0) {
+          print(p0);
+          userController.appDefault = p0;
+          update();
+        },
       );
 
 // List<PlutoColumn> getRepColumns() {
@@ -252,36 +286,60 @@ ORDER BY
 
   get gainViewTableOptions {
     return TableOptions(
+      isAdmin: userController.uIsAdmin,
       isLoadingData: loadingData,
       repID: gainRepId,
       tableRows: gainRows,
       tableColumns: getColumnsFromToDateRep,
+      // defultColShow: userController.getAppDefault(repID: gainRepId, defType: 'SHOW_DEFAULT'),
+      // defultColSize: userController.getAppDefault(repID: gainRepId, defType: 'SIZE_DEFAULT'),
+      // defultPdf: userController.getAppDefault(repID: gainRepId, defType: 'PDF_DEFAULT'),
+      // defultExcel: userController.getAppDefault(repID: gainRepId, defType: 'EXCEL_DEFAULT'),
       pdfTitle: "الربح حسب مراكز البيع",
       fullScreenTitle: "ربح مراكز البيع",
+      onUpdateSetting: (p0) {
+        print(p0);
+      },
       // tatalTopTitle: ['INV_TTL', 'TTL_CST', 'GP'],
     );
   }
 
   get slsViewTableOptions {
     return TableOptions(
+      isAdmin: userController.uIsAdmin,
       isLoadingData: loadingData,
       repID: slsRepId,
       tableRows: slsRows,
       tableColumns: getColumnsFromToDateRep,
+      // defultColShow: userController.getAppDefault(repID: slsRepId, defType: 'SHOW_DEFAULT'),
+      // defultColSize: userController.getAppDefault(repID: slsRepId, defType: 'SIZE_DEFAULT'),
+      // defultPdf: userController.getAppDefault(repID: slsRepId, defType: 'PDF_DEFAULT'),
+      // defultExcel: userController.getAppDefault(repID: slsRepId, defType: 'EXCEL_DEFAULT'),
       pdfTitle: "مبيعات مراكز البيع",
       fullScreenTitle: "مبيعات مراكز البيع",
+      onUpdateSetting: (p0) {
+        print(p0);
+      },
       // tatalTopTitle: ['INV_TTL', 'TTL_CST', 'GP'],
     );
   }
 
   get costViewTableOptions {
     return TableOptions(
+      isAdmin: userController.uIsAdmin,
       isLoadingData: loadingData,
       repID: costRepId,
       tableRows: costRows,
       tableColumns: getColumnsFromToDateRep,
+      // defultColShow: userController.getAppDefault(repID: costRepId, defType: 'SHOW_DEFAULT'),
+      // defultColSize: userController.getAppDefault(repID: costRepId, defType: 'SIZE_DEFAULT'),
+      // defultPdf: userController.getAppDefault(repID: costRepId, defType: 'PDF_DEFAULT'),
+      // defultExcel: userController.getAppDefault(repID: costRepId, defType: 'EXCEL_DEFAULT'),
       pdfTitle: "تكلفة مراكز البيع",
       fullScreenTitle: "تكلفة مراكز البيع",
+      onUpdateSetting: (p0) {
+        print(p0);
+      },
       // tatalTopTitle: ['INV_TTL', 'TTL_CST', 'GP'],
     );
   }

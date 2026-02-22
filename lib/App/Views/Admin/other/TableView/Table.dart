@@ -1,347 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:masaratapp/App/Views/Admin/Controllers/table_controller.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-// import 'package:manar/Views/VAR_REP/kshf_acc_grp/View/full_view.dart';
-// import 'package:manar/login_screen.dart';
-// import 'package:manar/Tools/M7SN_Tools.dart';
-// import 'package:pluto_grid_plus/pluto_grid_plus.dart';
-// import '../../colors/M7SN_Color.dart';
 import '../../../../../Widget/loding_dots.dart';
 import '../../../../../utils/utils.dart';
-// import '../improvedTable/config/pluto_config.dart';
 import 'table_header.dart';
 
 import 'config/pluto_config.dart';
 import 'options/table_options.dart';
 
-// import '../../colors/M7SN_Color.dart';
-/*
-// Color _primaryColor = const Color(0xFF337ab7);
-Color _oddRowColor = const Color.fromARGB(255, 255, 255, 255); //Color.fromARGB(255, 231, 233, 236);
-Color _evenRowColor = const Color(0xfff6f6f6); //Color.fromARGB(255, 221, 230, 222);
-
-PlutoGridConfiguration _configuration = PlutoGridConfiguration(
-  localeText: const PlutoGridLocaleText.arabic(),
-  // columnSize: const PlutoGridColumnSizeConfig(
-  //   resizeMode: PlutoResizeMode.pushAndPull,
-  // ),
-
-  scrollbar: PlutoGridScrollbarConfig(
-    enableScrollAfterDragEnd: true,
-    // dragDevices: Set.identity(),//this stop horzintal scroll
-    scrollbarThicknessWhileDragging: BorderSide.strokeAlignOutside,
-    draggableScrollbar: PlutoChangeNotifierFilter.enabled,
-    scrollbarThickness: 5,
-    // scrollbarRadiusWhileDragging: Radius.circular(12),
-    // isAlwaysShown: true,
-    scrollBarColor: const Color(0XFFB77033),
-    scrollbarRadius: const Radius.circular(12),
-  ),
-  enableMoveHorizontalInEditing: true,
-  style: PlutoGridStyleConfig(
-    gridPopupBorderRadius: const BorderRadius.all(
-      Radius.circular(8),
-    ),
-    gridBorderRadius: const BorderRadius.all(
-      Radius.circular(8),
-    ),
-    gridBorderColor: Colors.grey,
-    oddRowColor: _oddRowColor, // Color.fromARGB(100, 238, 241, 238),
-    evenRowColor: _evenRowColor,
-
-    // borderColor: Colors.transparent,
-
-    enableColumnBorderVertical: true,
-    enableColumnBorderHorizontal: true,
-    enableCellBorderHorizontal: true,
-    enableCellBorderVertical: false,
-    iconColor: Colors.black, // _primaryColor,
-    // gridBackgroundColor: _primaryColor,
-    columnTextStyle: const TextStyle(color: Colors.white),
-
-    // filterHeaderColor: primaryColor, ------------------------------------------committed
-  ),
-);
-
-*/
-/*
-TextSpan customMultiLineColumn(List<String> wordInLine) {
-  return TextSpan(
-    children: [
-      WidgetSpan(
-        child: Column(
-          children: [
-            for (int i = 0; i < wordInLine.length; i++)
-              Text(
-                wordInLine[i],
-                style: const TextStyle(color: Colors.white),
-              ),
-          ],
-        ),
-      ),
-    ],
-  );
-}
-
-WidgetSpan autoMultiLineColumn(String title) {
-  return WidgetSpan(
-    child: Text(
-      title,
-      textAlign: TextAlign.center,
-      style: const TextStyle(color: Colors.white),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-    ),
-  );
-}
-
-double getSumOfAllCells1to12(List<PlutoRow> rows) {
-  double totalSum = 0;
-
-  // Iterate over each PlutoRow
-  for (var row in rows) {
-    // Iterate over cells from 1 to 12
-    for (int i = 1; i <= 12; i++) {
-      // Get the value of the cell
-      // print(row.cells[i]!.value);
-      var cellValue = row.cells["$i"]!.value; //row.cells[i /*i.toString().padLeft(2, '0')*/]!.value;
-
-      // If cellValue is not null, add it to totalSum
-      if (cellValue != null) {
-        totalSum += double.parse(cellValue.toString());
-      }
-    }
-  }
-
-  return totalSum;
-}
-
-double getSumOfAllCellsByFiled(List<PlutoRow> rows, String filed) {
-  double totalSum = 0;
-
-  // Iterate over each PlutoRow
-  for (var row in rows) {
-    var cellValue = row.cells[filed]!.value;
-    // If cellValue is not null, add it to totalSum
-    if (cellValue != null && cellValue != "") {
-      totalSum += double.parse(cellValue.toString());
-    }
-  }
-
-  return totalSum;
-}
-
-List<PlutoColumnGroup> createColumnTitleGroup(List<String> ls, {String title = ""}) {
-  return [
-    PlutoColumnGroup(
-      title: "",
-      fields: ls,
-      backgroundColor: primaryColor,
-      titleTextAlign: PlutoColumnTextAlign.right,
-      titleSpan: WidgetSpan(
-        child: Text(
-          title,
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 2,
-        ),
-      ),
-    )
-  ];
-}
-
-List<PlutoColumnGroup> createColumnGroup(List<String> ls, List<PlutoRow> rows, {String title = ""}) {
-  List<PlutoColumnGroup> totals = [];
-  for (var element in ls) {
-    totals.add(PlutoColumnGroup(
-      title: "",
-      fields: [element],
-      backgroundColor: primaryColor,
-      titleTextAlign: PlutoColumnTextAlign.right,
-      titleSpan: WidgetSpan(
-        child: Text(
-          formatCurrency(getSumOfAllCellsByFiled(rows, element).toString()),
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 2,
-        ),
-      ),
-    ));
-  }
-  return totals;
-}
-
-List<PlutoColumn> columnsdefualt({required List<PlutoColumn> columns, required List<String> showColList, required List<String> sizeColList}) {
-  //ReOrder
-  if (showColList.isNotEmpty) {
-    Map<String, int> fieldOrderMap = {};
-    for (int i = 0; i < showColList.length; i++) {
-      fieldOrderMap[showColList[i]] = i;
-    }
-    // Sort columns based on the fieldOrderMap
-    // _columns.sort((a, b) => fieldOrderMap[a.field]!.compareTo(fieldOrderMap[b.field]!));
-    columns.sort((a, b) {
-      // Check if both fields are in the desiredOrder
-      bool aInDesiredOrder = fieldOrderMap.containsKey(a.field);
-      bool bInDesiredOrder = fieldOrderMap.containsKey(b.field);
-
-      // Both fields are in the desiredOrder
-      if (aInDesiredOrder && bInDesiredOrder) {
-        return fieldOrderMap[a.field]!.compareTo(fieldOrderMap[b.field]!);
-      }
-      // Field a is in the desiredOrder, and field b is not
-      else if (aInDesiredOrder) {
-        return -1; // a should come before b
-      }
-      // Field b is in the desiredOrder, and field a is not
-      else if (bInDesiredOrder) {
-        return 1; // b should come before a
-      }
-      // Both fields are not in the desiredOrder
-      else {
-        return 0; // maintain original order for those not in desiredOrder
-      }
-    });
-  }
-
-  //Hide
-  //  _columns.removeWhere((element) =>  )
-  if (showColList.isNotEmpty) {
-    for (var element in columns) {
-      if (showColList.contains(element.field)) {
-        element.hide = false;
-      } else {
-        element.hide = true;
-      }
-    }
-  }
-  //Resize
-  if (sizeColList.isNotEmpty) {
-    int i = 0;
-    for (var element in columns) {
-      if (i >= sizeColList.length) {
-        //only resize defult showed column
-        break;
-      }
-      try {
-        double x = double.parse(sizeColList[i]);
-        element.width = x;
-      } catch (e) {
-        //
-      }
-
-      i++;
-    }
-  }
-  return columns;
-}
-
-String formatTime(String time) {
-  try {
-    DateTime dateTime = DateTime.parse(time);
-
-    DateFormat timeFormat = DateFormat('hh:mm:ss a');
-
-    String formattedTime = timeFormat.format(dateTime);
-
-    return Get.locale!.languageCode == 'Ar' ? formattedTime : formattedTime.replaceAll('AM', 'ص').replaceAll('PM', 'م');
-  } catch (e) {
-    return time;
-  }
-}
-
-*/
-
-double getSumOfAllCellsByFiled(List<PlutoRow> rows, String filed) {
-  double totalSum = 0;
-
-  // Iterate over each PlutoRow
-  for (var row in rows) {
-    var cellValue = row.cells[filed]!.value;
-    // If cellValue is not null, add it to totalSum
-    if (cellValue != null && cellValue != "") {
-      totalSum += double.parse(cellValue.toString());
-    }
-  }
-
-  return totalSum;
-}
-
-List<PlutoColumnGroup> createColumnGroup(List<String> ls, List<PlutoRow> rows, {String title = ""}) {
-  List<PlutoColumnGroup> totals = [];
-  for (var element in ls) {
-    totals.add(PlutoColumnGroup(
-      title: "",
-      fields: [element],
-      backgroundColor: primaryColor,
-      titleTextAlign: PlutoColumnTextAlign.right,
-      titleSpan: WidgetSpan(
-        child: Text(
-          formatCurrency(getSumOfAllCellsByFiled(rows, element).toString()),
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 2,
-        ),
-      ),
-    ));
-  }
-  return totals;
-}
-
-Widget tableView({
-  // required BuildContext context,
-  // required String key,
-  // required bool isLoadingData,
-  // required List<PlutoRow> tableRows,
-  // required List<PlutoColumn> tableColumn,
-  // required String pdfTitle,
-  // required String fullScreenTitle,
-  // // double? totalAll,
-  // List<PlutoColumnGroup>? tatal,
-  // String? groupRowByColumnName,
-  // int? pageSize,
-  // // bool columnPerPageSumVisible = true ,
-  // bool pagetion = false,
-  // bool showColumnFilter = false,
-  // bool showTableHeader = true,
-  // Widget? title,
-  // required String repID,
-  // required List<String> defultPdf,
-  // required List<String> defultExcel,
-  // bool showPdfSumLastRow = true,
-  // pw.Widget? pdfHeader,
-  // pw.Widget? pdfFooter,
-  // bool fullScreenWithAddedCouumon = false,
-  required TableOptions tableOPtions,
-}) {
-  // final tblCntrol = Get.find<TableController>();
-
-  // List<PlutoColumn> getColumnsWithOutAddedColumn() {
-  //   if (!tableOPtions.fullScreenWithAddedCouumon && tableOPtions.isFullScreenMode) {
-  //     return tableOPtions.tableColumns.where((element) => element.field != "AddedColumn").toList();
-  //   }
-
-  //   return tableOPtions.tableColumns;
-  // }
-  // if (tableOPtions.isLoadingData && tableOPtions.tableRows.isEmpty) {
-  //   Get.delete<TableController>();
-  // }
-
-  List<PlutoColumnGroup>? getColumnGroup() {
-    if (tableOPtions.tatalTopTitle.isNotEmpty) {
-      return createColumnGroup(tableOPtions.tatalTopTitle, tableOPtions.tableRows);
-    } else {
-      return null;
-    }
-  }
-
+Widget tableView({required TableOptions tableOPtions}) {
   return tableOPtions.tableRows.isNotEmpty
       ? PlutoGrid(
           // key: Key(repID),
           // mode: PlutoGridMode.readOnly,
-          columnGroups: getColumnGroup(),
+          columnGroups: tableOPtions.topTotalcolumnGroups,
           // rowColorCallback: groupRowByColumnName != null
           //     ? (rowColorContext) {
           //         if (rowColorContext.row.type.isGroup) {
@@ -425,44 +98,46 @@ Widget tableView({
                 }
               : null,
 
-          createHeader: (stateManager) {
-            return Container(
-              decoration: BoxDecoration(color: primaryColor, border: const BorderDirectional(bottom: BorderSide(width: 1, color: Colors.white))),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  tableOPtions.title ?? SizedBox(),
-                  //
-                  if (tableOPtions.showTableHeader)
-                    tableHeader(
-                      tableOptions: tableOPtions.copyWith(
-                        isFullScreenMode: tableOPtions.isFullScreenMode,
-                      ),
-                      // tableOptions: tableOPtions,
-                      stateManager: stateManager,
-                      // // context: context,
-                      // tableRows: tableRows,
-                      // pdfTitle: pdfTitle,
-                      // fullScreenTitle: fullScreenTitle,
-                      // // key: key,
-                      // isLoadingData: isLoadingData,
-                      // tableColumn: tableColumn,
-                      // pageSize: pageSize,
-                      // groupRowByColumnName: groupRowByColumnName,
-                      // pagetion: pagetion,
-                      // tatal: tatal,
-                      // repID: repID,
-                      // defultPdf: defultPdf,
-                      // defultExcel: defultExcel,
-                      // showColumnFilter: showColumnFilter,
-                      // showPdfSumLastRow: showPdfSumLastRow,
-                      // pdfHeader: pdfHeader,
-                      // pdfFooter: pdfFooter,
-                    )
-                ],
-              ),
-            );
-          },
+          createHeader: tableOPtions.isAdmin
+              ? (stateManager) {
+                  return Container(
+                    decoration: BoxDecoration(color: primaryColor, border: const BorderDirectional(bottom: BorderSide(width: 1, color: Colors.white))),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        tableOPtions.title ?? SizedBox(),
+                        //
+                        if (tableOPtions.showTableHeader)
+                          tableHeader(
+                            tableOptions: tableOPtions.copyWith(
+                              isFullScreenMode: tableOPtions.isFullScreenMode,
+                            ),
+                            // tableOptions: tableOPtions,
+                            stateManager: stateManager,
+                            // // context: context,
+                            // tableRows: tableRows,
+                            // pdfTitle: pdfTitle,
+                            // fullScreenTitle: fullScreenTitle,
+                            // // key: key,
+                            // isLoadingData: isLoadingData,
+                            // tableColumn: tableColumn,
+                            // pageSize: pageSize,
+                            // groupRowByColumnName: groupRowByColumnName,
+                            // pagetion: pagetion,
+                            // tatal: tatal,
+                            // repID: repID,
+                            // defultPdf: defultPdf,
+                            // defultExcel: defultExcel,
+                            // showColumnFilter: showColumnFilter,
+                            // showPdfSumLastRow: showPdfSumLastRow,
+                            // pdfHeader: pdfHeader,
+                            // pdfFooter: pdfFooter,
+                          )
+                      ],
+                    ),
+                  );
+                }
+              : null,
 
           columnMenuDelegate: _UserColumnMenu(),
         )

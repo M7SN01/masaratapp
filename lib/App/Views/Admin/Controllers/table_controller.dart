@@ -2,6 +2,7 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:masaratapp/App/Controllers/user_controller.dart';
+import 'package:masaratapp/App/Views/Admin/other/TableView/options/table_options.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../Print/pdf_viewer.dart';
@@ -14,11 +15,10 @@ import '../other/TableView/tools/export_excel.dart';
 class TableController extends GetxController {
   final Services dbServices = Services();
   late UserController userController;
-  String uName = "";
+  String uId = "";
   bool postingQuery = false;
   TextEditingController pdfName = TextEditingController();
   TextEditingController addedColumnNameController = TextEditingController();
-  Map<String, dynamic> appDefault = {};
 
   bool isFullScreenMode = false;
   // late PlutoGridStateManager stateManager;
@@ -42,7 +42,7 @@ class TableController extends GetxController {
   void onInit() {
     super.onInit();
     userController = Get.find<UserController>();
-    uName = userController.uName;
+    uId = userController.uId;
   }
 
   @override
@@ -53,113 +53,125 @@ class TableController extends GetxController {
 
   //--
 
-  postColName({required String col, required String repID, required List<PlutoColumn> postColumns}) async {
-    List<String> showedColumns = [];
-    // uName
-    for (var column in postColumns) {
-      if (column.hide == false) {
-        showedColumns.add(column.field);
-      }
-    }
-
-    postingQuery = true;
-    update();
-    var s = await dbServices.createRep(
-      sqlStatment: "select 1 from ORCA.APP_DEFAULT where REP_ID='$repID'",
-    );
-    if (s.isEmpty) {
-      await dbServices.createRep(
-        sqlStatment: "INSERT INTO  ORCA.APP_DEFAULT(REP_ID,USER_NAME,$col) VALUES('$repID','$uName','${showedColumns.map((e) => e).join(',')}')",
-      );
-
-      // print(appDefault[repID][col]);
-      // print("INSERT INTO  ORCA.APP_DEFAULT(REP_ID,USER_NAME,$col) VALUES('$repID','$uName','${showedColumns.map((e) => e).join(',')}')");
-
-      //Local update of app default
-      if (appDefault.containsKey(repID)) {
-        if (appDefault[repID]!.containsKey(col)) {
-          appDefault[repID]![col] = showedColumns.map((e) => e).join(',').toString();
-        } else {
-          appDefault[repID] = {col: showedColumns.map((e) => e).join(',').toString()};
+  postColName({required String col, required TableOptions tableOptions}) async {
+    try {
+      List<String> showedColumns = [];
+      // uId
+      for (var column in tableOptions.tableColumns) {
+        if (column.hide == false) {
+          showedColumns.add(column.field);
         }
-      } else {
-        appDefault[repID] = {col: showedColumns.map((e) => e).join(',').toString()};
       }
-      postingQuery = false;
+
+      postingQuery = true;
       update();
-    } else {
-      await dbServices.createRep(
-        sqlStatment: "UPDATE ORCA.APP_DEFAULT set $col='${showedColumns.map((e) => e).join(',')}'  WHERE REP_ID='$repID' AND USER_NAME ='$uName' ",
+      var s = await dbServices.createRep(
+        sqlStatment: "select 1 from APP_ACCOUNT.APP_DEFAULT where REP_ID='${tableOptions.repID}'",
       );
+      if (s.isEmpty) {
+        s = await dbServices.createRep(
+          sqlStatment: "INSERT INTO  APP_ACCOUNT.APP_DEFAULT(REP_ID,USER_ID,$col) VALUES('${tableOptions.repID}','$uId','${showedColumns.map((e) => e).join(',')}')",
+        );
 
-      // print("old    ${showedColumns.map((e) => e).join(',')}");
-      // print("new    ${appDefault[repID][col]}");
-      // print("UPDATE ORCA.APP_DEFAULT set $col='${showedColumns.map((e) => e).join(',')}'  WHERE REP_ID='$repID' AND uName ='$User_ID' ");
+        // print(appDefault[repID][col]);
+        // print("INSERT INTO  APP_ACCOUNT.APP_DEFAULT(REP_ID,USER_ID,$col) VALUES('${tableOptions.repID}','$uId','${showedColumns.map((e) => e).join(',')}')");
 
-      if (appDefault.containsKey(repID)) {
-        if (appDefault[repID]!.containsKey(col)) {
-          appDefault[repID]![col] = showedColumns.map((e) => e).join(',').toString();
+        //Local update of app default
+        if (tableOptions.appDefault.containsKey(tableOptions.repID)) {
+          if (tableOptions.appDefault[tableOptions.repID]!.containsKey(col)) {
+            tableOptions.appDefault[tableOptions.repID]![col] = showedColumns.map((e) => e).join(',').toString();
+          } else {
+            tableOptions.appDefault[tableOptions.repID] = {col: showedColumns.map((e) => e).join(',').toString()};
+          }
         } else {
-          appDefault[repID] = {col: showedColumns.map((e) => e).join(',').toString()};
+          tableOptions.appDefault[tableOptions.repID] = {col: showedColumns.map((e) => e).join(',').toString()};
         }
+        tableOptions.onUpdateSetting?.call(tableOptions.appDefault);
+        postingQuery = false;
+        update();
       } else {
-        appDefault[repID] = {col: showedColumns.map((e) => e).join(',').toString()};
+        await dbServices.createRep(
+          sqlStatment: "UPDATE APP_ACCOUNT.APP_DEFAULT set $col='${showedColumns.map((e) => e).join(',')}'  WHERE REP_ID='${tableOptions.repID}' AND USER_ID ='$uId' ",
+        );
+
+        // print("old    ${showedColumns.map((e) => e).join(',')}");
+        // print("new    ${tableOptions.appDefault[repID][col]}");
+        // print("UPDATE APP_ACCOUNT.APP_DEFAULT set $col='${showedColumns.map((e) => e).join(',')}'  WHERE REP_ID='${tableOptions.repID}' AND uId ='$User_ID' ");
+
+        if (tableOptions.appDefault.containsKey(tableOptions.repID)) {
+          if (tableOptions.appDefault[tableOptions.repID]!.containsKey(col)) {
+            tableOptions.appDefault[tableOptions.repID]![col] = showedColumns.map((e) => e).join(',').toString();
+          } else {
+            tableOptions.appDefault[tableOptions.repID] = {col: showedColumns.map((e) => e).join(',').toString()};
+          }
+        } else {
+          tableOptions.appDefault[tableOptions.repID] = {col: showedColumns.map((e) => e).join(',').toString()};
+        }
+        tableOptions.onUpdateSetting?.call(tableOptions.appDefault);
+        postingQuery = false;
+        update();
       }
-      postingQuery = false;
-      update();
+    } catch (e) {
+      print(e.toString());
     }
   }
 
-  postColSize({required String repID, required List<PlutoColumn> postColumns}) async {
-    List<String> showedColumnsSize = [];
-    // uName
-    for (var column in postColumns) {
-      showedColumnsSize.add(column.width.toString());
-      // print(column.width);
-    }
-    postingQuery = true;
-    update();
-
-    var s = await dbServices.createRep(
-      sqlStatment: "select 1 from ORCA.APP_DEFAULT where REP_ID='$repID'",
-    );
-    if (s.isEmpty) {
-      await dbServices.createRep(
-        sqlStatment: "INSERT INTO  ORCA.APP_DEFAULT(REP_ID,USER_NAME,SIZE_DEFAULT) VALUES('$repID','$uName','${showedColumnsSize.map((e) => e).join(',')}')",
-      );
-      // print("INSERT INTO  ORCA.APP_DEFAULT(REP_ID,USER_NAME,SIZE_DEFAULT) VALUES('$repID','$USER_NAME','${showedColumnsSize.map((e) => e).join(',')}')");
-
-      //Local update
-      if (appDefault.containsKey(repID)) {
-        if (appDefault[repID]!.containsKey("SIZE_DEFAULT")) {
-          appDefault[repID]!["SIZE_DEFAULT"] = showedColumnsSize.map((e) => e).join(',').toString();
-        } else {
-          appDefault[repID] = {"SIZE_DEFAULT": showedColumnsSize.map((e) => e).join(',').toString()};
-        }
-      } else {
-        appDefault[repID] = {"SIZE_DEFAULT": showedColumnsSize.map((e) => e).join(',').toString()};
+  postColSize({required String repID, required TableOptions tableOptions}) async {
+    try {
+      List<String> showedColumnsSize = [];
+      // uId
+      for (var column in tableOptions.tableColumns) {
+        showedColumnsSize.add(column.width.toString());
+        // print(column.width);
       }
-      // appDefault[repID]["SIZE_DEFAULT"] = showedColumnsSize.map((e) => e).join(',');
-      postingQuery = false;
+      postingQuery = true;
       update();
-    } else {
-      await dbServices.createRep(
-        sqlStatment: "UPDATE ORCA.APP_DEFAULT set SIZE_DEFAULT='${showedColumnsSize.map((e) => e).join(',')}'  WHERE REP_ID='$repID' AND USER_NAME ='$uName' ",
-      );
-      // print("UPDATE ORCA.APP_DEFAULT set $col='${showedColumns.map((e) => e).join(',')}'  WHERE REP_ID='$repID' AND uName ='$User_ID' ");
 
-      if (appDefault.containsKey(repID)) {
-        if (appDefault[repID]!.containsKey("SIZE_DEFAULT")) {
-          appDefault[repID]!["SIZE_DEFAULT"] = showedColumnsSize.map((e) => e).join(',').toString();
+      var s = await dbServices.createRep(
+        sqlStatment: "select 1 from APP_ACCOUNT.APP_DEFAULT where REP_ID='${tableOptions.repID}'",
+      );
+      if (s.isEmpty) {
+        await dbServices.createRep(
+          sqlStatment: "INSERT INTO  APP_ACCOUNT.APP_DEFAULT(REP_ID,USER_ID,SIZE_DEFAULT) VALUES('${tableOptions.repID}','$uId','${showedColumnsSize.map((e) => e).join(',')}')",
+        );
+        // print("INSERT INTO  APP_ACCOUNT.APP_DEFAULT(REP_ID,USER_ID,SIZE_DEFAULT) VALUES('${tableOptions.repID}','$USER_ID','${showedColumnsSize.map((e) => e).join(',')}')");
+
+        //Local update
+        if (tableOptions.appDefault.containsKey(tableOptions.repID)) {
+          if (tableOptions.appDefault[tableOptions.repID]!.containsKey("SIZE_DEFAULT")) {
+            tableOptions.appDefault[tableOptions.repID]!["SIZE_DEFAULT"] = showedColumnsSize.map((e) => e).join(',').toString();
+          } else {
+            tableOptions.appDefault[tableOptions.repID] = {"SIZE_DEFAULT": showedColumnsSize.map((e) => e).join(',').toString()};
+          }
         } else {
-          appDefault[repID] = {"SIZE_DEFAULT": showedColumnsSize.map((e) => e).join(',').toString()};
+          tableOptions.appDefault[tableOptions.repID] = {"SIZE_DEFAULT": showedColumnsSize.map((e) => e).join(',').toString()};
         }
+        // appDefault[repID]["SIZE_DEFAULT"] = showedColumnsSize.map((e) => e).join(',');
+        tableOptions.onUpdateSetting?.call(tableOptions.appDefault);
+        postingQuery = false;
+        update();
       } else {
-        appDefault[repID] = {"SIZE_DEFAULT": showedColumnsSize.map((e) => e).join(',').toString()};
+        await dbServices.createRep(
+          sqlStatment: "UPDATE APP_ACCOUNT.APP_DEFAULT set SIZE_DEFAULT='${showedColumnsSize.map((e) => e).join(',')}'  WHERE REP_ID='${tableOptions.repID}' AND USER_ID ='$uId' ",
+        );
+        // print("UPDATE APP_ACCOUNT.APP_DEFAULT set $col='${showedColumns.map((e) => e).join(',')}'  WHERE REP_ID='${tableOptions.repID}' AND uId ='$User_ID' ");
+
+        if (tableOptions.appDefault.containsKey(repID)) {
+          if (tableOptions.appDefault[repID]!.containsKey("SIZE_DEFAULT")) {
+            tableOptions.appDefault[repID]!["SIZE_DEFAULT"] = showedColumnsSize.map((e) => e).join(',').toString();
+          } else {
+            tableOptions.appDefault[repID] = {"SIZE_DEFAULT": showedColumnsSize.map((e) => e).join(',').toString()};
+          }
+        } else {
+          tableOptions.appDefault[repID] = {"SIZE_DEFAULT": showedColumnsSize.map((e) => e).join(',').toString()};
+        }
+        // appDefault[widget.repID]["SIZE_DEFAULT"] = showedColumnsSize.map((e) => e).join(',');
+        tableOptions.onUpdateSetting?.call(tableOptions.appDefault);
+        postingQuery = false;
+        update();
       }
-      // appDefault[widget.repID]["SIZE_DEFAULT"] = showedColumnsSize.map((e) => e).join(',');
-      postingQuery = false;
-      update();
+    } catch (e) {
+      print(e.toString());
     }
   }
 

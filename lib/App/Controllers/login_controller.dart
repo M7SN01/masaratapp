@@ -38,6 +38,7 @@ class LoginController extends GetxController {
   String? logedInuserId;
   String? logedInuserName;
   String? logedInPassword;
+  bool logedInIsAdmin = false;
   String? lastOfflineCopyDate;
   bool isOfflineMode = false;
 
@@ -256,7 +257,7 @@ class LoginController extends GetxController {
           );
         } else {
           jsonData = await dbServices.createRep(
-            sqlStatment: "Select U_ID,U_NAME,U_P from USER1 where U_ID='${userID.text}' and U_P='${password.text}'", timeOutSeconds: 5,
+            sqlStatment: "Select TO_CHAR(U_ID) U_ID,U_NAME,U_P,TO_CHAR(IS_ADMIN) IS_ADMIN from APP_ACCOUNT.APP_USERS where U_ID='${userID.text}' and U_P='${password.text}'", timeOutSeconds: 5,
             // errorCallback: (error) {
             //   // showMessage(
             //   //   msg: error,
@@ -287,7 +288,7 @@ class LoginController extends GetxController {
           logedInuserId = jsonData[0]['U_ID'].toString();
           logedInuserName = jsonData[0]['U_NAME'].toString();
           logedInPassword = jsonData[0]['U_P'].toString();
-
+          logedInIsAdmin = jsonData[0]['IS_ADMIN'].toString() == "1";
           //if keep me login save data
           if (keepmelogin) {
             // debugPrint("keep me loged in next time");

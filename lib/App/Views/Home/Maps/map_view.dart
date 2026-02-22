@@ -131,6 +131,7 @@ class _VisitMapState extends State<VisitMap> {
                     ),
                   ),
                   SizedBox(height: 5),
+                  // if (controller.isAdmin)
                   SizedBox(
                     height: 40,
                     child: Row(
@@ -382,6 +383,8 @@ class _VisitMapState extends State<VisitMap> {
                                 // initialZoom: 5.5,
                                 minZoom: 5,
                                 maxZoom: 20,
+                                initialCenter: controller.latlang(23.8859, 45.0792), // Center of Saudi Arabia
+                                initialZoom: 5.5,
 
                                 // cameraConstraint: CameraConstraint.contain(
                                 //   bounds: LatLngBounds(

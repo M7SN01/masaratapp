@@ -26,6 +26,7 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
   late LoginController loginController;
   String? userId;
   String? userName;
+  bool isAdmin = false;
   //
   CusDataModel? selecetdCustomer;
   List<CusDataModel> cusData = [];
@@ -53,7 +54,9 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
     loginController = Get.find<LoginController>();
     userId = loginController.logedInuserId;
     userName = loginController.logedInuserName;
+    isAdmin = loginController.logedInIsAdmin;
     cusData = userController.cusDataList;
+
     //----
     //  mapController = MapController();
     animatedMapController = AnimatedMapController(
@@ -63,9 +66,10 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
     );
 
     // animatedMapController.mapController.camera.
-    userCurrentLocation = await getCurrentLocation();
+
     isLoading = false;
     update();
+    userCurrentLocation = await getCurrentLocation();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // debugPrint(userCurrentLocation.toString());
       if (userCurrentLocation == null) {
@@ -76,7 +80,6 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
         debugPrint("End -----------------------");
       }
     });
-
     super.onInit();
   }
 
@@ -202,7 +205,7 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
       // Add the LatLng point to the list for the current SLS_MAN_ID
       list.add(LatLang(element.latitude!, element.longitude!));
     }
-
+    print(ids);
     final List<Color> colors = [
       // Colors.red, any cus without SLS_MAN_ID
       Colors.blue,
@@ -345,7 +348,7 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
 
       if (!serviceEnable) {
         // showMessage(color: secondaryColor, titleMsg: "خدمات الموقع معطلة", durationMilliseconds: 2000);
-        Get.defaultDialog(
+        await Get.defaultDialog(
           title: "خدمات الموقع معطلة",
           middleText: "فتح الاعدادات لتفعيل خدمات الموقع",
           textConfirm: "تأكيد",
@@ -368,7 +371,7 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           // ShowMessage(context, Locales.string(context, "locationpermissiondisabled"), Colors.red);
-          showMessage(color: secondaryColor, titleMsg: "امنح التطبيق صلاحيات استخدام موقعك", durationMilliseconds: 2000);
+          showMessage(color: secondaryColor, titleMsg: "امنح التطبيق صلاحيات استخدام موقعك", durationMilliseconds: 4000);
           // return Future.error("Locales.string(context, locationpermissiondisabled)");
           return null;
         } else if (permission == LocationPermission.deniedForever) {
@@ -398,7 +401,7 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
       } else if (permission == LocationPermission.deniedForever) {
         // ShowMessage(context, Locales.string(context, "locationpermissionsdenide"), Colors.red);
         // return Future.error("Locales.string(context, locationpermissionsdenide)");
-        showMessage(color: secondaryColor, titleMsg: "امنح التطبيق صلاحيات استخدام موقعك", durationMilliseconds: 2000);
+        showMessage(color: secondaryColor, titleMsg: "امنح التطبيق صلاحيات استخدام موقعك", durationMilliseconds: 4000);
         return null;
       }
       // Geolocator.openAppSettings();
@@ -413,67 +416,77 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
   CircleMarker? circulerMarker;
   setCurrentUserLocation() async {
     // Position? position = await getCurrentLocation();
-    if (userCurrentLocation != null) {
-      double lat = userCurrentLocation!.latitude;
-      double lng = userCurrentLocation!.longitude;
-      animatedMapController.animateTo(
-        dest: LatLang(lat, lng),
-        zoom: 19,
-      );
+    try {
+      if (userCurrentLocation != null) {
+        double lat = userCurrentLocation!.latitude;
+        double lng = userCurrentLocation!.longitude;
+        animatedMapController.animateTo(
+          dest: LatLang(lat, lng),
+          zoom: 17,
+        );
 
-      circulerMarker = CircleMarker(
-        point: LatLang(lat, lng), // your location
-        radius: 20, // radius in METERS
-        useRadiusInMeter: true,
-        color: Colors.blue.withValues(alpha: 0.15),
-        borderColor: Colors.blue,
-        borderStrokeWidth: 2,
-      );
-      userMarker = Marker(
-        // key: ValueKey("userMarker"),
-        point: LatLang(lat, lng),
-        child: Icon(
-          Icons.location_pin,
-          size: 30,
-          color: Colors.blue,
-        ),
-      );
-      update();
-    } else {
-      userCurrentLocation = await getCurrentLocation();
-      await setCurrentUserLocation();
+        circulerMarker = CircleMarker(
+          point: LatLang(lat, lng), // your location
+          radius: 20, // radius in METERS
+          useRadiusInMeter: true,
+          color: Colors.blue.withValues(alpha: 0.15),
+          borderColor: Colors.blue,
+          borderStrokeWidth: 2,
+        );
+        userMarker = Marker(
+          // key: ValueKey("userMarker"),
+          point: LatLang(lat, lng),
+          child: Icon(
+            Icons.location_pin,
+            size: 30,
+            color: Colors.blue,
+          ),
+        );
+        update();
+      } else {
+        userCurrentLocation = await getCurrentLocation();
+        if (userCurrentLocation != null) await setCurrentUserLocation();
+      }
+    } catch (e) {
+      userController.appLog += "${e.toString()} \n------------------------------------------\n";
+      showMessage(color: secondaryColor, titleMsg: "UnExpected Error", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 2000);
     }
   }
 
   onSelectCustomer(int customerId) {
-    resetMapValues();
-    selecetdCustomer = cusData.firstWhere((e) => e.cusId == customerId);
+    try {
+      resetMapValues();
+      selecetdCustomer = cusData.firstWhere((e) => e.cusId == customerId);
 
-    if (isCustomerHasLocation) {
-      customerMarker = Marker(
-        // key: ValueKey("customerMarker"),
-        point: LatLang(selecetdCustomer!.latitude!, selecetdCustomer!.longitude!),
-        child: Icon(
-          Icons.location_pin,
-          size: 30,
-          color: Colors.red,
-        ),
-      );
+      if (isCustomerHasLocation) {
+        customerMarker = Marker(
+          // key: ValueKey("customerMarker"),
+          point: LatLang(selecetdCustomer!.latitude!, selecetdCustomer!.longitude!),
+          child: Icon(
+            Icons.location_pin,
+            size: 30,
+            color: Colors.red,
+          ),
+        );
 
-      animatedMapController.animatedFitCamera(
-        cameraFit: CameraFit.coordinates(
-          coordinates: [
-            LatLang(selecetdCustomer!.latitude!, selecetdCustomer!.longitude!),
-            LatLang(userCurrentLocation!.latitude, userCurrentLocation!.longitude),
-          ],
-          forceIntegerZoomLevel: true, //to fit both two marker in the map
-          maxZoom: 19,
-        ),
-      );
+        animatedMapController.animatedFitCamera(
+          cameraFit: CameraFit.coordinates(
+            coordinates: [
+              LatLang(selecetdCustomer!.latitude!, selecetdCustomer!.longitude!),
+              LatLang(userCurrentLocation!.latitude, userCurrentLocation!.longitude),
+            ],
+            forceIntegerZoomLevel: true, //to fit both two marker in the map
+            maxZoom: 19,
+          ),
+        );
+      }
+
+      update();
+      Get.back();
+    } catch (e) {
+      userController.appLog += "${e.toString()} \n------------------------------------------\n";
+      showMessage(color: secondaryColor, titleMsg: "UnExpected Error", titleFontSize: 18, msg: e.toString(), durationMilliseconds: 2000);
     }
-
-    update();
-    Get.back();
   }
 
 //
