@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pluto_grid/pluto_grid.dart';
+import '../../Print/pdf_viewer.dart';
+import '../../samples/slmaples.dart';
 import '../Controllers/user_controller.dart';
 import '../Models/user_model.dart';
 import '../../Services/api_db_services.dart';
@@ -134,13 +136,30 @@ class CusBalanceController extends GetxController {
                 ),
           );
         },
+        footerRenderer: (context) {
+          return isPostingToApi
+              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+              : TextButton(
+                  onPressed: () {
+                    exportToPDF(columns: context.stateManager.columns, rows: context.stateManager.rows, pdfTitle: "ارصدة العملاء");
+                  },
+                  style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                    backgroundColor: primaryColor,
+                  ),
+                  child: Icon(
+                    Icons.print,
+                    color: Colors.white,
+                  ),
+                );
+        },
       ),
       PlutoColumn(
         title: "الرصيد",
         field: 'BAL',
         textAlign: PlutoColumnTextAlign.center,
         titleTextAlign: PlutoColumnTextAlign.center,
-        type: PlutoColumnType.number(format: '###,###.##'),
+        type: PlutoColumnType.currency(format: '###,###.##'),
         backgroundColor: primaryColor,
         width: 120,
         titleSpan: autoMultiLineColumn("الرصيد"),
@@ -183,20 +202,20 @@ class CusBalanceController extends GetxController {
         //         );
         // },
       ),
-      PlutoColumn(
-        title: "التلفون",
-        field: 'TEL',
-        textAlign: PlutoColumnTextAlign.center,
-        titleTextAlign: PlutoColumnTextAlign.center,
-        type: PlutoColumnType.text(),
-        backgroundColor: primaryColor,
-        suppressedAutoSize: true,
-        width: 110,
-        titleSpan: autoMultiLineColumn("التلفون"),
-        enableContextMenu: false,
-        enableEditingMode: false,
-        enableColumnDrag: false,
-      ),
+      // PlutoColumn(
+      //   title: "التلفون",
+      //   field: 'TEL',
+      //   textAlign: PlutoColumnTextAlign.center,
+      //   titleTextAlign: PlutoColumnTextAlign.center,
+      //   type: PlutoColumnType.text(),
+      //   backgroundColor: primaryColor,
+      //   suppressedAutoSize: true,
+      //   width: 110,
+      //   titleSpan: autoMultiLineColumn("التلفون"),
+      //   enableContextMenu: false,
+      //   enableEditingMode: false,
+      //   enableColumnDrag: false,
+      // ),
       PlutoColumn(
         title: "الجوال",
         field: 'MOBL',
@@ -352,7 +371,7 @@ class CusBalanceController extends GetxController {
               "CUS_NAME": PlutoCell(value: checkNullString(element['CUS_NAME'].toString())),
               'BAL': PlutoCell(value: checkNullString(element['BAL'].toString())),
               'TEL': PlutoCell(value: checkNullString(element['TEL'].toString())),
-              'MOBL': PlutoCell(value: element['MOBL'].toString()),
+              'MOBL': PlutoCell(value: checkNullString(element['MOBL'].toString())),
               'CLASS_NAME': PlutoCell(value: checkNullString(element['CLASS_NAME'].toString())),
             },
           ),
@@ -387,6 +406,74 @@ class CusBalanceController extends GetxController {
         ),
       ),
     );
+  }
+
+  Map<String, dynamic> getVariablesData({required List<PlutoColumn> columns, required List<PlutoRow> rows, String? pdfTitle}) {
+    List<Map<String, dynamic>> rowsTmpList = [];
+    List<String> headerList = [];
+    Map<String, dynamic> fotterMaptotals = {};
+    //
+    //
+    //only header in the appare columns
+    for (var column in columns) {
+      if (!column.hide) {
+        headerList.add(column.title);
+        //initilize fotter cells
+        if (column.type is PlutoColumnTypeCurrency) {
+          fotterMaptotals[column.field] = 0.0;
+        } else {
+          fotterMaptotals[column.field] = "";
+        }
+      }
+    }
+
+    for (var row in rows) {
+      Map<String, dynamic> rowMap = {};
+      //only row in the appare columns
+      for (var column in columns) {
+        if (!column.hide) {
+          rowMap[column.field] = row.cells[column.field]?.value;
+          if (column.type is PlutoColumnTypeCurrency) {
+            fotterMaptotals[column.field] += row.cells[column.field]?.value ?? 0.0;
+          }
+        }
+      }
+      rowsTmpList.add(rowMap);
+    }
+    //last Row---
+    rowsTmpList.add(fotterMaptotals.map(
+      (key, value) {
+        return MapEntry(key, formatCurrency(value.toString()));
+      },
+    ));
+    //
+
+    return {
+      "a_comp_name": userController.compData.aCompName,
+      "a_activity": userController.compData.aActivity,
+      "commercial_reg": userController.compData.commercialReg,
+      "tax_no": userController.compData.taxNo,
+      "mobile_no": userController.compData.tel,
+      "e_comp_name": userController.compData.eCompName,
+      "e_activity": userController.compData.eActivity,
+      //
+      "title": pdfTitle,
+      //
+      "header_list": headerList,
+      "repeat_element": rowsTmpList,
+    };
+  }
+
+  void exportToPDF({required List<PlutoColumn> columns, required List<PlutoRow> rows, String? pdfTitle}) {
+    if (rows.isEmpty) {
+      showMessage(color: secondaryColor, titleMsg: "لايوجد بيانات لطباعتها !", durationMilliseconds: 1000);
+    } else {
+      PrintSamples ps = PrintSamples(compData: userController.compData);
+      Get.to(() => PdfPreviewScreen(
+            jsonLayout: ps.getGenralSample,
+            variables: getVariablesData(columns: columns, rows: rows, pdfTitle: pdfTitle),
+          ));
+    }
   }
 
 /*

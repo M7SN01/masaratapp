@@ -103,6 +103,7 @@ class PdfPreviewScreen extends StatelessWidget {
 
             pdf.addPage(
               pw.MultiPage(
+                maxPages: 999,
                 textDirection: pw.TextDirection.rtl,
                 orientation: pw.PageOrientation.portrait,
                 margin: const pw.EdgeInsets.only(left: 5, right: 5, top: 5, bottom: 5),
