@@ -273,11 +273,9 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
           Marker(
             key: ValueKey(cusId),
             point: LatLang(lat, lng),
-            child: IconButton(
-              icon: Icon(Icons.location_pin, size: 30),
-              onPressed: () {
-                print(element.slsManId);
-              },
+            child: Icon(
+              Icons.location_pin,
+              size: 30,
               color: color,
             ),
           ),
@@ -321,37 +319,41 @@ class VisitMapController extends GetxController with GetTickerProviderStateMixin
       }
 
       //Build polygons
-      for (final entry in polygonsPoints.entries) {
-        final id = entry.key;
-        final points = getConvexHull(entry.value);
-        final color = markerColor[id] ?? Colors.red;
+      if (polygonsPoints.isNotEmpty) {
+        for (final entry in polygonsPoints.entries) {
+          final id = entry.key;
+          final points = getConvexHull(entry.value);
+          final color = markerColor[id] ?? Colors.red;
 
-        if (points.isEmpty) continue;
+          if (points.isEmpty) continue;
 
-        polygons.add(
-          Polygon(
-            points: points,
-            // points: optimizeRoute(polygonsPoints[element["SLS_MAN_ID"].toString()] ?? []),
-            color: color.withValues(alpha: 0.2),
-            pattern: const StrokePattern.solid(), borderStrokeWidth: 0.2,
+          polygons.add(
+            Polygon(
+              points: points,
+              // points: optimizeRoute(polygonsPoints[element["SLS_MAN_ID"].toString()] ?? []),
+              color: color.withValues(alpha: 0.2),
+              pattern: const StrokePattern.solid(), borderStrokeWidth: 0.2,
 
-            // isFilled: true,
-            // label: element["FULL_NAME"].toString(),
-            // labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-            borderColor: color,
-          ),
-        );
+              // isFilled: true,
+              // label: element["FULL_NAME"].toString(),
+              // labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+              borderColor: color,
+            ),
+          );
+        }
       }
 
       totalCusCount = cusCount.values.map((data) => data["cus_count"] as int).fold(0, (sum, count) => sum + count);
       //
-      animatedMapController.animatedFitCamera(
-        cameraFit: CameraFit.coordinates(
-          coordinates: defultmarker.map((e) => e.point).toList(),
-          forceIntegerZoomLevel: true, //to fit both two marker in the map
-          // maxZoom: 19,
-        ),
-      );
+      if (defultmarker.isNotEmpty) {
+        animatedMapController.animatedFitCamera(
+          cameraFit: CameraFit.coordinates(
+            coordinates: defultmarker.map((e) => e.point).toList(),
+            forceIntegerZoomLevel: true, //to fit both two marker in the map
+            // maxZoom: 19,
+          ),
+        );
+      }
     } finally {
       isBuildingMarkers = false;
       update();

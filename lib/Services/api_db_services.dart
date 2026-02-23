@@ -24,7 +24,7 @@ String? port; // = '881';
 class Services {
   Future<String?> getVersion() async {
     // var url = '$protocol://$ip:$port/pos/api/values/CMD/1';
-    var url = 'https://mapi.m7sn.org/npos/api/values/VERSION/1';
+    var url = 'https://mapi.m7sn.org/npos1/api/values/VERSION/1';
 
     try {
       final response = await http.post(
@@ -60,9 +60,9 @@ class Services {
     // Function(String error)? errorCallback,
   }) async {
     // var url = '$protocol://$ip:$port/pos/api/values/CMD/1';
-    var url = 'https://mapi.m7sn.org/npos/api/values/CMD/1';
+    var url = 'https://mapi.m7sn.org/npos1/api/values/CMD/1';
 
-    var sql = {"CMD": sqlStatment, "VERSION": "1.2.2"};
+    var sql = {"CMD": sqlStatment /*, "VERSION": appVersion*/};
 
     final response = await http.post(
       Uri.parse(url),

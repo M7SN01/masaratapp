@@ -121,7 +121,7 @@ class UserController extends GetxController {
     statment = """
       SELECT A.* , GET_SLS_MAN_NAME_DB(A.SLS_MAN_ID) SLS_MAN_NAME   FROM CUSTOMERS A WHERE A.CS_CLS_ID IN
       (SELECT CS_CLS_ID FROM USER_CUS_GRP WHERE U_ID='$uId' AND CHK = 1 
-      ) AND A.STOPED<>0
+      ) AND A.STOPED<> 1
       """;
     // where  1  = CHK_CUS_USR_PRV (CUS_ID ,${uId} )
     try {
