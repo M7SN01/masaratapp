@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:masaratapp/App/Views/Admin/Views/SLS_BY_SLS_C/controller/sls_cntr_controller.dart';
+// import 'package:masaratapp/App/Views/Manager/controller/sls_cntr_controller.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../../../../../utils/utils.dart';
+import '../../../../../utils/utils.dart';
 
-mixin SetUpTablesColumns on GetxController {
-  get slsCntrController => Get.find<SlsCenterController>();
+class SlsBySlsCntrColumns {
+  // get slsCntrController => Get.find<SlsCenterController>();
 
   get getColumnsByMonthRep {
-    return slsCntrController.monthColumns = [
+    return [
       /*
         PlutoColumn(
           title: "SCH_YEARS".tr,
@@ -41,6 +41,8 @@ mixin SetUpTablesColumns on GetxController {
         type: PlutoColumnType.text(),
         backgroundColor: primaryColor,
         suppressedAutoSize: true,
+        enableEditingMode: false,
+
         // width: 120,
         footerRenderer: (rendererContext) {
           return Center(
@@ -62,6 +64,7 @@ mixin SetUpTablesColumns on GetxController {
         backgroundColor: primaryColor,
         // width: 110,
         suppressedAutoSize: true,
+        enableEditingMode: false,
         footerRenderer: (rendererContext) {
           return PlutoAggregateColumnFooter(
             rendererContext: rendererContext,
@@ -90,7 +93,7 @@ mixin SetUpTablesColumns on GetxController {
         backgroundColor: primaryColor,
         // width: 110,
         suppressedAutoSize: true,
-
+        enableEditingMode: false,
         footerRenderer: (rendererContext) {
           return PlutoAggregateColumnFooter(
             rendererContext: rendererContext,
@@ -121,7 +124,7 @@ mixin SetUpTablesColumns on GetxController {
         backgroundColor: primaryColor,
         // width: 110,
         suppressedAutoSize: true,
-
+        enableEditingMode: false,
         footerRenderer: (rendererContext) {
           return PlutoAggregateColumnFooter(
             rendererContext: rendererContext,
@@ -144,10 +147,10 @@ mixin SetUpTablesColumns on GetxController {
     ];
   }
 
-  get getColumnsFromToDateRep {
+  List<PlutoColumn> getColumnsFromToDateRep({fromDateController, toDateController}) {
     final columns = buildBaseWithMonths();
 
-    applyVisibiliyt(columns, slsCntrController.fromDateController.text, slsCntrController.toDateController.text);
+    applyVisibiliyt(columns, fromDateController.text, toDateController.text);
 
     return columns;
   }
@@ -185,9 +188,11 @@ List<PlutoColumn> buildBaseWithMonths() {
     // _dateColumn(),
     _nameColumn(),
     ..._monthColumns(),
+    _totalColumn(),
   ];
 }
 
+/*
 PlutoColumn _yearColumn() => PlutoColumn(
       title: "SCH_YEARS".tr,
       field: 'YR',
@@ -209,6 +214,31 @@ PlutoColumn _dateColumn() => PlutoColumn(
       backgroundColor: primaryColor,
       textAlign: PlutoColumnTextAlign.center,
       titleTextAlign: PlutoColumnTextAlign.center,
+    );
+*/
+
+PlutoColumn _totalColumn() => PlutoColumn(
+      title: "TOTAL_COL".tr,
+      field: 'TOTAL',
+      textAlign: PlutoColumnTextAlign.center,
+      titleTextAlign: PlutoColumnTextAlign.center,
+      type: PlutoColumnType.currency(format: '#,###.##'),
+      // hide: i > DateTime.now().month,
+      backgroundColor: primaryColor,
+      width: 110,
+      footerRenderer: (rendererContext) {
+        return PlutoAggregateColumnFooter(
+          rendererContext: rendererContext,
+          type: PlutoAggregateColumnType.sum,
+          format: '#,###.##',
+          alignment: Alignment.center,
+          titleSpanBuilder: (text) {
+            return [
+              TextSpan(text: text, style: const TextStyle(color: Colors.white)),
+            ];
+          },
+        );
+      },
     );
 
 PlutoColumn _nameColumn() => PlutoColumn(

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:get/get.dart';
-import '../../../Controllers/visit_map_controller.dart';
+import '../../../controllers/visit_map_controller.dart';
 
-import '../../../../Widget/widget.dart';
+// import '../../../../Widget/widget.dart';
 import '../../../../utils/utils.dart';
+import '../../../../widget/widget.dart';
 
 class VisitMap extends StatefulWidget {
   const VisitMap({super.key});
@@ -18,7 +19,10 @@ class _VisitMapState extends State<VisitMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text("زيارة العملاء"),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: GetBuilder<VisitMapController>(
           builder: (controller) => controller.isLoading

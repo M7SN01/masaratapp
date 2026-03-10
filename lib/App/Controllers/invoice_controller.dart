@@ -5,16 +5,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../samples/slmaples.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-
-import '../Controllers/user_controller.dart';
-import '../Models/user_model.dart';
-// import '../Print/direct_print.dart';
-// import '../Print/helpers/table_to_data_list.dart';
-import '../../Print/direct_print.dart';
-import '../../Print/pdf_viewer.dart';
-import '../../Services/api_db_services.dart';
-import '../../Widget/themed_rich_text.dart';
-import '../../Widget/widget.dart';
+import 'user_controller.dart';
+import '../models/user_model.dart';
+import '../../print/direct_print.dart';
+import '../../print/pdf_viewer.dart';
+import '../../services/api_db_services.dart';
+import '../../widget/themed_rich_text.dart';
+import '../../widget/widget.dart';
 import '../../utils/utils.dart';
 
 class InvoiceController extends GetxController {

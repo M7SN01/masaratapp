@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../Controllers/invoice_controller.dart';
+import '../controllers/invoice_controller.dart';
 
 class InvoiceBinding extends Bindings {
   @override

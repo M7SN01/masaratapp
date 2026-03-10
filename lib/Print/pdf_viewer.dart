@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'Controller/pdf_preview_controller.dart';
+import 'controller/pdf_preview_controller.dart';
 import 'helpers/json_to_pdf_widgets.dart';
 
 class PdfPreviewScreen extends StatelessWidget {

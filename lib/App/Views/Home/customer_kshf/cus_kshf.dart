@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../Widget/loding_dots.dart';
-import '../../../Controllers/cus_kshf_controller.dart';
+import '../../../../widget/loding_dots.dart';
+import '../../../controllers/cus_kshf_controller.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import '../../../../Widget/pick_date.dart';
+import '../../../../widget/pick_date.dart';
 import '../../../../utils/utils.dart';
-import '../../../../Widget/widget.dart';
+import '../../../../widget/widget.dart';
 
 class CustomerKshf extends StatelessWidget {
   const CustomerKshf({super.key});

@@ -12,6 +12,7 @@ class PickDateW extends StatefulWidget {
   final int expandedFlix;
   final bool? enabled;
   final String? Function(String?)? validator;
+  final bool showClearIcon;
   const PickDateW({
     super.key,
     required this.dateDontroller,
@@ -21,6 +22,7 @@ class PickDateW extends StatefulWidget {
     this.expandedFlix = 1,
     this.enabled = true,
     this.validator,
+    this.showClearIcon = true,
   });
 
   @override
@@ -38,6 +40,7 @@ class _PickDateWState extends State<PickDateW> {
           controller: widget.dateDontroller,
           enabled: widget.enabled,
           readOnly: true,
+          textAlignVertical: const TextAlignVertical(y: -0.8),
 
           // style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
@@ -56,7 +59,7 @@ class _PickDateWState extends State<PickDateW> {
             ),
             // isDense: true,
 
-            prefixIcon: widget.dateDontroller.text.isNotEmpty
+            prefixIcon: widget.showClearIcon && widget.dateDontroller.text.isNotEmpty
                 ? IconButton(
                     onPressed: () {
                       setState(() {

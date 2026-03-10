@@ -1,19 +1,12 @@
-// import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// import 'package:pluto_grid/pluto_grid.dart';
-import '../Controllers/login_controller.dart';
-import '../Models/user_model.dart';
-import '../../Services/api_db_services.dart';
-import '../../Services/sqflite_services.dart';
-import '../../Widget/loding_dots.dart';
-import '../../Widget/widget.dart';
+import 'login_controller.dart';
+import '../../app/models/user_model.dart';
+import '../../services/api_db_services.dart';
+import '../../services/sqflite_services.dart';
+import '../../widget/loding_dots.dart';
+import '../../widget/widget.dart';
 import '../../utils/utils.dart';
-// import '../Widget/widget.dart';
-// import '../utils/utils.dart';
-
-// import '../Variable/global_variable.dart';
-// import '../Variable/global_variable.dart';
 
 class UserController extends GetxController {
   // late LoginController loginController;
@@ -37,11 +30,14 @@ class UserController extends GetxController {
   //--------------------------------
   List<ActPrivModel> actPrivList = [];
   List<CusDataModel> cusDataList = [];
+  List<SlsManModel> slsManDataList = [];
   List<SlsCntrPrivModel> slsCntrPrivList = [];
   List<CstCntrPrivModel> cstCntrPrivList = [];
   List<StWhousesPrivModel> stWhPrivList = [];
   List<BranchPrivModel> branchPrivList = [];
   List<CsClsPrivModel> csClsPrivList = [];
+
+  List<AccountYearModel> accountYearList = [];
 
   List<BankPrivModel> bankPrivList = [];
 
@@ -115,6 +111,54 @@ class UserController extends GetxController {
     } catch (e) {
       errorLog += "$statment \n ERROR: => get Act Privileges {{=($e)=}}  \n";
     }
+  }
+
+  Future<void> _getSlsManData() async {
+    statment = """SELECT SLS_MAN_ID, SLS_MAN_NAME,STOPPED FROM SLS_MAN WHERE STOPPED<>1 """;
+    try {
+      var response = await dbServices.createRep(
+        sqlStatment: statment,
+      );
+
+      slsManDataList.clear();
+      for (var element in response) {
+        slsManDataList.add(SlsManModel(
+          slsManId: element['SLS_MAN_ID'],
+          slsManName: element['SLS_MAN_NAME'],
+          stopped: element['STOPPED'] ?? 0,
+        ));
+      }
+      checkPrivileges(lst: slsManDataList, tabel: "Salesman", needOnlyOneRow: false);
+    } catch (e) {
+      errorLog += "$statment \n ERROR: => get Sales Man Data {{=($e)=}}  \n";
+    }
+  }
+
+  Future<void> _getAccountYearData() async {
+    statment = """SELECT COMP_ID, COMP_NAME,ACC_YEAR||BR_ID  ACC_YEAR_BR_ID, ACC_YEAR,BR_NAME, USER_LOG, YR_CONN FROM SYSTEM.COMP_DEF 
+    WHERE YR_CONN= (SELECT YR_CONN FROM SYSTEM.COMP_DEF WHERE USER_LOG=(SELECT MAX(ACCOUNT_YEAR) FROM APP_ACCOUNT.APP_YEAR)) """;
+    try {
+      var response = await dbServices.createRep(
+        sqlStatment: statment,
+      );
+
+      accountYearList.clear();
+      for (var element in response) {
+        accountYearList.add(AccountYearModel(
+          compId: element['COMP_ID'],
+          compName: element['COMP_NAME'],
+          accYearBrId: int.parse(element['ACC_YEAR_BR_ID']),
+          accYear: element['ACC_YEAR'],
+          brName: element['BR_NAME'],
+          userLog: element['USER_LOG'],
+          yrConn: element['YR_CONN'],
+        ));
+      }
+    } catch (e) {
+      errorLog += "$statment \n ERROR: => get Account Year Data {{=($e)=}}  \n";
+      // print(e.toString());
+    }
+    // print(accountYearList.length);
   }
 
   Future<void> _getCusData() async {
@@ -514,6 +558,11 @@ CUS_SLS_MAN
     await _getCusData();
     //
     //
+    appLog += "START -------- GET_SALES_MAN_DATA--------\n";
+    debugPrint("START -------- GET_SALES_MAN_DATA--------");
+    await _getSlsManData();
+    //
+    //
     appLog += "START -------- GET_CUSTOMERS_ID_IN_PLAN--------\n";
     debugPrint("START -------- GET_CUSTOMERS_ID_IN_PLAN--------");
     await _getCusVisitPlan();
@@ -522,6 +571,11 @@ CUS_SLS_MAN
     appLog += "START -------- GET_APP_DEFAULT_DATA--------\n";
     debugPrint("START -------- GET_APP_DEFAULT_DATA--------");
     await _getAppDefault();
+    //
+    //
+    appLog += "START -------- GET_ACCOUNT_YEAR_DATA--------\n";
+    debugPrint("START -------- GET_ACCOUNT_YEAR_DATA--------");
+    await _getAccountYearData();
     // debugPrint("END ************************************ \n $errorLog");
     // debugPrint("************************************\n************************************\n************************************\n $appLog");
   }

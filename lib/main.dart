@@ -4,31 +4,32 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:masaratapp/App/Views/Admin/Views/SLS_BY_SLS_C/Binding/sls_cntr_binding.dart';
-import 'package:masaratapp/App/Views/Admin/Views/SLS_BY_SLS_C/sls_by_sls_cntr.dart';
-import 'package:masaratapp/App/Views/Home/Cus_Bal/customers_balance.dart';
-import '../../../App/Bindings/visit_map_binding.dart';
-// import '../Views/Login/Login_view2.dart';
-
-// import 'App/Controllers/user_privileges_controller.dart';
-import 'App/Bindings/act_kshf_binding.dart';
-import 'App/Bindings/cus_balance_binding.dart';
-import 'App/Bindings/cus_kshf_binding.dart';
-import 'App/Bindings/invoice_binding.dart';
-import 'App/Bindings/login_binding.dart';
-import 'App/Bindings/sanadat_binding.dart';
-import 'Locale/locale.dart';
-import 'Locale/locale_controller.dart';
-
-import 'App/Views/Home/Act_Kshf/act_kshf.dart';
-import 'App/Views/Home/CustomerKshf/cus_kshf.dart';
-import 'App/Views/Home/home.dart';
-import 'App/Views/Home/Invoice/invoice.dart';
-import 'App/Views/Home/Login/Login_view.dart';
-import 'App/Views/Home/Maps/map_view.dart';
-import 'App/Views/Home/Maps/visit_plan_view.dart';
-import 'App/Views/Home/Sanadat/sanadat.dart';
-import 'App/Views/Home/Splash_Screen/splash_view.dart';
+import 'app/views/manager/Binding/cus_aging_binding.dart';
+import 'app/views/manager/binding/sls_cntr_binding.dart';
+import 'app/views/manager/views/customers_aging/cus_aging.dart';
+import 'app/views/manager/views/sls_by_sls_cntr/sls_by_sls_cntr.dart';
+import 'app/views/home/cus_Bal/customers_balance.dart';
+import 'app/bindings/visit_map_binding.dart';
+import 'app/bindings/act_kshf_binding.dart';
+import 'app/bindings/cus_balance_binding.dart';
+import 'app/bindings/cus_kshf_binding.dart';
+import 'app/bindings/invoice_binding.dart';
+import 'app/bindings/login_binding.dart';
+import 'app/bindings/sanadat_binding.dart';
+import 'app/views/manager/Binding/sls_by_sls_man_binding.dart';
+import 'app/views/manager/views/sls_by_sls_man/sls_by_sls_man.dart';
+import 'app/views/manager/views/mngr_home.dart';
+import 'locale/locale.dart';
+import 'locale/locale_controller.dart';
+import 'app/views/home/act_kshf/act_kshf.dart';
+import 'app/views/home/customer_kshf/cus_kshf.dart';
+import 'app/views/home/home.dart';
+import 'app/views/home/invoice/invoice.dart';
+import 'app/views/home/login/login_view.dart';
+import 'app/views/home/maps/map_view.dart';
+import 'app/views/home/maps/visit_plan_view.dart';
+import 'app/views/home/sanadat/sanadat.dart';
+import 'app/views/home/splash_screen/splash_view.dart';
 
 /*
 error 
@@ -133,9 +134,24 @@ class PosApp extends StatelessWidget {
           binding: VisitPlanBinding(),
         ),
         GetPage(
-          name: '/SlsByslsCntr',
+          name: '/ManagerHome',
+          page: () => const ManagerHome(),
+          // binding: VisitPlanBinding(),
+        ),
+        GetPage(
+          name: '/ManagerHome/SlsByslsCntr',
           page: () => const SlsByslsCntr(),
           binding: SlsBySlsCntrBinding(),
+        ),
+        GetPage(
+          name: '/ManagerHome/SlsByslsMan',
+          page: () => const SlsByslsMan(),
+          binding: SlsBySlsManBinding(),
+        ),
+        GetPage(
+          name: '/ManagerHome/CustomersAging',
+          page: () => const CustomersAging(),
+          binding: CusAgingBinding(),
         ),
       ],
 

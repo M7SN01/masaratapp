@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import '../Controllers/user_controller.dart';
-import '../Models/user_model.dart';
-import '../../Print/pdf_viewer.dart';
-import '../../Services/api_db_services.dart';
-import '../../Widget/widget.dart';
+import '../models/user_model.dart';
+import 'user_controller.dart';
+import '../../print/pdf_viewer.dart';
+import '../../services/api_db_services.dart';
+import '../../widget/widget.dart';
 import '../../samples/slmaples.dart';
 import '../../utils/utils.dart';
 
@@ -18,7 +18,7 @@ class ActKshfController extends GetxController {
 
   late List<PlutoColumn> columns;
   List<PlutoRow> rows = [];
-  List<ActPrivModel> acts = [];
+  List<SearchList> acts = [];
   final TextEditingController toDateController = TextEditingController();
   final TextEditingController fromDateController = TextEditingController();
   final TextEditingController mnthDateController = TextEditingController();
@@ -39,6 +39,8 @@ class ActKshfController extends GetxController {
   String fromToDate = "";
   String previousDateBalance = "";
 
+  String selectedActType = "";
+
   @override
   void onInit() {
     userController = Get.find<UserController>();
@@ -46,7 +48,16 @@ class ActKshfController extends GetxController {
     userName = userController.uName;
     cusData = userController.cusDataList;
     compData = userController.compData;
-    acts = userController.actPrivList.where((e) => [int.parse("53${userController.uId}"), int.parse("57${userController.uId}")].contains(e.actId)).toList();
+    //user will see only the customer that has prmission on their class
+    //until when has privilege on actids 53 or 57
+    acts = userController.actPrivList
+        .where((e) => e.actId.toString().startsWith('53') || e.actId.toString().startsWith('57'))
+        .map(
+          (e) => SearchList(id: e.actId, name: e.actName, state: false),
+        )
+        .toList();
+
+    // acts = userController.actPrivList.where((e) => [int.parse("53${userController.uId}"), int.parse("57${userController.uId}")].contains(e.actId)).toList();
 
     columns = [
       // PlutoColumn(
@@ -331,6 +342,7 @@ class ActKshfController extends GetxController {
     // } else if (userController.bankPrivList.isEmpty) {
     //   errorMsg = "ليس لديك صلاحيات على بنك او حساب ";
     // }
+    //  [int.parse("53${userController.uId}"), int.parse("57${userController.uId}")].contains(e.actId)
 
     if (errorMsg != "") {
       showMessage(color: secondaryColor, titleMsg: "No prmission !", titleFontSize: 18, msg: errorMsg, durationMilliseconds: 5000);
@@ -353,18 +365,18 @@ class ActKshfController extends GetxController {
       }
 
       List<dynamic> response;
-      String actIds = acts.map((act) => "'${act.actId}'").join(',');
-      String cond = " where CUS_HD_TYPE IN ($actIds)  $date  ${selecetdCustomer != null ? " and cus_id=${selecetdCustomer!.cusId} " : ""}";
+      String actIds = acts.map((act) => "'${act.id}'").join(',');
+      String cond = " where  CUS_HD_TYPE IN ($actIds)  ${selectedActType == "" ? "" : " AND CUS_HD_TYPE IN ($selectedActType) "}   $date  ${selecetdCustomer != null ? " and cus_id=${selecetdCustomer!.cusId} " : ""}";
 
       String stmt = """
                 SELECT * FROM ( 
-                  select TRHEL,(SELECT ACT_NAME FROM ACT_TYPE WHERE ACT_ID =CUS_HD_TYPE) ACT_NAME,CUS_HD_ID,DATE1,DSCR
+                  select TRHEL,(SELECT ACT_NAME FROM ACT_TYPE WHERE ACT_ID =CUS_HD_TYPE) ACT_NAME,CUS_HD_TYPE,CUS_HD_ID,DATE1,DSCR
                   ,round( TTL,2) TTL,STATE,REF,CUS_ID_CST_ID,round(MD,2) MD,round(DN,2)DN  
                   ,CUS_ID,GET_CUS_CLS_ID(CUS_ID) CUS_CLS_ID,GET_CUS_NAME_DB(CUS_ID) CUS_NAME
                   from cus_hd_cus_dt  $cond  
                 ) 
-                WHERE   CHK_CUS_USR_PRV(CUS_ID,$userId)=1
-                ORDER BY DATE1
+                WHERE   CHK_CUS_USR_PRV(CUS_ID,$userId)=1  
+                ORDER BY CUS_HD_TYPE,CUS_HD_ID
                   """;
       debugPrint(stmt);
 

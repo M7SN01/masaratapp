@@ -1,25 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:masaratapp/App/Controllers/user_controller.dart';
-import 'package:masaratapp/App/Views/Admin/Views/SLS_BY_SLS_C/controller/table_columns.dart';
+import '../../../controllers/user_controller.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-// import 'package:pluto_grid_plus/pluto_grid_plus.dart';
+import '../../../../services/api_db_services.dart';
+import '../../../../widget/widget.dart';
+import '../../../../table_view/controllers/table_controller.dart';
+import '../../../../table_view/options/table_options.dart';
 
-// import '../../../../Tools/M7SN_Tools.dart';
-// import '../../../../login_screen.dart';
-// import '../../../TaskBar.dart';
-import '../../../../../../Services/api_db_services.dart';
-import '../../../../../../Widget/widget.dart';
-import '../../../../../../utils/utils.dart';
-import '../../../Controllers/table_controller.dart';
-import '../../../other/TableView/options/table_options.dart';
-// import '../View/cost_view.dart';
-// import '../View/full_view.dart';
-// import '../View/gain_view.dart';
-// import '../View/sls_view.dart';
-
-class SlsCenterController extends GetxController with SetUpTablesColumns {
+class SlsCenterController extends GetxController {
   UserController userController = Get.find<UserController>();
   bool initial = true;
   bool loadingData = false;
@@ -113,32 +102,56 @@ class SlsCenterController extends GetxController with SetUpTablesColumns {
     super.onClose();
   }
 
-  String date = "";
+  String frmDate = "";
+  String toDate = "";
+  String repDate = "";
+  String toDdMmYyyy(String yyyyMmDd) {
+    final dt = DateTime.parse(yyyyMmDd);
+    return DateFormat('dd-MM-yyyy').format(dt);
+  }
 
-  checkSearchOption() async {
-    //  if (selectedValue == 1) {
-    date = "";
+  checkSearchOption() {
+    frmDate = "";
+    toDate = "";
     if (!dateSwitcher) {
       if (mnthDateController.text.isNotEmpty) {
-        if (selectedSchYearIds != "") {
-          final onlyMonth = DateFormat('MM').format(DateTime.parse("${mnthDateController.text}-01"));
-          // print(onlyMonth);
-          // mnthDateController.text = onlyMonth;
-          date = " and to_char(DATE1,'mm')='$onlyMonth' ";
-        } else {
-          date = " and to_char(DATE1,'yyyy-mm')='${mnthDateController.text}' ";
-        }
+        final parts = mnthDateController.text.split('-');
+        final year = int.parse(parts[0]);
+        final month = int.parse(parts[1]);
+
+        final first = DateTime(year, month, 1);
+        final last = DateTime(year, month + 1, 0);
+        // String formatDate(DateTime d) => '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+        frmDate = DateFormat('dd-MM-yyyy').format(first);
+        toDate = DateFormat('dd-MM-yyyy').format(last);
+        repDate = mnthDateController.text;
       }
       showMonthRep = true;
-    } else if (fromDateController.text.isNotEmpty && toDateController.text.isNotEmpty) {
-      date = " AND DATE1 BETWEEN TO_DATE('${fromDateController.text}', 'YYYY/MM/DD') AND TO_DATE('${toDateController.text}', 'YYYY/MM/DD') ";
-
-      showMonthRep = false;
     } else {
-      // all fileds is empty
-
+      if (fromDateController.text.isNotEmpty && toDateController.text.isNotEmpty) {
+        frmDate = toDdMmYyyy(fromDateController.text);
+        toDate = toDdMmYyyy(toDateController.text);
+        repDate = "من تاريخ ${fromDateController.text} إلى تاريخ ${toDateController.text}";
+      } else if (fromDateController.text.isNotEmpty && toDateController.text.isEmpty) {
+        frmDate = toDdMmYyyy(fromDateController.text);
+        toDate = toDdMmYyyy("${DateTime.now().year}-12-31");
+        repDate = "من تاريخ ${fromDateController.text} ";
+      } else if (fromDateController.text.isEmpty && toDateController.text.isNotEmpty) {
+        frmDate = toDdMmYyyy("${DateTime.now().year}-01-01");
+        toDate = toDdMmYyyy(toDateController.text);
+        repDate = " إلى تاريخ ${toDateController.text}";
+      }
       showMonthRep = false;
     }
+
+    if (frmDate == "" && toDate == "") {
+      frmDate = toDdMmYyyy("${DateTime.now().year}-01-01");
+      toDate = toDdMmYyyy("${DateTime.now().year}-12-31");
+    }
+
+    frmDate = "TO_DATE('$frmDate', 'DD-MM-YYYY')";
+    toDate = "TO_DATE('$toDate', 'DD-MM-YYYY')";
+
     update();
   }
 
@@ -146,7 +159,8 @@ class SlsCenterController extends GetxController with SetUpTablesColumns {
     showMessage(msg: errorMessage, color: Colors.red);
   }
 
-  String buildStatment({required String colName, String conditons = ""}) {
+/*
+  String buildStatment({required String colName}) {
     return """
 SELECT
     A.SLS_CNTR_ID,
@@ -166,7 +180,9 @@ SELECT
 FROM SLS_V A 
 JOIN SLS_CENTER B
   ON A.SLS_CNTR_ID = B.SLS_CNTR_ID
-WHERE 1=1 $conditons
+WHERE 1=1 
+ ${selectedslsCntr == "" ? "" : " AND A.SLS_CNTR_ID in ( $selectedslsCntr ) "}  
+  AND A.DATE1 BETWEEN $frmDate AND $toDate
 GROUP BY
     A.SLS_CNTR_ID,
     B.SLS_CNTR_NAME
@@ -174,7 +190,7 @@ ORDER BY
     A.SLS_CNTR_ID
 """;
   }
-
+*/
   getdata() async {
     monthRows = [];
     gainRows = [];
@@ -190,21 +206,17 @@ ORDER BY
     String stmt = "";
     // "SELECT SLS_CNTR_NAME, trunc(sum(GP),2) GP,trunc(sum(TTL_CST),2) TTL_CST,trunc(sum(INV_TTL),2) INV_TTL FROM $selectedSCH.SLS_HD_RVW_V  WHERE 1=1     AND COMP_ID ='$selectedCompId'  AND ACC_CLASS_ID ='C' AND SCRN_CODE='S0104' ";
 
-    await checkSearchOption();
-
-    String whereCond = "";
-    whereCond += "$whereCond  ${selectedslsCntr == "" ? "" : " AND A.SLS_CNTR_ID in ( $selectedslsCntr ) "}";
-    whereCond += date;
-    // whereCond += selectedslsCntrGroupId == "" ? "" : " AND SLS_CNTR_GRP IN ($selectedslsCntrGroupId) ";
-    // List<String> schemas = selectedSchYearIds == "" ? [selectedSCH] : selectedSchYearIds.split(',').map((e) => e.replaceAll("'", "").trim()).toList();
+    checkSearchOption();
 
     if (!dateSwitcher) {
       //month view
-      String monthstmt = """SELECT A.SLS_CNTR_ID,B.SLS_CNTR_NAME , round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL,round(SUM(A.GAIN),4) GP 
-              FROM SLS_V A,SLS_CENTER B  
-              WHERE   A.SLS_CNTR_ID = B.SLS_CNTR_ID   $whereCond 
-              group by   A.SLS_CNTR_ID,B.SLS_CNTR_NAME
-              """;
+      // String monthstmt = """SELECT A.SLS_CNTR_ID,B.SLS_CNTR_NAME , round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL,round(SUM(A.GAIN),4) GP
+      //         FROM SLS_V A,SLS_CENTER B
+      //         WHERE   A.SLS_CNTR_ID = B.SLS_CNTR_ID
+      //         ${selectedslsCntr == "" ? "" : " AND A.SLS_CNTR_ID in ( $selectedslsCntr ) "}
+      //         AND A.DATE1 BETWEEN $frmDate AND $toDate
+      //         group by   A.SLS_CNTR_ID,B.SLS_CNTR_NAME
+      //         """;
 
       /*
 
@@ -215,7 +227,7 @@ SELECT A.SLS_CNTR_ID,B.SLS_CNTR_NAME , round(SUM(A.PUR_TTL_CST),4) TTL_CST,round
               */
 
       /*
-
+ 
 select A.* ,
 ( SELECT ROUND(SUM(NVL(t.MD,0) - NVL(t.DN,0)), 2) FROM CUS_HD_CUS_DT_TRANS t  WHERE t.CS_CLS_ID = A.CLS_ID ) AS MDUNIH,
 ( SELECT ROUND(SUM(NVL(T.AMNT_MD,0)), 2) FROM ACC_HD_ACC_DT T  WHERE T.BANK_ID = A.SLS_MAN_BANK_ID  
@@ -224,11 +236,19 @@ from (
 SELECT A.SLS_CNTR_ID,a.sls_man_id , a.sls_man_name,  (SELECT B.BANK_ID FROM USER1 B WHERE B.SLS_MAN_ID=A.SLS_MAN_ID) SLS_MAN_BANK_ID,
 round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM(A.GAIN),4) GP , GET_CUS_CLS_ID(A.CUS_ID) CLS_ID
               FROM SLS_V A
-              WHERE   A.CUS_ID IS NOT NULL  AND A.0SLS_MAN_ID IS NOT NULL
+              WHERE   A.CUS_ID IS NOT NULL  AND A.SLS_MAN_ID IS NOT NULL
                AND A.DATE1 BETWEEN TO_DATE('12/01/2025 00:00:00', 'MM/DD/YYYY HH24:MI:SS') AND TO_DATE('12/31/2025 00:00:00', 'MM/DD/YYYY HH24:MI:SS')
               group by   A.SLS_CNTR_ID,a.sls_man_id , a.sls_man_name, GET_CUS_CLS_ID(A.CUS_ID)
               ) A order by  3 desc ;
               */
+
+      String monthstmt = """
+                        SELECT * FROM TABLE(APP_ACCOUNT.GET_SLS_CNTR_FULL_REP(
+                          $frmDate,
+                          $toDate
+                          ${selectedslsCntr == "" ? ", NULL" : ", '$selectedslsCntr'"}
+                        ))
+                        """;
 
       // print(monthstmt);
       monthRows = await getMonthData(sqlStatment: monthstmt, errorCallback: (error) => errorCallBack("$error (month stmt) "));
@@ -237,13 +257,36 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
       loadingData = false;
       update();
     } else {
-      stmt = buildStatment(colName: 'GAIN', conditons: whereCond);
+      // stmt = buildStatment(colName: 'GAIN');
+      stmt = """
+              SELECT * FROM TABLE(APP_ACCOUNT.GET_SLS_CNTR_MONTHLY_REP(
+                $frmDate,
+                $toDate,
+                'GAIN'
+                ${selectedslsCntr == "" ? ", NULL" : ", '$selectedslsCntr'"}
+              ))
+              """;
       debugPrint(stmt);
       gainRows = await getGainData(sqlStatment: stmt, errorCallback: (error) => errorCallBack("$error (SLS Gain) "));
-      stmt = buildStatment(colName: 'PUR_TTL_CST', conditons: whereCond);
+      // stmt = buildStatment(colName: 'PUR_TTL_CST');
+      stmt = """
+            SELECT * FROM TABLE(APP_ACCOUNT.GET_SLS_CNTR_MONTHLY_REP(
+              $frmDate,
+              $toDate,
+              'PUR_TTL_CST'
+              ${selectedslsCntr == "" ? ", NULL" : ", '$selectedslsCntr'"}
+            ))
+            """;
       costRows = await getCostData(sqlStatment: stmt, errorCallback: (error) => errorCallBack("$error (Cost stmt) "));
-      stmt = buildStatment(colName: 'INV_TTL', conditons: whereCond);
-
+      // stmt = buildStatment(colName: 'INV_TTL');
+      stmt = """
+              SELECT * FROM TABLE(APP_ACCOUNT.GET_SLS_CNTR_MONTHLY_REP(
+                $frmDate,
+                $toDate,
+                'INV_TTL'
+                ${selectedslsCntr == "" ? ", NULL" : ", '$selectedslsCntr'"}
+              ))
+              """;
       slsRows = await getSlsData(sqlStatment: stmt, errorCallback: (error) => errorCallBack("$error (SLS stmt) "));
 
       slsRows;
@@ -256,17 +299,14 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
 
   //
 
-  get fullViewTableOptions => TableOptions(
+  fullViewTableOptions({required List<PlutoColumn> columns}) => TableOptions(
         isAdmin: userController.uIsAdmin,
         isLoadingData: loadingData,
         repID: fullRepId,
         tableRows: monthRows,
-        tableColumns: getColumnsByMonthRep,
+        tableColumns: columns,
         appDefault: userController.appDefault,
-        // defultColShow: userController.getAppDefault(repID: fullRepId, defType: 'SHOW_DEFAULT'),
-        // defultColSize: userController.getAppDefault(repID: fullRepId, defType: 'SIZE_DEFAULT'),
-        // defultPdf: userController.getAppDefault(repID: fullRepId, defType: 'PDF_DEFAULT'),
-        // defultExcel: userController.getAppDefault(repID: fullRepId, defType: 'EXCEL_DEFAULT'),
+        fromToDate: repDate,
         pdfTitle: "اجماليات مراكز البيع",
         // fullScreenTitle: "اجماليات مراكز البيع",
         columnGroups: ['INV_TTL', 'TTL_CST', 'GP'],
@@ -277,24 +317,15 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
         },
       );
 
-// List<PlutoColumn> getRepColumns() {
-//     final columns = buildBaseWithMonths();
-
-//     applyVisibiliyt(columns, fromDateController.text, toDateController.text);
-//     return columns;
-//   }
-
-  get gainViewTableOptions {
+  gainViewTableOptions({required List<PlutoColumn> columns}) {
+    print("----------------------------------------- ");
     return TableOptions(
       isAdmin: userController.uIsAdmin,
       isLoadingData: loadingData,
       repID: gainRepId,
       tableRows: gainRows,
-      tableColumns: getColumnsFromToDateRep,
-      // defultColShow: userController.getAppDefault(repID: gainRepId, defType: 'SHOW_DEFAULT'),
-      // defultColSize: userController.getAppDefault(repID: gainRepId, defType: 'SIZE_DEFAULT'),
-      // defultPdf: userController.getAppDefault(repID: gainRepId, defType: 'PDF_DEFAULT'),
-      // defultExcel: userController.getAppDefault(repID: gainRepId, defType: 'EXCEL_DEFAULT'),
+      tableColumns: columns,
+      fromToDate: repDate,
       pdfTitle: "الربح حسب مراكز البيع",
       fullScreenTitle: "ربح مراكز البيع",
       onUpdateSetting: (p0) {
@@ -304,17 +335,14 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
     );
   }
 
-  get slsViewTableOptions {
+  slsViewTableOptions({required List<PlutoColumn> columns}) {
     return TableOptions(
       isAdmin: userController.uIsAdmin,
       isLoadingData: loadingData,
       repID: slsRepId,
       tableRows: slsRows,
-      tableColumns: getColumnsFromToDateRep,
-      // defultColShow: userController.getAppDefault(repID: slsRepId, defType: 'SHOW_DEFAULT'),
-      // defultColSize: userController.getAppDefault(repID: slsRepId, defType: 'SIZE_DEFAULT'),
-      // defultPdf: userController.getAppDefault(repID: slsRepId, defType: 'PDF_DEFAULT'),
-      // defultExcel: userController.getAppDefault(repID: slsRepId, defType: 'EXCEL_DEFAULT'),
+      tableColumns: columns,
+      fromToDate: repDate,
       pdfTitle: "مبيعات مراكز البيع",
       fullScreenTitle: "مبيعات مراكز البيع",
       onUpdateSetting: (p0) {
@@ -324,17 +352,14 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
     );
   }
 
-  get costViewTableOptions {
+  costViewTableOptions({required List<PlutoColumn> columns}) {
     return TableOptions(
       isAdmin: userController.uIsAdmin,
       isLoadingData: loadingData,
       repID: costRepId,
       tableRows: costRows,
-      tableColumns: getColumnsFromToDateRep,
-      // defultColShow: userController.getAppDefault(repID: costRepId, defType: 'SHOW_DEFAULT'),
-      // defultColSize: userController.getAppDefault(repID: costRepId, defType: 'SIZE_DEFAULT'),
-      // defultPdf: userController.getAppDefault(repID: costRepId, defType: 'PDF_DEFAULT'),
-      // defultExcel: userController.getAppDefault(repID: costRepId, defType: 'EXCEL_DEFAULT'),
+      tableColumns: columns,
+      fromToDate: repDate,
       pdfTitle: "تكلفة مراكز البيع",
       fullScreenTitle: "تكلفة مراكز البيع",
       onUpdateSetting: (p0) {
@@ -343,8 +368,6 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
       // tatalTopTitle: ['INV_TTL', 'TTL_CST', 'GP'],
     );
   }
-  //
-  //
 
 //----------------------------------------From Server ------------------------------
   Future<List<PlutoRow>> getCostData({required String sqlStatment, Function(String error)? errorCallback}) async {
@@ -352,6 +375,12 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
     List<dynamic> responeData = await services.createRep(sqlStatment: sqlStatment);
 
     List<PlutoRow> rows = responeData.map((item) {
+      double rowttl = 0;
+      PlutoCell plutoCell(int i) {
+        rowttl += item[i.toString().padLeft(2, '0')].toString() == "null" ? 0 : item[i.toString().padLeft(2, '0')];
+        return PlutoCell(value: item[i.toString().padLeft(2, '0')]);
+      }
+
       return PlutoRow(cells: {
         // 'SLS_MAN_ID': PlutoCell(value: item['SLS_MAN_ID']),
         // 'DOC_YYYYMM1': PlutoCell(value: item['DOC_YYYYMM1']),
@@ -360,7 +389,8 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
         // 'PRD_DATE': PlutoCell(value: item['PRD_DATE']),
         'SLS_CNTR_ID': PlutoCell(value: item['SLS_CNTR_ID']),
         'NAME': PlutoCell(value: item['NAME'].toString() != "null" ? item['NAME'] : ""),
-        for (int i = 1; i <= 12; i++) '$i': PlutoCell(value: item[i.toString().padLeft(2, '0')]),
+        for (int i = 1; i <= 12; i++) '$i': plutoCell(i),
+        'TOTAL': PlutoCell(value: rowttl),
       });
     }).toList();
     // print("done");
@@ -372,6 +402,12 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
     List<dynamic> responeData = await services.createRep(sqlStatment: sqlStatment);
 
     List<PlutoRow> rows = responeData.map((item) {
+      double rowttl = 0;
+      PlutoCell plutoCell(int i) {
+        rowttl += item[i.toString().padLeft(2, '0')].toString() == "null" ? 0 : item[i.toString().padLeft(2, '0')];
+        return PlutoCell(value: item[i.toString().padLeft(2, '0')]);
+      }
+
       return PlutoRow(cells: {
         // 'SLS_MAN_ID': PlutoCell(value: item['SLS_MAN_ID']),
         // 'DOC_YYYYMM1': PlutoCell(value: item['DOC_YYYYMM1']),
@@ -379,7 +415,9 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
         // 'PRD_DATE': PlutoCell(value: item['PRD_DATE']),
         'SLS_CNTR_ID': PlutoCell(value: item['SLS_CNTR_ID']),
         'NAME': PlutoCell(value: item['NAME'].toString() != "null" ? item['NAME'] : ""),
-        for (int i = 1; i <= 12; i++) '$i': PlutoCell(value: item[i.toString().padLeft(2, '0')]),
+        // for (int i = 1; i <= 12; i++) '$i': PlutoCell(value: item[i.toString().padLeft(2, '0')]),
+        for (int i = 1; i <= 12; i++) '$i': plutoCell(i),
+        'TOTAL': PlutoCell(value: rowttl),
       });
     }).toList();
     // print("done");
@@ -391,6 +429,12 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
     List<dynamic> responeData = await services.createRep(sqlStatment: sqlStatment);
 
     List<PlutoRow> rows = responeData.map((item) {
+      double rowttl = 0;
+      PlutoCell plutoCell(int i) {
+        rowttl += item[i.toString().padLeft(2, '0')].toString() == "null" ? 0 : item[i.toString().padLeft(2, '0')];
+        return PlutoCell(value: item[i.toString().padLeft(2, '0')]);
+      }
+
       return PlutoRow(cells: {
         // 'SLS_MAN_ID': PlutoCell(value: item['SLS_MAN_ID']),
         // 'DOC_YYYYMM1': PlutoCell(value: item['DOC_YYYYMM1']),
@@ -398,7 +442,9 @@ round(SUM(A.PUR_TTL_CST),4) TTL_CST,round(SUM(A.INV_TTL),4) INV_TTL58 ,round(SUM
         // 'PRD_DATE': PlutoCell(value: item['PRD_DATE']),
         'SLS_CNTR_ID': PlutoCell(value: item['SLS_CNTR_ID']),
         'NAME': PlutoCell(value: item['NAME'].toString() != "null" ? item['NAME'] : ""),
-        for (int i = 1; i <= 12; i++) '$i': PlutoCell(value: item[i.toString().padLeft(2, '0')]),
+        // for (int i = 1; i <= 12; i++) '$i': PlutoCell(value: item[i.toString().padLeft(2, '0')]),
+        for (int i = 1; i <= 12; i++) '$i': plutoCell(i),
+        'TOTAL': PlutoCell(value: rowttl),
       });
     }).toList();
     // print("done");

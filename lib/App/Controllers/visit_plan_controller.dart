@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:intl/intl.dart';
-import '../../../App/Controllers/visit_map_controller.dart';
+import '../../../app/controllers/visit_map_controller.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../Services/api_db_services.dart';
+import '../../services/api_db_services.dart';
 // import '../Widget/widget.dart';
 import '../../utils/utils.dart';
 import 'login_controller.dart';
@@ -163,7 +163,7 @@ class VisitPlanController extends GetxController {
         // hide: false,
         suppressedAutoSize: true,
         titleSpan: autoMultiLineColumn("المندوب"),
-        enableContextMenu: true,
+        enableContextMenu: false,
         enableEditingMode: false,
         enableColumnDrag: false,
         // footerRenderer: (rendererContext) {

@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import '../../../../../Widget/loding_dots.dart';
-import '../../../../../utils/utils.dart';
-import 'table_header.dart';
-
-import 'config/pluto_config.dart';
+import '../Widget/loding_dots.dart';
+import '../utils/utils.dart';
 import 'options/table_options.dart';
+import 'config/pluto_config.dart';
+import 'table_header.dart';
 
 Widget tableView({required TableOptions tableOPtions}) {
   return tableOPtions.tableRows.isNotEmpty

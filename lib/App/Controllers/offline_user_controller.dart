@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../App/Controllers/user_controller.dart';
-import '../../Services/api_db_services.dart';
-import '../../Services/sqflite_services.dart';
+import 'user_controller.dart';
+import '../../services/api_db_services.dart';
+import '../../services/sqflite_services.dart';
 import 'package:sqflite/sqflite.dart';
 // import 'package:sqflite/sqflite.dart';
 
-import '../Models/user_model.dart';
+import '../models/user_model.dart';
 import '../../Widget/widget.dart';
 import '../../utils/utils.dart';
 

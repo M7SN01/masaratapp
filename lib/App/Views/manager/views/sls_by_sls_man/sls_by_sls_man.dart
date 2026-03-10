@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:masaratapp/App/Views/Admin/other/TableView/Table.dart';
-import '../../../../../Widget/pick_date.dart';
-import '../../../../../Widget/search_chk_box.dart';
-import '../../../../../Widget/widget.dart';
+import '../../../../../widget/pick_date.dart';
+import '../../../../../widget/search_chk_box.dart';
+import '../../../../../widget/widget.dart';
+import '../../../../../table_view/table.dart';
 import '../../../../../utils/utils.dart';
-import 'controller/sls_cntr_controller.dart';
+import '../../controller/sls_by_sls_man_controller.dart';
+import 'grid_columns.dart';
 
-class SlsByslsCntr extends StatelessWidget {
-  const SlsByslsCntr({super.key});
+class SlsByslsMan extends StatelessWidget {
+  const SlsByslsMan({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<SlsCenterController>(
+    return GetBuilder<SlsBySlsManController>(
       builder: (controller) => Scaffold(
         appBar: AppBar(
-          title: Text("مبيعات عام"),
+          title: Text("مبيعات حسب المناديب"),
           centerTitle: true,
         ),
         body: _body(),
@@ -25,7 +26,7 @@ class SlsByslsCntr extends StatelessWidget {
 }
 
 Widget _body() {
-  return GetBuilder<SlsCenterController>(
+  return GetBuilder<SlsBySlsManController>(
     builder: (controller) => Container(
       // width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.only(right: 20, left: 20, bottom: 5, top: 0),
@@ -46,9 +47,9 @@ Widget _body() {
           ),
           Expanded(
             child: controller.showMonthRep
-                ? tableView(tableOPtions: controller.fullViewTableOptions)
+                ? tableView(tableOPtions: controller.fullViewTableOptions(columns: SlsBySlsManColumns().getColumnsByMonthRep))
                 : DefaultTabController(
-                    length: 3,
+                    length: 4,
                     initialIndex: controller.currentTab,
                     child: Column(
                       children: [
@@ -63,17 +64,43 @@ Widget _body() {
                           },
                           tabs: [
                             Tab(text: "مبيعات"),
-                            Tab(text: "تكلفة"),
                             Tab(text: "ربح"),
+                            Tab(text: "مديونية"),
+                            Tab(text: "تحصيلات"),
                           ],
                         ),
                         Expanded(
                           child: TabBarView(
                             physics: const NeverScrollableScrollPhysics(),
                             children: [
-                              tableView(tableOPtions: controller.slsViewTableOptions),
-                              tableView(tableOPtions: controller.costViewTableOptions),
-                              tableView(tableOPtions: controller.gainViewTableOptions),
+                              tableView(
+                                  tableOPtions: controller.slsViewTableOptions(
+                                columns: SlsBySlsManColumns().getColumnsFromToDateRep(
+                                  fromDateController: controller.fromDateController,
+                                  toDateController: controller.toDateController,
+                                ),
+                              )),
+                              tableView(
+                                  tableOPtions: controller.gainViewTableOptions(
+                                columns: SlsBySlsManColumns().getColumnsFromToDateRep(
+                                  fromDateController: controller.fromDateController,
+                                  toDateController: controller.toDateController,
+                                ),
+                              )),
+                              tableView(
+                                  tableOPtions: controller.mdunihViewTableOptions(
+                                columns: SlsBySlsManColumns().getColumnsFromToDateRep(
+                                  fromDateController: controller.fromDateController,
+                                  toDateController: controller.toDateController,
+                                ),
+                              )),
+                              tableView(
+                                  tableOPtions: controller.t7silViewTableOptions(
+                                columns: SlsBySlsManColumns().getColumnsFromToDateRep(
+                                  fromDateController: controller.fromDateController,
+                                  toDateController: controller.toDateController,
+                                ),
+                              )),
                             ],
                           ),
                         ),
@@ -93,7 +120,7 @@ class SearchOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double filedHeight = 45;
-    return GetBuilder<SlsCenterController>(
+    return GetBuilder<SlsBySlsManController>(
       builder: (controller) => Column(
         children: [
           controller.dateSwitcher
@@ -110,24 +137,26 @@ class SearchOptions extends StatelessWidget {
                       ),
                     ),
                     PickDateW(
-                        expandedFlix: 2,
-                        labelText: "من تاريخ",
-                        dateDontroller: controller.fromDateController,
-                        onSelectionChanged: () {
-                          controller.mnthDateController.text = "";
-                          controller.update();
-                        }),
+                      expandedFlix: 2,
+                      labelText: "من تاريخ",
+                      dateDontroller: controller.fromDateController,
+                      onSelectionChanged: () {
+                        controller.mnthDateController.text = "";
+                        controller.update();
+                      },
+                    ),
                     const SizedBox(
                       width: 10,
                     ),
                     PickDateW(
-                        expandedFlix: 2,
-                        labelText: "الى تاريخ",
-                        dateDontroller: controller.toDateController,
-                        onSelectionChanged: () {
-                          controller.mnthDateController.text = "";
-                          controller.update();
-                        })
+                      expandedFlix: 2,
+                      labelText: "الى تاريخ",
+                      dateDontroller: controller.toDateController,
+                      onSelectionChanged: () {
+                        controller.mnthDateController.text = "";
+                        controller.update();
+                      },
+                    ),
                   ],
                 )
               : Row(
@@ -169,7 +198,7 @@ class SearchOptions extends StatelessWidget {
                     // width: (MediaQuery.of(context).size.width / 2) - 25,
                     height: filedHeight,
                     decoration: BoxDecoration(
-                      color: controller.selectedslsCntr == "" ? primaryColor : secondaryColor,
+                      color: controller.selectedslsMan == "" ? primaryColor : secondaryColor,
                       border: Border.all(color: Colors.grey, width: 1),
                       borderRadius: BorderRadius.circular(5),
                       shape: BoxShape.rectangle,
@@ -185,7 +214,7 @@ class SearchOptions extends StatelessWidget {
                           width: 10,
                         ),
                         Text(
-                          "مركز بيع",
+                          "مناديب",
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -197,17 +226,17 @@ class SearchOptions extends StatelessWidget {
                       context: context,
                       builder: (context) {
                         return CheckboxListWithSearch(
-                          title: "اختر مركز بيع",
-                          originalData: controller.slsCntrOrignalData,
+                          title: "إختر مندوب",
+                          originalData: controller.slsManOrignalData,
                           OnSave: (filteredOptions) {
-                            controller.selectedslsCntr = filteredOptions
-                                .where((item) => item.state) // Filter items where state is true
-                                .map((item) => "'${item.id}'")
+                            controller.selectedslsMan = filteredOptions
+                                .where((element) => element.state) // Filter elements where state is true
+                                .map((element) => "${element.id}")
                                 .join(',');
-                            // print(_selectedslsCntr);
-                            controller.slsCntrOrignalData = filteredOptions;
+                            // print(_selectedslsMan);
+                            controller.slsManOrignalData = filteredOptions;
 
-                            controller.selectedslsCntr;
+                            controller.selectedslsMan;
                             controller.update();
                           },
                         );
@@ -266,7 +295,7 @@ class SearchOptions extends StatelessWidget {
                     // width: (MediaQuery.of(context).size.width / 2) - 25,
                     height: filedHeight,
                     decoration: BoxDecoration(
-                      color: selectedslsCntrGroupId == "" ? Colors.redAccent : const Color.fromARGB(255, 3, 192, 101),
+                      color: selectedslsManGroupId == "" ? Colors.redAccent : const Color.fromARGB(255, 3, 192, 101),
                       border: Border.all(color: Colors.grey, width: 1),
                       borderRadius: BorderRadius.circular(5),
                       shape: BoxShape.rectangle,
@@ -297,14 +326,14 @@ class SearchOptions extends StatelessWidget {
                           title: currentLang["CHS_SLS_CNTR_GRP"] ?? "",
                           originalData: _slsCntrGrpOrignalData,
                           OnSave: (filteredOptions) {
-                            selectedslsCntrGroupId = filteredOptions
+                            selectedslsManGroupId = filteredOptions
                                 .where((item) => item.state) // Filter items where state is true
                                 .map((item) => "'${item.id}'")
                                 .join(',');
-                            // print(_selectedslsCntr);
+                            // print(_selectedslsMan);
                             _slsCntrGrpOrignalData = filteredOptions;
                             setState(() {
-                              selectedslsCntrGroupId;
+                              selectedslsManGroupId;
                             });
                           },
                         );

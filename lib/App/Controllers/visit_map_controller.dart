@@ -4,18 +4,13 @@ import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-// import 'package:intl/intl.dart';
-// import 'package:location/location.dart';
-import '../../../App/Controllers/login_controller.dart';
-import '../../../App/Controllers/user_controller.dart';
+import '../../../app/controllers/login_controller.dart';
 import 'package:latlong2/latlong.dart' as lat_lang;
-import '../../Services/api_db_services.dart';
-import '../../Widget/widget.dart';
-// import 'package:permission_handler/permission_handler.dart' as permission_handler;
-
-import '../Models/user_model.dart';
-// import '../Views/Maps/saudi_bounds.dart';
+import '../../services/api_db_services.dart';
+import '../../widget/widget.dart';
+import '../../app/models/user_model.dart';
 import '../../utils/utils.dart';
+import 'user_controller.dart';
 
 typedef LatLang = lat_lang.LatLng;
 

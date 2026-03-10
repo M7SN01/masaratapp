@@ -79,6 +79,38 @@ class CsClsPrivModel {
   });
 }
 
+class SlsManModel {
+  final int slsManId;
+  final String slsManName;
+  final int stopped;
+
+  SlsManModel({
+    required this.slsManId,
+    required this.slsManName,
+    required this.stopped,
+  });
+}
+
+class AccountYearModel {
+  final int compId;
+  final String compName;
+  final int accYearBrId;
+  final int accYear;
+  final String brName;
+  final String userLog;
+  final int yrConn;
+
+  AccountYearModel({
+    required this.compId,
+    required this.compName,
+    required this.accYearBrId,
+    required this.accYear,
+    required this.brName,
+    required this.userLog,
+    required this.yrConn,
+  });
+}
+
 class CusDataModel {
   final int cusId;
   final String cusName;

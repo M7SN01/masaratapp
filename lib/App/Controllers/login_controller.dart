@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-// import 'package:masaratapp/App/Views/CustomerKshf/cus_kshf.dart';
-// import '../Variable/global_variable.dart';
-import '../Views/Home/home.dart';
-import '../../Services/api_db_services.dart';
-import '../../Services/sqflite_services.dart';
-// import '../Widget/loding_dots.dart';
-import '../../Widget/widget.dart';
+import '../views/home/home.dart';
+import '../../services/api_db_services.dart';
+import '../../services/sqflite_services.dart';
+import '../../widget/widget.dart';
 import '../../utils/utils.dart';
-// import 'offline_user_controller.dart';
 import 'user_controller.dart';
 
 class LoginController extends GetxController {

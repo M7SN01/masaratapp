@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../Controllers/cus_kshf_controller.dart';
+import '../controllers/cus_kshf_controller.dart';
 
 class CustomerKshfBinding extends Bindings {
   @override

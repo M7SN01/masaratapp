@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../utils/utils.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import '../../../Controllers/visit_plan_controller.dart';
+import '../../../controllers/visit_plan_controller.dart';
 
 class VisitPlan extends StatelessWidget {
   const VisitPlan({super.key});

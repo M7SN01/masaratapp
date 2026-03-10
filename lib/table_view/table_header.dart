@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:masaratapp/App/Views/Admin/Controllers/table_controller.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import '../../../../../Widget/loding_dots.dart';
-import '../../../../../utils/utils.dart';
-import 'Table.dart';
+import '../Widget/loding_dots.dart';
+import '../utils/utils.dart';
+// import '../app/views/admin/other/table_view/table.dart';
+import 'controllers/table_controller.dart';
 import 'options/table_options.dart';
+import 'table.dart';
 
 class TableSetting extends StatelessWidget {
   final PlutoGridStateManager stateManager;
@@ -233,7 +234,7 @@ Widget tableHeader({required TableOptions tableOptions, required PlutoGridStateM
                       strokeWidth: 2,
                     ))
                 : IconButton(
-                    onPressed: () => controller.exportToPDF(columns: tableOptions.tableColumns, rows: tableOptions.tableRows, pdfTitle: tableOptions.pdfTitle)
+                    onPressed: () => controller.exportToPDF(tableOptions: tableOptions)
                     /*
                           () async {
                             //

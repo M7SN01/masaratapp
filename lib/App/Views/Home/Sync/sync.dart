@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../Controllers/offline_user_controller.dart';
+import '../../../controllers/offline_user_controller.dart';
 import '../../../../utils/utils.dart';
 
 class OfflineSqflite extends StatelessWidget {

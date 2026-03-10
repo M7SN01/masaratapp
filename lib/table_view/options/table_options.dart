@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../../../../../utils/utils.dart';
+import '../../utils/utils.dart';
 
 class TableOptions {
   /*final*/ bool isLoadingData;
@@ -10,6 +10,7 @@ class TableOptions {
   /*final*/ List<PlutoRow> tableRows;
   /*final*/ List<PlutoColumn> tableColumns;
   /*final*/ String? pdfTitle;
+  String? fromToDate;
   /*final*/ String? fullScreenTitle;
   // double? totalAll;
 
@@ -44,6 +45,7 @@ class TableOptions {
     required this.tableRows,
     required List<PlutoColumn> tableColumns,
     this.pdfTitle = "",
+    this.fromToDate,
     this.fullScreenTitle,
     this.pagetion = false,
     this.showColumnFilter = false,
@@ -92,6 +94,7 @@ class TableOptions {
     List<PlutoRow>? tableRows,
     List<PlutoColumn>? tableColumns,
     String? pdfTitle,
+    String? fromToDate,
     String? fullScreenTitle,
     List<String>? columnGroups,
     String? groupRowByColumnName,
@@ -117,6 +120,7 @@ class TableOptions {
       tableRows: tableRows != null ? List<PlutoRow>.from(tableRows) : List<PlutoRow>.from(this.tableRows),
       tableColumns: tableColumns != null ? List<PlutoColumn>.from(tableColumns) : List<PlutoColumn>.from(this.tableColumns),
       pdfTitle: pdfTitle ?? this.pdfTitle,
+      fromToDate: fromToDate ?? this.fromToDate,
       fullScreenTitle: fullScreenTitle ?? this.fullScreenTitle,
       columnGroups: columnGroups ?? List<String>.from(this.columnGroups),
       groupRowByColumnName: groupRowByColumnName ?? this.groupRowByColumnName,
@@ -239,20 +243,38 @@ double getSumOfAllCellsByFiled(List<PlutoRow> rows, String filed) {
 List<PlutoColumnGroup> createColumnGroup(List<String> ls, List<PlutoRow> rows, {String title = ""}) {
   List<PlutoColumnGroup> totals = [];
   for (var element in ls) {
-    totals.add(PlutoColumnGroup(
-      title: "",
-      fields: [element],
-      backgroundColor: primaryColor,
-      titleTextAlign: PlutoColumnTextAlign.right,
-      titleSpan: WidgetSpan(
-        child: Text(
-          formatCurrency(getSumOfAllCellsByFiled(rows, element).toString()),
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 2,
+    if (element.contains('COUNT=>')) {
+      totals.add(PlutoColumnGroup(
+        title: "",
+        fields: [element.replaceAll('COUNT=>', '')],
+        backgroundColor: primaryColor,
+        titleTextAlign: PlutoColumnTextAlign.right,
+        titleSpan: WidgetSpan(
+          child: Text(
+            " عدد : ${rows.length}",
+            //  getSumOfAllCellsByFiled(rows, element).toString(),
+            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+          ),
         ),
-      ),
-    ));
+      ));
+    } else {
+      totals.add(PlutoColumnGroup(
+        title: "",
+        fields: [element],
+        backgroundColor: primaryColor,
+        titleTextAlign: PlutoColumnTextAlign.right,
+        titleSpan: WidgetSpan(
+          child: Text(
+            formatCurrency(getSumOfAllCellsByFiled(rows, element).toString()),
+            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+          ),
+        ),
+      ));
+    }
   }
   return totals;
 }

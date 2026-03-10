@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import '../../Print/pdf_viewer.dart';
+import '../../print/pdf_viewer.dart';
 import '../../samples/slmaples.dart';
-import '../Controllers/user_controller.dart';
-import '../Models/user_model.dart';
-import '../../Services/api_db_services.dart';
-import '../../Widget/widget.dart';
+import 'user_controller.dart';
+import '../../app/models/user_model.dart';
+import '../../services/api_db_services.dart';
+import '../../widget/widget.dart';
 import '../../utils/utils.dart';
 
 class AmountCompare {

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 // import 'package:path_provider/path_provider.dart';
 // import 'package:zerotier_sockets/zerotier_sockets.dart';
 import 'dart:convert';
-import '../Widget/widget.dart';
+import '../widget/widget.dart';
 import '../utils/utils.dart';
 
 String? protocol; // = "http";

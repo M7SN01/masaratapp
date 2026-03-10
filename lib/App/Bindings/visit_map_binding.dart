@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import '../../../App/Controllers/visit_plan_controller.dart';
+import '../../../app/controllers/visit_plan_controller.dart';
 
-import '../Controllers/visit_map_controller.dart';
+import '../controllers/visit_map_controller.dart';
 
 class VisitMapBinding extends Bindings {
   @override

@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../../../Controllers/login_controller.dart';
-import '../../../../Locale/locale_controller.dart';
-import '../Splash_Screen/splash_view.dart';
+import '../../../controllers/login_controller.dart';
+import '../../../../locale/locale_controller.dart';
+import '../splash_screen/splash_view.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});

@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../Controllers/act_kshf_controller.dart';
+import '../controllers/act_kshf_controller.dart';
 
 class ActKshfBinding extends Bindings {
   @override

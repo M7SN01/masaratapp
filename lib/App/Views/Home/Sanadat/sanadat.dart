@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../../../Controllers/sanadat_controller.dart';
+import '../../../controllers/sanadat_controller.dart';
 import '../../../../Widget/pick_date.dart';
 import '../../../../utils/utils.dart';
 import '../../../../Widget/widget.dart';
@@ -271,7 +271,7 @@ class Sanadat extends StatelessWidget {
                         children: [
                           PickDateW(
                             filedHeight: 60,
-                            enabled: !controller.isPostedBefor,
+                            enabled: false, // !controller.isPostedBefor,
                             // expandedFlix: 2,
                             labelText: "اختر تاريخ",
                             dateDontroller: controller.date,

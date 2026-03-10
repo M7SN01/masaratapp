@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../../../../Widget/loding_dots.dart';
+import '../../../../widget/loding_dots.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import '../../../Controllers/cus_balance_controller.dart';
-import '../../../../Widget/pick_date.dart';
+import '../../../../app/controllers/cus_balance_controller.dart';
+import '../../../../widget/pick_date.dart';
 import '../../../../utils/utils.dart';
-import '../../../../Widget/widget.dart';
+import '../../../../widget/widget.dart';
 
 class CustomerBalance extends StatelessWidget {
   const CustomerBalance({super.key});

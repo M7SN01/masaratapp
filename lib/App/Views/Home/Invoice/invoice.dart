@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../Controllers/invoice_controller.dart';
+import '../../../controllers/invoice_controller.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import '../../../../utils/utils.dart';
-import '../../../../Widget/widget.dart';
+import '../../../../widget/widget.dart';
 
 class Invoice extends StatelessWidget {
   const Invoice({super.key});
@@ -15,6 +15,8 @@ class Invoice extends StatelessWidget {
       builder: (controller) => Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          title: Text("فاتورة مبيعات"),
+          centerTitle: true,
           actions: [
             IconButton(
               onPressed: () {

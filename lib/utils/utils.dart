@@ -99,6 +99,16 @@ void copyTextToClipboard(String text) {
   Clipboard.setData(ClipboardData(text: text));
 }
 
+void printLongString(String text) {
+  const int chunkSize = 800;
+  for (int i = 0; i < text.length; i += chunkSize) {
+    print(text.substring(
+      i,
+      i + chunkSize > text.length ? text.length : i + chunkSize,
+    ));
+  }
+}
+
 Future<void> shareTextFile(String textContent, String fileName) async {
   final params = ShareParams(
     files: [

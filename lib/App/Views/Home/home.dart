@@ -1,15 +1,13 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../App/Controllers/offline_user_controller.dart';
-// import 'package:masaratapp/App/Views/zero/view.dart';
-import '../../../Widget/loding_dots.dart';
+import '../../../app/controllers/offline_user_controller.dart';
+import '../../../widget/loding_dots.dart';
 import 'package:shimmer/shimmer.dart';
-// import '../../Bindings/offline_binding.dart';
-import '../../Controllers/login_controller.dart';
-import '../../Controllers/user_controller.dart';
+import '../../../widget/widget.dart';
+import '../../controllers/login_controller.dart';
+import '../../../app/controllers/user_controller.dart';
 import '../../../utils/utils.dart';
-// import '../Sync/sync.dart';
 
 class WelcomeSplashScreen extends StatelessWidget {
   final String userName;
@@ -199,15 +197,15 @@ class Home extends StatelessWidget {
                     // Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
                   },
                 ),
-
-                mainGraid(
-                  icon: Icons.inventory_outlined,
-                  title: "تقارير ادارية",
-                  onTap: () {
-                    Get.toNamed('/SlsByslsCntr');
-                    // Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
-                  },
-                ),
+                if (userController.uIsAdmin)
+                  mainGraid(
+                    icon: Icons.inventory_outlined,
+                    title: "تقارير ادارية",
+                    onTap: () {
+                      Get.toNamed('/ManagerHome');
+                      // Get.to(() => const CustomerKshf(), binding: CustomerKshfBinding());
+                    },
+                  ),
                 // mainGraid(
                 //commited lines with this commit:
                 //in home.dart  await userController.syncLocalDataToserver();
@@ -232,31 +230,6 @@ class Home extends StatelessWidget {
               // ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget mainGraid({required IconData icon, required String title, required Function onTap}) {
-    return Material(
-      color: primaryColor,
-      borderRadius: BorderRadius.circular(12),
-      elevation: 2,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        splashColor: Color(0XFFdaeefa),
-        onTap: () => onTap(),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon, // Replace with an appropriate icon
-              size: 100,
-              color: Colors.white,
-            ),
-            const SizedBox(height: 8),
-            Center(child: Text(textAlign: TextAlign.center, title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
-          ],
         ),
       ),
     );

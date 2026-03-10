@@ -1,16 +1,16 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:masaratapp/App/Controllers/user_controller.dart';
-import 'package:masaratapp/App/Views/Admin/other/TableView/options/table_options.dart';
+// import '../../../controllers/user_controller.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-
-import '../../../../Print/pdf_viewer.dart';
-import '../../../../Services/api_db_services.dart';
-import '../../../../Widget/widget.dart';
-import '../../../../samples/slmaples.dart';
-import '../../../../utils/utils.dart';
-import '../other/TableView/tools/export_excel.dart';
+import '../../app/controllers/user_controller.dart';
+import '../../print/pdf_viewer.dart';
+import '../../services/api_db_services.dart';
+import '../../widget/widget.dart';
+import '../../samples/slmaples.dart';
+import '../../utils/utils.dart';
+import '../options/table_options.dart';
+import '../tools/export_excel.dart';
 
 class TableController extends GetxController {
   final Services dbServices = Services();
@@ -177,14 +177,14 @@ class TableController extends GetxController {
 
 //
 //
-  Map<String, dynamic> getVariablesData({required List<PlutoColumn> columns, required List<PlutoRow> rows, String? pdfTitle}) {
+  Map<String, dynamic> getVariablesData({required TableOptions tableOptions}) {
     List<Map<String, dynamic>> rowsTmpList = [];
     List<String> headerList = [];
     Map<String, dynamic> fotterMaptotals = {};
     //
     //
     //only header in the appare columns
-    for (var column in columns) {
+    for (var column in tableOptions.tableColumns) {
       if (!column.hide) {
         headerList.add(column.title);
         //initilize fotter cells
@@ -196,12 +196,12 @@ class TableController extends GetxController {
       }
     }
 
-    for (var row in rows) {
+    for (var row in tableOptions.tableRows) {
       Map<String, dynamic> rowMap = {};
       //only row in the appare columns
-      for (var column in columns) {
+      for (var column in tableOptions.tableColumns) {
         if (!column.hide) {
-          rowMap[column.field] = row.cells[column.field]?.value;
+          rowMap[column.field] = formatCurrency((row.cells[column.field]?.value).toString());
           if (column.type is PlutoColumnTypeCurrency) {
             fotterMaptotals[column.field] += row.cells[column.field]?.value ?? 0.0;
           }
@@ -216,7 +216,6 @@ class TableController extends GetxController {
       },
     ));
     //
-
     return {
       "a_comp_name": userController.compData.aCompName,
       "a_activity": userController.compData.aActivity,
@@ -226,21 +225,23 @@ class TableController extends GetxController {
       "e_comp_name": userController.compData.eCompName,
       "e_activity": userController.compData.eActivity,
       //
-      "title": pdfTitle,
+      "title": tableOptions.pdfTitle,
+      if (tableOptions.fromToDate != null) "frm_to_date": "${tableOptions.fromToDate}",
+
       //
       "header_list": headerList,
       "repeat_element": rowsTmpList,
     };
   }
 
-  void exportToPDF({required List<PlutoColumn> columns, required List<PlutoRow> rows, String? pdfTitle}) {
-    if (rows.isEmpty) {
+  void exportToPDF({required TableOptions tableOptions}) {
+    if (tableOptions.tableRows.isEmpty) {
       showMessage(color: secondaryColor, titleMsg: "لايوجد بيانات لطباعتها !", durationMilliseconds: 1000);
     } else {
       PrintSamples ps = PrintSamples(compData: userController.compData);
       Get.to(() => PdfPreviewScreen(
             jsonLayout: ps.getGenralSample,
-            variables: getVariablesData(columns: columns, rows: rows, pdfTitle: pdfTitle),
+            variables: getVariablesData(tableOptions: tableOptions),
           ));
     }
   }

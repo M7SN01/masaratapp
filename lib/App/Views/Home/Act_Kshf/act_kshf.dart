@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../Widget/loding_dots.dart';
+import '../../../../widget/loding_dots.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import '../../../Controllers/act_kshf_controller.dart';
-import '../../../../Widget/pick_date.dart';
+import '../../../../widget/search_chk_box.dart';
+import '../../../controllers/act_kshf_controller.dart';
+import '../../../../widget/pick_date.dart';
 import '../../../../utils/utils.dart';
-import '../../../../Widget/widget.dart';
+import '../../../../widget/widget.dart';
 
 class ActKshf extends StatelessWidget {
   const ActKshf({super.key});
@@ -160,7 +161,64 @@ class ActKshf extends StatelessWidget {
                           ),
 
                     SizedBox(width: 5),
-                    //Search ...
+                    Expanded(
+                      // flex: 1,
+                      child: GestureDetector(
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: controller.selectedActType == "" ? primaryColor : secondaryColor,
+                            border: Border.all(color: Colors.grey, width: 1),
+                            borderRadius: BorderRadius.circular(5),
+                            shape: BoxShape.rectangle,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.checklist_rounded, color: Colors.white),
+                              const SizedBox(width: 10),
+                              Text(
+                                "إختر حركات",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: () {
+                          showDialog(
+                            useSafeArea: true,
+                            context: context,
+                            builder: (context) {
+                              return CheckboxListWithSearch(
+                                title: "اختر حركات",
+                                originalData: controller.acts.map((e) => SearchList(id: e.id, name: e.name, state: e.state)).toList(),
+                                OnSave: (filteredOptions) {
+                                  controller.selectedActType = filteredOptions
+                                      .where((item) => item.state) // Filter items where state is true
+                                      .map((item) => "'${item.id}'")
+                                      .join(',');
+                                  // print(_selectedslsCntr);
+                                  controller.acts = filteredOptions;
+
+                                  controller.selectedActType;
+                                  controller.update();
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 5),
+
+//Search ...
+                Row(
+                  children: [
                     controller.isPostingToApi
                         ? Expanded(
                             child: Container(

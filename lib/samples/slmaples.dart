@@ -1,7 +1,7 @@
 // import 'package:masaratapp/App/utils/utils.dart';
 
-import '../App/Models/user_model.dart';
-import '../Print/helpers/widgets_to_json.dart';
+import '../app/models/user_model.dart';
+import '../print/helpers/widgets_to_json.dart';
 
 class PrintSamples {
   late CompData _compData;
@@ -2572,6 +2572,12 @@ class PrintSamples {
             mainAxisAlignment: "center",
             children: [
               textW("{{title}}", fontSize: 16, fontWeight: "bold"),
+            ],
+          ),
+          rowW(
+            mainAxisAlignment: "center",
+            children: [
+              textW("{{frm_to_date}}", fontSize: 14),
             ],
           ),
 

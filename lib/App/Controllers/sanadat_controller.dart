@@ -3,14 +3,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 // import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:intl/intl.dart';
-import '../../Services/sqflite_services.dart';
+import '../../services/sqflite_services.dart';
 import '../../samples/slmaples.dart';
 import 'package:sqflite/sqflite.dart';
-import '../Models/user_model.dart';
-import '../../Print/direct_print.dart';
-import '../../Print/pdf_viewer.dart';
-import '../../Services/api_db_services.dart';
-import '../../Widget/widget.dart';
+import '../models/user_model.dart';
+import '../../print/direct_print.dart';
+import '../../print/pdf_viewer.dart';
+import '../../services/api_db_services.dart';
+import '../../widget/widget.dart';
 import '../../utils/utils.dart';
 import 'login_controller.dart';
 import 'user_controller.dart';
@@ -52,6 +52,7 @@ class SanadatController extends GetxController {
     // sanadatAct = userController.actPrivList.where((e) => [int.parse("53${userController.uId}"), int.parse("57${userController.uId}")].contains(e.actId)).toList();
     cusData = userController.cusDataList;
     compData = userController.compData;
+    date.text = DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
     super.onInit();
   }
 
@@ -539,7 +540,8 @@ class SanadatController extends GetxController {
 
                       selectedSanadTypeId = item['ACC_TYPE'].toString();
                       selectedSanadType = item['ACT_NAME'].toString();
-                      savedSanadId = item['ACC_HD_ID'].toString();
+                      savedSanadId = //item['ACC_HD_ID'].toString();
+                          "${item['ACT_NAME']}  ( ${item['ACC_HD_ID'].toStringAsFixed(0)} )";
                       selecetdCustomer = controller.cusData.firstWhereOrNull((c) => c.cusId == item['CUS_ID']);
                       date.text = item['DATE1'].toString();
                       amount.text = item['AMNT'].toStringAsFixed(2);

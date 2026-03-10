@@ -2,6 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../utils/utils.dart';
 
+Widget mainGraid({required IconData icon, required String title, required Function onTap}) {
+  return Material(
+    color: primaryColor,
+    borderRadius: BorderRadius.circular(12),
+    elevation: 2,
+    child: InkWell(
+      borderRadius: BorderRadius.circular(12),
+      splashColor: Color(0XFFdaeefa),
+      onTap: () => onTap(),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon, // Replace with an appropriate icon
+            size: 100,
+            color: Colors.white,
+          ),
+          const SizedBox(height: 8),
+          Center(child: Text(textAlign: TextAlign.center, title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
+        ],
+      ),
+    ),
+  );
+}
+
 Widget dropDownList({
   required Function(String?) callback,
   required List<String> showedList,
